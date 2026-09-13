@@ -1,0 +1,215 @@
+{
+  "users": [
+    {
+      "id": "admin",
+      "username": "admin",
+      "password": "password",
+      "role": "master"
+    }
+  ],
+  "brands": [
+    {
+      "id": "b1",
+      "name": "Apple",
+      "order": 1,
+      "isHidden": false
+    },
+    {
+      "id": "b2",
+      "name": "Samsung",
+      "order": 2,
+      "isHidden": false
+    },
+    {
+      "id": "b3",
+      "name": "OPPO",
+      "order": 3,
+      "isHidden": false
+    },
+    {
+      "id": "b4",
+      "name": "vivo",
+      "order": 4,
+      "isHidden": false
+    },
+    {
+      "id": "b5",
+      "name": "Xiaomi",
+      "order": 5,
+      "isHidden": false
+    }
+  ],
+  "products": [
+    {
+      "id": "7988c35d-bbc9-4b05-8b36-c5c878dfd1df",
+      "category": "Mobile",
+      "brandId": "b1",
+      "model": "iPhone 15",
+      "detail": "รองรับ 5G, ชิป A16 Bionic",
+      "specs": {
+        "screen": "6.1-inch Super Retina XDR OLED",
+        "chipset": "A16 Bionic",
+        "camera": "Dual 48MP Main, 12MP Ultra Wide",
+        "battery": "3349 mAh",
+        "os": "iOS 17",
+        "weight": "171g"
+      },
+      "isHidden": false,
+      "variants": [
+        {
+          "id": "78dzvo",
+          "ram": "",
+          "rom": "128GB",
+          "retailPrice": 28900,
+          "wholesalePrice": 27500,
+          "colors": [
+            {
+              "id": "ccc5qm",
+              "colorName": "Black",
+              "sku": "IP15-128-BLK",
+              "stock": 8,
+              "imageUrl": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=600&auto=format&fit=crop&q=80"
+            },
+            {
+              "id": "ansjo",
+              "colorName": "Blue",
+              "sku": "IP15-128-BLU",
+              "stock": 5,
+              "imageUrl": "https://images.unsplash.com/photo-1695048133148-f8605ee71569?w=600&auto=format&fit=crop&q=80"
+            },
+            {
+              "id": "cgreen",
+              "colorName": "Green",
+              "sku": "IP15-128-GRN",
+              "stock": 4,
+              "imageUrl": "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=600&auto=format&fit=crop&q=80"
+            }
+          ]
+        },
+        {
+          "id": "ip15-256",
+          "ram": "",
+          "rom": "256GB",
+          "retailPrice": 32900,
+          "wholesalePrice": 31200,
+          "colors": [
+            {
+              "id": "c-blk-256",
+              "colorName": "Black",
+              "sku": "IP15-256-BLK",
+              "stock": 6,
+              "imageUrl": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=600&auto=format&fit=crop&q=80"
+            },
+            {
+              "id": "c-blu-256",
+              "colorName": "Blue",
+              "sku": "IP15-256-BLU",
+              "stock": 3,
+              "imageUrl": "https://images.unsplash.com/photo-1695048133148-f8605ee71569?w=600&auto=format&fit=crop&q=80"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s24-demo-id",
+      "category": "Mobile",
+      "brandId": "b2",
+      "model": "Galaxy S24",
+      "detail": "Galaxy AI, ชิป Exynos 2400",
+      "specs": {
+        "screen": "6.2-inch Dynamic AMOLED 2X 120Hz",
+        "chipset": "Exynos 2400 / Snapdragon 8 Gen 3",
+        "camera": "50MP Main + 12MP UW + 10MP Tele",
+        "battery": "4000 mAh 25W Fast Charge",
+        "os": "Android 14 (One UI 6.1)",
+        "weight": "167g"
+      },
+      "isHidden": false,
+      "variants": [
+        {
+          "id": "v-s24-256",
+          "ram": "8GB",
+          "rom": "256GB",
+          "retailPrice": 31900,
+          "wholesalePrice": 29900,
+          "colors": [
+            {
+              "id": "s24-c1",
+              "colorName": "Onyx Black",
+              "sku": "S24-8-256-BLK",
+              "stock": 7,
+              "imageUrl": "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=600&auto=format&fit=crop&q=80"
+            },
+            {
+              "id": "s24-c2",
+              "colorName": "Marble Gray",
+              "sku": "S24-8-256-GRY",
+              "stock": 4,
+              "imageUrl": "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=600&auto=format&fit=crop&q=80"
+            },
+            {
+              "id": "s24-c3",
+              "colorName": "Cobalt Violet",
+              "sku": "S24-8-256-VIO",
+              "stock": 2,
+              "imageUrl": "https://images.unsplash.com/photo-1580910051074-3eb694886505?w=600&auto=format&fit=crop&q=80"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ipad-air-demo",
+      "category": "Tablet",
+      "brandId": "b1",
+      "model": "iPad Air (M2)",
+      "detail": "11 นิ้ว Wi-Fi",
+      "specs": {
+        "screen": "11-inch Liquid Retina Display",
+        "chipset": "Apple M2 Chip",
+        "camera": "12MP Wide, 12MP Center Stage",
+        "battery": "28.93-watt-hour battery",
+        "os": "iPadOS 17",
+        "weight": "462g"
+      },
+      "isHidden": false,
+      "variants": [
+        {
+          "id": "v-ipad-128",
+          "ram": "",
+          "rom": "128GB",
+          "retailPrice": 23900,
+          "wholesalePrice": 22700,
+          "colors": [
+            {
+              "id": "ipad-c1",
+              "colorName": "Space Gray",
+              "sku": "IPADAIR-128-GRY",
+              "stock": 5,
+              "imageUrl": "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=600&auto=format&fit=crop&q=80"
+            },
+            {
+              "id": "ipad-c2",
+              "colorName": "Starlight",
+              "sku": "IPADAIR-128-STL",
+              "stock": 3,
+              "imageUrl": "https://images.unsplash.com/photo-1561154464-82e9adf32764?w=600&auto=format&fit=crop&q=80"
+            },
+            {
+              "id": "ipad-c3",
+              "colorName": "Blue",
+              "sku": "IPADAIR-128-BLU",
+              "stock": 3,
+              "imageUrl": "https://images.unsplash.com/photo-1585792180666-f7347c490ee2?w=600&auto=format&fit=crop&q=80"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "settings": {
+    "lowStockThreshold": 5,
+    "syncStatus": "idle"
+  }
+}

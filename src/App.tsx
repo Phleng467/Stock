@@ -1,0 +1,117 @@
+import { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { motion, AnimatePresence } from 'motion/react';
+import Storefront from './pages/Storefront';
+import AdminLayout from './pages/admin/AdminLayout';
+import Dashboard from './pages/admin/Dashboard';
+import ProductList from './pages/admin/ProductList';
+import ProductForm from './pages/admin/ProductForm';
+import BrandManager from './pages/admin/BrandManager';
+import Settings from './pages/admin/Settings';
+import Login from './pages/Login';
+
+function SplashScreen() {
+  return (
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0, scale: 0.98 }}
+      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      className="fixed inset-0 bg-[#0c0d0e] z-50 flex flex-col items-center justify-center p-6 select-none overflow-hidden"
+    >
+      {/* Ambient background glow */}
+      <div className="absolute w-72 h-72 rounded-full bg-red-600/15 blur-3xl pointer-events-none -top-10 -right-10 animate-pulse" style={{ animationDuration: '4s' }} />
+      <div className="absolute w-80 h-80 rounded-full bg-orange-600/10 blur-3xl pointer-events-none -bottom-10 -left-10 animate-pulse" style={{ animationDuration: '6s' }} />
+
+      <motion.div 
+        initial={{ y: 20, opacity: 0, scale: 0.95 }}
+        animate={{ y: 0, opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        className="relative flex flex-col items-center max-w-sm w-full text-center space-y-6"
+      >
+        {/* Sleek Minimalist Brand Logo / Icon */}
+        <div className="relative group">
+          <div className="w-20 h-20 rounded-3xl bg-gradient-to-b from-zinc-800 to-zinc-900 border border-zinc-700/60 flex items-center justify-center p-3 shadow-2xl shadow-red-600/20">
+            <img 
+              src="/logo.png" 
+              alt="Jaymart Logo" 
+              className="w-full h-full object-contain filter drop-shadow-md" 
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+                e.currentTarget.nextElementSibling?.classList.remove('hidden');
+              }} 
+            />
+            <div className="hidden font-black text-2xl text-red-500 tracking-tighter">
+              JM
+            </div>
+          </div>
+          {/* Subtle pulse ring */}
+          <span className="absolute -inset-1 rounded-3xl bg-red-500/20 blur-sm -z-10 animate-ping" style={{ animationDuration: '2.5s' }} />
+        </div>
+
+        {/* Storefront Typography */}
+        <div className="space-y-1.5">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-800/80 border border-zinc-700/50 text-[11px] font-medium text-zinc-300 tracking-wide backdrop-blur-md">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span>LIVE INVENTORY • สุรินทร์</span>
+          </div>
+          <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight pt-1">
+            JAYMART <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-400">SURIN</span>
+          </h1>
+          <p className="text-xs text-zinc-400 font-normal">
+            โรบินสันสุรินทร์ ชั้น 2
+          </p>
+        </div>
+
+        {/* Minimalist Gen Z Progress Track */}
+        <div className="w-44 space-y-2 pt-2">
+          <div className="h-1 w-full bg-zinc-800/90 rounded-full overflow-hidden relative">
+            <motion.div 
+              initial={{ x: '-100%' }}
+              animate={{ x: '100%' }}
+              transition={{ repeat: Infinity, duration: 1.2, ease: 'easeInOut' }}
+              className="h-full w-1/2 bg-gradient-to-r from-transparent via-red-500 to-transparent rounded-full"
+            />
+          </div>
+          <p className="text-[10px] text-zinc-500 font-mono tracking-wider">
+            SYNCHRONIZING...
+          </p>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+export default function App() {
+  const [showSplash, setShowSplash] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+    }, 1400);
+    return () => clearTimeout(timer);
+  }, []);
+
+  return (
+    <>
+      <AnimatePresence mode="wait">
+        {showSplash && <SplashScreen key="splash" />}
+      </AnimatePresence>
+
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Storefront />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<Dashboard />} />
+            <Route path="products" element={<ProductList />} />
+            <Route path="products/new" element={<ProductForm />} />
+            <Route path="products/edit/:id" element={<ProductForm />} />
+            <Route path="brands" element={<BrandManager />} />
+            <Route path="settings" element={<Settings />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </>
+  );
+}

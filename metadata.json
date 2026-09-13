@@ -1,0 +1,6 @@
+{
+  "name": "สต็อคสินค้า ร้าน เจมาร์ท สาขาโรบินสันสุรินทร์ ชั้น 2",
+  "description": "ระบบจัดการสต็อคและแสดงรายการสินค้า ร้านเจมาร์ท สาขาโรบินสันสุรินทร์ ชั้น 2",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
