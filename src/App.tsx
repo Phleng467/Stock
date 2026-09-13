@@ -17,11 +17,11 @@ function SplashScreen() {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0, scale: 0.98 }}
       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-      className="fixed inset-0 bg-[#0c0d0e] z-50 flex flex-col items-center justify-center p-6 select-none overflow-hidden"
+      className="fixed inset-0 bg-zinc-50 z-50 flex flex-col items-center justify-center p-6 select-none overflow-hidden"
     >
       {/* Ambient background glow */}
-      <div className="absolute w-72 h-72 rounded-full bg-red-600/15 blur-3xl pointer-events-none -top-10 -right-10 animate-pulse" style={{ animationDuration: '4s' }} />
-      <div className="absolute w-80 h-80 rounded-full bg-orange-600/10 blur-3xl pointer-events-none -bottom-10 -left-10 animate-pulse" style={{ animationDuration: '6s' }} />
+      <div className="absolute w-72 h-72 rounded-full bg-red-500/10 blur-3xl pointer-events-none -top-10 -right-10 animate-pulse" style={{ animationDuration: '4s' }} />
+      <div className="absolute w-80 h-80 rounded-full bg-orange-500/10 blur-3xl pointer-events-none -bottom-10 -left-10 animate-pulse" style={{ animationDuration: '6s' }} />
 
       <motion.div 
         initial={{ y: 20, opacity: 0, scale: 0.95 }}
@@ -31,41 +31,41 @@ function SplashScreen() {
       >
         {/* Sleek Minimalist Brand Logo / Icon */}
         <div className="relative group">
-          <div className="w-20 h-20 rounded-3xl bg-gradient-to-b from-zinc-800 to-zinc-900 border border-zinc-700/60 flex items-center justify-center p-3 shadow-2xl shadow-red-600/20">
+          <div className="w-20 h-20 rounded-3xl bg-white border border-zinc-200 flex items-center justify-center p-3 shadow-xl shadow-red-500/10">
             <img 
               src="/logo.png" 
               alt="Jaymart Logo" 
-              className="w-full h-full object-contain filter drop-shadow-md" 
+              className="w-full h-full object-contain" 
               onError={(e) => {
                 e.currentTarget.style.display = 'none';
                 e.currentTarget.nextElementSibling?.classList.remove('hidden');
               }} 
             />
-            <div className="hidden font-black text-2xl text-red-500 tracking-tighter">
+            <div className="hidden font-black text-2xl text-red-600 tracking-tighter">
               JM
             </div>
           </div>
           {/* Subtle pulse ring */}
-          <span className="absolute -inset-1 rounded-3xl bg-red-500/20 blur-sm -z-10 animate-ping" style={{ animationDuration: '2.5s' }} />
+          <span className="absolute -inset-1 rounded-3xl bg-red-500/10 blur-sm -z-10 animate-ping" style={{ animationDuration: '2.5s' }} />
         </div>
 
         {/* Storefront Typography */}
         <div className="space-y-1.5">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-800/80 border border-zinc-700/50 text-[11px] font-medium text-zinc-300 tracking-wide backdrop-blur-md">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-zinc-200 text-[11px] font-medium text-zinc-600 tracking-wide shadow-sm">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             <span>LIVE INVENTORY • สุรินทร์</span>
           </div>
-          <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight pt-1">
-            JAYMART <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-400">SURIN</span>
+          <h1 className="text-xl sm:text-2xl font-black text-zinc-900 tracking-tight pt-1">
+            JAYMART <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-orange-500">SURIN</span>
           </h1>
-          <p className="text-xs text-zinc-400 font-normal">
+          <p className="text-xs text-zinc-500 font-normal">
             โรบินสันสุรินทร์ ชั้น 2
           </p>
         </div>
 
         {/* Minimalist Gen Z Progress Track */}
         <div className="w-44 space-y-2 pt-2">
-          <div className="h-1 w-full bg-zinc-800/90 rounded-full overflow-hidden relative">
+          <div className="h-1 w-full bg-zinc-200 rounded-full overflow-hidden relative">
             <motion.div 
               initial={{ x: '-100%' }}
               animate={{ x: '100%' }}
@@ -73,7 +73,7 @@ function SplashScreen() {
               className="h-full w-1/2 bg-gradient-to-r from-transparent via-red-500 to-transparent rounded-full"
             />
           </div>
-          <p className="text-[10px] text-zinc-500 font-mono tracking-wider">
+          <p className="text-[10px] text-zinc-400 font-mono tracking-wider">
             SYNCHRONIZING...
           </p>
         </div>
@@ -83,14 +83,18 @@ function SplashScreen() {
 }
 
 export default function App() {
-  const [showSplash, setShowSplash] = useState(true);
+  const [showSplash, setShowSplash] = useState(() => {
+    return !sessionStorage.getItem('jaymart_app_loaded');
+  });
 
   useEffect(() => {
+    if (!showSplash) return;
     const timer = setTimeout(() => {
       setShowSplash(false);
+      sessionStorage.setItem('jaymart_app_loaded', 'true');
     }, 1400);
     return () => clearTimeout(timer);
-  }, []);
+  }, [showSplash]);
 
   return (
     <>

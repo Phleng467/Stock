@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, MouseEvent } from 'react';
-import { Search, Loader2, LogIn, X, Smartphone, Tablet, SlidersHorizontal, RotateCcw, Sparkles, History, Layers, Calculator, ExternalLink } from 'lucide-react';
+import { Search, Loader2, LogIn, X, Smartphone, Tablet, SlidersHorizontal, RotateCcw, Sparkles, History, Layers, Calculator, ExternalLink, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { api } from '../lib/api';
@@ -22,6 +22,7 @@ export default function Storefront() {
   const [comparedProductIds, setComparedProductIds] = useState<string[]>([]);
   const [showCompareModal, setShowCompareModal] = useState(false);
   const [compareToast, setCompareToast] = useState<string | null>(null);
+  const [lastUpdatedAt, setLastUpdatedAt] = useState<Date | null>(null);
 
   // Load recent searches from localStorage
   useEffect(() => {
@@ -124,19 +125,25 @@ export default function Storefront() {
     Promise.all([api.getBrands(), api.getProducts()]).then(([b, p]) => {
       setBrands(b.filter(brand => !brand.isHidden));
       setProducts(p.filter(prod => !prod.isHidden));
+      setLastUpdatedAt(new Date());
       setLoading(false);
 
-      // Auto show promotion popup if not dismissed today
+      // Auto show promotion popup if not dismissed today or in this session
       try {
         const today = new Date().toISOString().slice(0, 10);
-        const isDismissed = localStorage.getItem('hide_jaymart_promo_' + today);
-        if (!isDismissed) {
+        const isDismissedToday = localStorage.getItem('hide_jaymart_promo_' + today);
+        const isShownInSession = sessionStorage.getItem('jaymart_promo_shown');
+        if (!isDismissedToday && !isShownInSession) {
           setTimeout(() => {
             setShowPromoModal(true);
+            sessionStorage.setItem('jaymart_promo_shown', 'true');
           }, 600);
         }
       } catch (e) {
-        setShowPromoModal(true);
+        if (!sessionStorage.getItem('jaymart_promo_shown')) {
+          setShowPromoModal(true);
+          sessionStorage.setItem('jaymart_promo_shown', 'true');
+        }
       }
     });
   }, []);
@@ -492,6 +499,14 @@ export default function Storefront() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full">
+        {/* Last Updated Timestamp & Results Summary Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+          <div className="text-[10px] text-zinc-400 flex items-center gap-1.5 font-medium bg-zinc-50 px-2 py-1 rounded-md w-fit border border-zinc-100">
+            <Clock className="w-3 h-3 text-blue-500" />
+            <span>อัปเดตข้อมูลล่าสุด: {lastUpdatedAt ? lastUpdatedAt.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : 'กำลังโหลด...'}</span>
+          </div>
+        </div>
+
         {/* Results summary bar when filter/search is applied - Without numbers */}
         {(searchQuery || selectedCategory !== 'ALL' || activeBrand !== null) && (
           <div className="flex flex-wrap items-center justify-between gap-2 mb-5 pb-3 border-b border-gray-200/60">

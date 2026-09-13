@@ -11,4 +11,24 @@
 
 body {
   @apply bg-gray-50 text-gray-900 font-sans antialiased;
+  touch-action: pan-y;
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+
+html {
+  overflow-x: hidden;
+  touch-action: pan-y;
+}
+
+/* Prevent auto-zoom in iOS Safari on inputs by ensuring at least 16px font or touch-action handling */
+input, select, textarea {
+  font-size: max(16px, 1rem);
+}
+
+/* Allow compact sizes on desktop while keeping iOS from zooming */
+@media (min-width: 640px) {
+  input, select, textarea {
+    font-size: inherit;
+  }
 }

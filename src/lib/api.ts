@@ -38,6 +38,38 @@ export const api = {
     if (!res.ok) throw new Error('Spec fetch failed');
     return res.json();
   },
+  addProductsBulk: async (products: Partial<Product>[]) => {
+    const res = await fetch(`${API_BASE}/products/bulk`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(products)
+    });
+    return res.json();
+  },
+  generateImageAI: async (prompt: string, aspectRatio?: string): Promise<{ url: string }> => {
+    const res = await fetch(`${API_BASE}/ai/image/generate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt, aspectRatio })
+    });
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.error || 'Failed to generate image');
+    }
+    return res.json();
+  },
+  editImageAI: async (dataUrl: string, prompt?: string): Promise<{ url: string }> => {
+    const res = await fetch(`${API_BASE}/ai/image/edit`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ dataUrl, prompt })
+    });
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.error || 'Failed to edit image');
+    }
+    return res.json();
+  },
   saveProduct: async (product: Partial<Product>) => {
     const method = product.id ? 'PUT' : 'POST';
     const url = product.id ? `${API_BASE}/products/${product.id}` : `${API_BASE}/products`;

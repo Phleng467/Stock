@@ -122,6 +122,42 @@ export default function ProductForm() {
     }
   };
 
+  const handleRemoveBackground = async (vIndex: number, cIndex: number, imageUrl: string) => {
+    if (!imageUrl) {
+      alert('ไม่มีรูปภาพสำหรับลบพื้นหลัง');
+      return;
+    }
+    
+    try {
+      setUploadingImage({ vIndex, cIndex });
+      
+      // Load image to get base64
+      const getBase64 = async (url: string) => {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        return new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+      };
+      
+      const dataUrl = await getBase64(imageUrl);
+      const res = await api.editImageAI(dataUrl, "Remove the background of this image and keep only the product. Make it a transparent PNG.");
+      
+      const newVariants = [...(form.variants || [])];
+      newVariants[vIndex].colors[cIndex].imageUrl = res.url;
+      setForm({ ...form, variants: newVariants });
+      alert('ลบพื้นหลังสำเร็จ!');
+    } catch (err: any) {
+      console.error(err);
+      alert(`ลบพื้นหลังล้มเหลว: ${err.message}`);
+    } finally {
+      setUploadingImage(null);
+    }
+  };
+
   const addVariant = () => {
     setForm(f => ({
       ...f,
@@ -673,6 +709,17 @@ export default function ProductForm() {
                                     title="สร้างภาพจำลองสินค้า"
                                   >
                                     <LayoutTemplate className="w-3 h-3 text-indigo-500" /> สร้าง
+                                  </button>
+                                </div>
+                                <div className="flex mt-0.5">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleRemoveBackground(vIndex, cIndex, previewImg)}
+                                    disabled={uploadingImage?.vIndex === vIndex && uploadingImage?.cIndex === cIndex}
+                                    className="flex-1 text-[10px] font-semibold text-purple-700 hover:text-purple-900 bg-purple-50 hover:bg-purple-100 border border-purple-200/80 px-2 py-1 rounded-full shadow-2xs active:scale-95 transition-all flex items-center justify-center gap-1 cursor-pointer disabled:opacity-50"
+                                    title="ลบพื้นหลังด้วย AI"
+                                  >
+                                    <Sparkles className="w-3 h-3 text-purple-500" /> ลบพื้นหลัง (AI)
                                   </button>
                                 </div>
                               </div>

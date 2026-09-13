@@ -1,9 +1,10 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef, ChangeEvent } from 'react';
 import { api } from '../../lib/api';
 import { Product, Brand } from '../../types';
 import { Link } from 'react-router-dom';
-import { Plus, Edit, EyeOff, Eye, Search, X, Smartphone, Tablet, Filter, PackageSearch, Sparkles, Hash } from 'lucide-react';
+import { Plus, Edit, EyeOff, Eye, Search, X, Smartphone, Tablet, Filter, PackageSearch, Sparkles, Hash, Upload, Loader2, PackageOpen } from 'lucide-react';
 import { cn } from '../../components/ProductCard';
+import QuickStockModal from '../../components/QuickStockModal';
 
 export default function ProductList() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -12,6 +13,12 @@ export default function ProductList() {
   const [selectedCategory, setSelectedCategory] = useState<'ALL' | 'Mobile' | 'Tablet'>('ALL');
   const [selectedBrand, setSelectedBrand] = useState<string>('ALL');
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'VISIBLE' | 'HIDDEN'>('ALL');
+  const [importingCsv, setImportingCsv] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Quick Stock Edit Modal state
+  const [quickStockProduct, setQuickStockProduct] = useState<Product | null>(null);
+  const [quickStockOpen, setQuickStockOpen] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -21,6 +28,78 @@ export default function ProductList() {
     const [b, p] = await Promise.all([api.getBrands(), api.getProducts()]);
     setBrands(b);
     setProducts(p);
+  };
+
+  const handleImportCsv = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setImportingCsv(true);
+      const text = await file.text();
+      const rows = text.split('\n').filter(r => r.trim());
+      if (rows.length < 2) throw new Error("ไฟล์ CSV ไม่มีข้อมูล");
+
+      const headerRow = rows[0].split(',').map(h => h.trim().toLowerCase());
+      
+      const newProducts: Partial<Product>[] = [];
+
+      for (let i = 1; i < rows.length; i++) {
+        // Use a simple regex to split CSV respecting quotes
+        const regex = /,(?=(?:(?:[^"]*"){2})*[^"]*$)/;
+        const cols = rows[i].split(regex).map(c => c.trim().replace(/^"|"$/g, ''));
+        
+        if (cols.length < 3) continue;
+
+        const brandName = cols[headerRow.indexOf('brand')] || cols[1] || '';
+        const brandObj = brands.find(b => b.name.toLowerCase() === brandName.toLowerCase());
+        const brandId = brandObj ? brandObj.id : (brands[0]?.id || 'unknown');
+
+        const model = cols[headerRow.indexOf('model')] || cols[2] || 'New Product';
+        const categoryStr = cols[headerRow.indexOf('category')] || cols[3] || 'Mobile';
+        const basePriceStr = cols[headerRow.indexOf('base price')] || cols[4] || '0';
+        const costPriceStr = cols[headerRow.indexOf('cost price')] || cols[5] || '0';
+        const desc = cols[headerRow.indexOf('description')] || cols[6] || '';
+        
+        // Handle image URL and wholesale toggles if they exist (simplification for bulk upload)
+        // Usually you'd map these to variants, but for a basic CSV, we'll create one default variant
+        
+        const newProduct: Partial<Product> = {
+          brandId,
+          model,
+          category: categoryStr.includes('Tablet') ? 'Tablet' : 'Mobile',
+          description: desc,
+          basePrice: parseFloat(basePriceStr),
+          costPrice: parseFloat(costPriceStr),
+          isHidden: false,
+          variants: [{
+            id: Math.random().toString(36).substring(7),
+            ram: '',
+            rom: '',
+            retailPrice: parseFloat(basePriceStr),
+            wholesalePrice: null, // Default null for wholesale price toggle
+            colors: [{
+              id: Math.random().toString(36).substring(7),
+              colorName: 'Default',
+              sku: '',
+              stock: 0,
+              imageUrl: null // No image by default
+            }]
+          }]
+        };
+        newProducts.push(newProduct);
+      }
+
+      await api.addProductsBulk(newProducts);
+      await fetchData();
+      alert(`นำเข้าข้อมูลสินค้าสำเร็จ ${newProducts.length} รายการ!`);
+    } catch (err: any) {
+      console.error(err);
+      alert('นำเข้าไฟล์ CSV ไม่สำเร็จ: ' + err.message);
+    } finally {
+      setImportingCsv(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
   };
 
   const toggleHide = async (product: Product) => {
@@ -102,13 +181,20 @@ export default function ProductList() {
           <h1 className="text-2xl font-black text-zinc-900 tracking-tight">จัดการสินค้า</h1>
           <p className="text-xs text-zinc-500">จัดการรายการสต็อคสินค้า สเปก และรหัส SKU</p>
         </div>
-        <Link 
-          to="/admin/products/new"
-          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-900 hover:bg-zinc-800 text-white rounded-full text-xs font-bold active:scale-95 transition-all shadow-md shadow-zinc-900/15 cursor-pointer shrink-0"
-        >
-          <Plus className="w-4 h-4" />
-          เพิ่มสินค้าใหม่
-        </Link>
+        <div className="flex gap-2">
+          <label className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 rounded-full text-xs font-bold active:scale-95 transition-all shadow-sm cursor-pointer shrink-0">
+            {importingCsv ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+            {importingCsv ? 'กำลังนำเข้า...' : 'อัปโหลด CSV'}
+            <input type="file" accept=".csv" className="hidden" ref={fileInputRef} onChange={handleImportCsv} disabled={importingCsv} />
+          </label>
+          <Link 
+            to="/admin/products/new"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-900 hover:bg-zinc-800 text-white rounded-full text-xs font-bold active:scale-95 transition-all shadow-md shadow-zinc-900/15 cursor-pointer shrink-0"
+          >
+            <Plus className="w-4 h-4" />
+            เพิ่มสินค้าใหม่
+          </Link>
+        </div>
       </div>
 
       {/* Main Container */}
@@ -294,15 +380,20 @@ export default function ProductList() {
                               {v.colors.map((c, j) => {
                                 const skuMatch = isSkuMatched(c.sku);
                                 return (
-                                  <span 
-                                    key={j} 
+                                  <button
+                                    key={j}
+                                    type="button"
+                                    onClick={() => {
+                                      setQuickStockProduct(p);
+                                      setQuickStockOpen(true);
+                                    }}
                                     className={cn(
-                                      "inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium border transition-all",
+                                      "inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium border transition-all cursor-pointer hover:border-red-400 hover:shadow-2xs active:scale-95 text-left",
                                       skuMatch 
                                         ? "bg-amber-100 text-amber-900 border-amber-400 font-bold shadow-2xs ring-2 ring-amber-300/40"
                                         : "bg-zinc-100/90 text-zinc-700 border-zinc-200/70"
                                     )}
-                                    title={`SKU: ${c.sku || 'ไม่มี'} | สต็อค: ${c.stock || 0} เครื่อง`}
+                                    title={`คลิกแก้ไขสต็อคด่วน | SKU: ${c.sku || 'ไม่มี'} | สต็อค: ${c.stock || 0} เครื่อง`}
                                   >
                                     <span>{c.colorName}</span>
                                     {c.sku && (
@@ -319,7 +410,7 @@ export default function ProductList() {
                                     )}>
                                       {c.stock}
                                     </span>
-                                  </span>
+                                  </button>
                                 );
                               })}
                             </div>
@@ -346,11 +437,22 @@ export default function ProductList() {
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-xs font-medium">
-                      <div className="flex justify-end gap-2">
+                      <div className="flex justify-end gap-1.5 sm:gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setQuickStockProduct(p);
+                            setQuickStockOpen(true);
+                          }}
+                          className="w-8 h-8 rounded-full bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 flex items-center justify-center active:scale-90 transition-all cursor-pointer shadow-2xs border border-red-200/60"
+                          title="ปรับปรุงจำนวนสต็อคแบบด่วน (Quick Stock Edit)"
+                        >
+                          <PackageOpen className="w-3.5 h-3.5" />
+                        </button>
                         <Link 
                           to={`/admin/products/edit/${p.id}`} 
                           className="w-8 h-8 rounded-full bg-zinc-100 hover:bg-zinc-200 text-zinc-700 hover:text-zinc-950 flex items-center justify-center active:scale-90 transition-all cursor-pointer shadow-2xs"
-                          title="แก้ไขข้อมูลสินค้าและสต็อค"
+                          title="แก้ไขข้อมูลสินค้าและสต็อคเต็มรูปแบบ"
                         >
                           <Edit className="w-3.5 h-3.5" />
                         </Link>
@@ -400,6 +502,20 @@ export default function ProductList() {
           </table>
         </div>
       </div>
+
+      {/* Quick Stock Edit Modal */}
+      <QuickStockModal
+        isOpen={quickStockOpen}
+        onClose={() => {
+          setQuickStockOpen(false);
+          setQuickStockProduct(null);
+        }}
+        product={quickStockProduct}
+        brandName={brands.find(b => b.id === quickStockProduct?.brandId)?.name}
+        onSuccess={(updated) => {
+          setProducts(prev => prev.map(p => p.id === updated.id ? updated : p));
+        }}
+      />
     </div>
   );
 }

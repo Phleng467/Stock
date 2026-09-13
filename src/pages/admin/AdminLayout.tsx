@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate, Navigate } from 'react-router-dom';
-import { LayoutDashboard, Smartphone, Tags, Settings, LogOut, Home, Calculator, ExternalLink } from 'lucide-react';
+import { LayoutDashboard, Smartphone, Tags, Settings, LogOut, Home, Calculator, ExternalLink, Menu, X } from 'lucide-react';
 import { cn } from '../../components/ProductCard';
 
 const navItems = [
@@ -12,6 +13,7 @@ const navItems = [
 export default function AdminLayout() {
   const location = useLocation();
   const navigate = useNavigate();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -23,9 +25,47 @@ export default function AdminLayout() {
   }
 
   return (
-    <div className="flex min-h-screen bg-zinc-50 selection:bg-red-500 selection:text-white">
-      {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-zinc-200/80 flex flex-col">
+    <div className="flex flex-col md:flex-row min-h-screen bg-zinc-50 selection:bg-red-500 selection:text-white">
+      {/* Mobile Top Bar */}
+      <header className="md:hidden bg-white border-b border-zinc-200 px-4 py-3 flex items-center justify-between sticky top-0 z-30 shadow-2xs">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-8 h-8 rounded-full overflow-hidden bg-white border border-red-200 shadow-2xs p-0.5 shrink-0">
+            <img 
+              src="/branch_logo.jpg" 
+              alt="Jaymart" 
+              className="w-full h-full object-contain rounded-full" 
+            />
+          </div>
+          <div className="min-w-0">
+            <span className="text-xs font-black text-zinc-900 block truncate">Jaymart Surin Admin</span>
+            <p className="text-[10px] text-red-600 font-semibold leading-none">ระบบจัดการสต็อค</p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="p-2 rounded-xl bg-zinc-100 text-zinc-700 hover:bg-zinc-200 active:scale-95 transition-all cursor-pointer"
+          title="เมนู"
+        >
+          {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        </button>
+      </header>
+
+      {/* Mobile Menu Backdrop & Drawer */}
+      {mobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 md:hidden backdrop-blur-xs"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* Sidebar (Desktop permanent, Mobile overlay drawer) */}
+      <aside className={cn(
+        "w-64 bg-white border-r border-zinc-200/80 flex flex-col z-40 transition-transform duration-200 ease-in-out",
+        "fixed md:static inset-y-0 left-0",
+        mobileMenuOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full md:translate-x-0"
+      )}>
         <div className="h-16 flex items-center px-4 border-b border-zinc-100 gap-3">
           <div className="w-10 h-10 rounded-full overflow-hidden bg-white border border-red-200 shadow-2xs p-0.5 shrink-0 flex items-center justify-center">
             <img 
@@ -34,14 +74,22 @@ export default function AdminLayout() {
               className="w-full h-full object-contain rounded-full" 
             />
           </div>
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <span className="text-xs font-black text-zinc-900 block truncate">Jaymart Robinson Surin</span>
             <p className="text-[10px] text-red-600 font-semibold">ระบบจัดการสต็อค</p>
           </div>
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen(false)}
+            className="md:hidden p-1 text-zinc-400 hover:text-zinc-700"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
-        <nav className="flex-1 py-5 px-3.5 space-y-1">
+        <nav className="flex-1 py-5 px-3.5 space-y-1 overflow-y-auto">
           <Link
             to="/"
+            onClick={() => setMobileMenuOpen(false)}
             className="flex items-center px-3.5 py-2.5 text-xs font-bold rounded-full text-zinc-800 bg-zinc-100 hover:bg-zinc-200/80 mb-4 transition-all active:scale-98 group"
           >
             <Home className="w-4 h-4 mr-2.5 text-zinc-600 flex-shrink-0" />
@@ -58,6 +106,7 @@ export default function AdminLayout() {
               <Link
                 key={item.path}
                 to={item.path}
+                onClick={() => setMobileMenuOpen(false)}
                 className={cn(
                   "flex items-center px-3.5 py-2.5 text-xs font-semibold rounded-full transition-all group active:scale-98",
                   isActive 
@@ -100,8 +149,8 @@ export default function AdminLayout() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col min-h-0 overflow-hidden">
-        <div className="flex-1 overflow-y-auto p-8">
+      <main className="flex-1 flex flex-col min-h-0 overflow-hidden w-full">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
           <Outlet />
         </div>
       </main>

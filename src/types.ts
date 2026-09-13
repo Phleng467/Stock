@@ -28,6 +28,9 @@ export interface Product {
   model: string;
   category: 'Mobile' | 'Tablet';
   detail: string; // Wi-Fi, 4G, 5G for tablets
+  description?: string;
+  basePrice?: number;
+  costPrice?: number;
   specs: Record<string, string>;
   isHidden: boolean;
   variants: ProductVariant[];

@@ -94,6 +94,118 @@ apiRouter.post('/products', (req, res) => {
   writeDB(db);
   res.json(newProduct);
 });
+apiRouter.post('/products/bulk', (req, res) => {
+  const db = readDB();
+  const products = req.body;
+  
+  if (!Array.isArray(products)) {
+    return res.status(400).json({ error: 'Expected an array of products' });
+  }
+  
+  const newProducts = products.map(p => ({
+    id: uuidv4(),
+    ...p
+  }));
+  
+  db.products.push(...newProducts);
+  writeDB(db);
+  res.json({ success: true, count: newProducts.length });
+});
+
+apiRouter.post('/ai/image/generate', async (req, res) => {
+  try {
+    const { prompt, aspectRatio = '16:9' } = req.body;
+    const ai = new GoogleGenAI({
+      apiKey: process.env.GEMINI_API_KEY,
+      httpOptions: { headers: { 'User-Agent': 'aistudio-build' } }
+    });
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-3.1-flash-image',
+      contents: {
+        parts: [{ text: prompt }]
+      },
+      config: {
+        imageConfig: { aspectRatio, imageSize: "1K" }
+      }
+    });
+
+    let base64Url = null;
+    if (response.candidates && response.candidates.length > 0) {
+      for (const part of response.candidates[0].content.parts) {
+        if (part.inlineData) {
+          base64Url = `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+          break;
+        }
+      }
+    }
+    
+    if (base64Url) {
+      // Save it locally
+      const buffer = Buffer.from(base64Url.split(',')[1], 'base64');
+      const filename = `gen_${Date.now()}_${Math.random().toString(36).substring(7)}.png`;
+      fs.writeFileSync(path.join(uploadsDir, filename), buffer);
+      return res.json({ url: `/uploads/${filename}` });
+    }
+
+    res.status(500).json({ error: 'Failed to generate image' });
+  } catch (error: any) {
+    console.error(error);
+    res.status(500).json({ error: error.message || 'Image generation failed' });
+  }
+});
+
+apiRouter.post('/ai/image/edit', async (req, res) => {
+  try {
+    const { prompt, dataUrl } = req.body;
+    const ai = new GoogleGenAI({
+      apiKey: process.env.GEMINI_API_KEY,
+      httpOptions: { headers: { 'User-Agent': 'aistudio-build' } }
+    });
+
+    const matches = dataUrl.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+    if (!matches) throw new Error('Invalid base64 image');
+
+    const mimeType = matches[1];
+    const data = matches[2];
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-3.1-flash-image',
+      contents: {
+        parts: [
+          { inlineData: { data, mimeType } },
+          { text: prompt || "Remove the background of this image and keep only the product" }
+        ]
+      },
+      config: {
+        imageConfig: { aspectRatio: '1:1', imageSize: "1K" }
+      }
+    });
+
+    let base64Url = null;
+    if (response.candidates && response.candidates.length > 0) {
+      for (const part of response.candidates[0].content.parts) {
+        if (part.inlineData) {
+          base64Url = `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+          break;
+        }
+      }
+    }
+    
+    if (base64Url) {
+      const buffer = Buffer.from(base64Url.split(',')[1], 'base64');
+      const filename = `edited_${Date.now()}_${Math.random().toString(36).substring(7)}.png`;
+      fs.writeFileSync(path.join(uploadsDir, filename), buffer);
+      return res.json({ url: `/uploads/${filename}` });
+    }
+
+    res.status(500).json({ error: 'Failed to edit image' });
+  } catch (error: any) {
+    console.error(error);
+    res.status(500).json({ error: error.message || 'Image editing failed' });
+  }
+});
+
 apiRouter.put('/products/:id', (req, res) => {
   const db = readDB();
   const index = db.products.findIndex(p => p.id === req.params.id);
