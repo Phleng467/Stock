@@ -2,10 +2,12 @@ import { useState, useEffect, type FormEvent, type ChangeEvent } from 'react';
 import { api } from '../../lib/api';
 import { Product, Brand, ProductVariant, ProductColor } from '../../types';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Plus, Trash2, Wand2, UploadCloud, AlertCircle, AlertTriangle, Sparkles, Image as ImageIcon, Check, X, ExternalLink, Search, Globe, RefreshCw, Loader2 } from 'lucide-react';
+import { Plus, Trash2, Wand2, UploadCloud, AlertCircle, AlertTriangle, Sparkles, Image as ImageIcon, Check, X, ExternalLink, Search, Globe, RefreshCw, Loader2, Camera as CameraIcon, LayoutTemplate } from 'lucide-react';
 import { getSuggestedImages, getColorHex, resolveProductImage, type ImageOption } from '../../lib/deviceImages';
 import AdminToast, { ToastItem, MarginViolation } from '../../components/AdminToast';
 import { cn } from '../../components/ProductCard';
+import CameraCaptureModal from '../../components/CameraCaptureModal';
+import PlaceholderGeneratorModal from '../../components/PlaceholderGeneratorModal';
 
 export default function ProductForm() {
   const navigate = useNavigate();
@@ -20,12 +22,17 @@ export default function ProductForm() {
   const [customUrlInput, setCustomUrlInput] = useState('');
   const [suggestedColorsFromAi, setSuggestedColorsFromAi] = useState<string[]>([]);
   
+  // Modals state
+  const [activeCameraPicker, setActiveCameraPicker] = useState<{ vIndex: number; cIndex: number } | null>(null);
+  const [activePlaceholderPicker, setActivePlaceholderPicker] = useState<{ vIndex: number; cIndex: number } | null>(null);
+  
   // Real Google / Web Image Search State
   const [webImageResults, setWebImageResults] = useState<{ title: string; imageUrl: string; thumbnailUrl: string; source?: string; width?: number; height?: number }[]>([]);
   const [searchingWebImages, setSearchingWebImages] = useState(false);
   const [webSearchQuery, setWebSearchQuery] = useState('');
   const [pickerTab, setPickerTab] = useState<'google' | 'presets' | 'custom'>('google');
   const [autoFillingImages, setAutoFillingImages] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState<{ vIndex: number; cIndex: number } | null>(null);
 
   const [form, setForm] = useState<Partial<Product>>({
     category: 'Mobile',
@@ -103,12 +110,15 @@ export default function ProductForm() {
     const file = e.target.files?.[0];
     if (!file) return;
     try {
+      setUploadingImage({ vIndex, cIndex });
       const res = await api.uploadImage(file);
       const newVariants = [...(form.variants || [])];
       newVariants[vIndex].colors[cIndex].imageUrl = res.url;
       setForm({ ...form, variants: newVariants });
     } catch (err) {
       alert('Upload failed');
+    } finally {
+      setUploadingImage(null);
     }
   };
 
@@ -490,19 +500,38 @@ export default function ProductForm() {
                   </div>
                   <div className="flex-1 min-w-[120px]">
                     <div className="flex items-center justify-between">
-                      <label className="block text-xs font-medium text-gray-500 uppercase">ราคาส่ง (฿) - ถ้ามี</label>
-                      {isNegativeMargin && (
-                        <span className="text-[10px] font-bold text-red-600 animate-pulse">สูงกว่าราคาขาย!</span>
-                      )}
+                      <label className="block text-xs font-medium text-gray-500 uppercase">ราคาส่ง (฿)</label>
+                      <label className="flex items-center gap-1 text-[10px] text-gray-500 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-3 h-3"
+                          checked={variant.wholesalePrice !== null && variant.wholesalePrice !== undefined}
+                          onChange={(e) => {
+                            const newV = [...form.variants!]; 
+                            newV[vIndex].wholesalePrice = e.target.checked ? (variant.wholesalePrice || 0) : null; 
+                            setForm({...form, variants: newV});
+                          }}
+                        />
+                        มีราคาส่ง
+                      </label>
                     </div>
-                    <input type="number" min="0"
-                      value={variant.wholesalePrice || ''} onChange={e => {
-                        const newV = [...form.variants!]; newV[vIndex].wholesalePrice = e.target.value ? Number(e.target.value) : null; setForm({...form, variants: newV});
-                      }}
-                      className={cn(
-                        "mt-1 block w-full rounded-md shadow-2xs sm:text-sm py-2 px-3 border bg-white",
-                        isNegativeMargin ? "border-red-500 text-red-700 focus:ring-red-500 focus:border-red-500 font-semibold" : "border-gray-300"
-                      )} />
+                    {isNegativeMargin && (
+                      <span className="text-[10px] font-bold text-red-600 animate-pulse block mb-1">สูงกว่าราคาขาย!</span>
+                    )}
+                    {variant.wholesalePrice !== null && variant.wholesalePrice !== undefined ? (
+                      <input type="number" min="0"
+                        value={variant.wholesalePrice} onChange={e => {
+                          const newV = [...form.variants!]; newV[vIndex].wholesalePrice = e.target.value ? Number(e.target.value) : 0; setForm({...form, variants: newV});
+                        }}
+                        className={cn(
+                          "mt-1 block w-full rounded-md shadow-2xs sm:text-sm py-2 px-3 border bg-white",
+                          isNegativeMargin ? "border-red-500 text-red-700 focus:ring-red-500 focus:border-red-500 font-semibold" : "border-gray-300"
+                        )} />
+                    ) : (
+                      <div className="mt-1 block w-full rounded-md shadow-2xs sm:text-sm py-2 px-3 border border-gray-200 bg-gray-100 text-gray-400 italic">
+                        ไม่มีราคาส่ง
+                      </div>
+                    )}
                   </div>
                   {form.variants!.length > 1 && (
                     <button type="button" onClick={() => {
@@ -576,37 +605,83 @@ export default function ProductForm() {
                     return (
                       <div key={color.id} className="flex flex-col sm:flex-row gap-3 items-start sm:items-center bg-gray-50/70 p-3 rounded-lg border border-gray-200">
                         {/* Image Thumbnail & Quick Picker */}
-                        <div className="flex items-center gap-2 shrink-0">
-                          <div 
-                            className="w-20 h-20 bg-white border border-gray-300 rounded-lg flex items-center justify-center relative overflow-hidden group cursor-pointer shadow-2xs"
-                            onClick={() => openImagePicker(vIndex, cIndex)}
-                            title="คลิกเพื่อค้นหารูปตามรุ่นและสีจริงจาก Google / Web"
-                          >
-                            <img src={previewImg} alt={color.colorName} className="object-contain w-full h-full p-1" />
-                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white text-[10px] font-medium text-center px-1">
-                              <Search className="w-4 h-4 mb-0.5 text-blue-300" />
-                              <span>ค้นหารูป Google</span>
-                            </div>
-                          </div>
+                        <div className="flex flex-col gap-2 shrink-0">
+                          <label className="flex items-center gap-1 text-[10px] text-gray-500 cursor-pointer mb-1 self-start">
+                            <input
+                              type="checkbox"
+                              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-3 h-3"
+                              checked={color.imageUrl !== null}
+                              onChange={(e) => {
+                                const newV = [...form.variants!];
+                                newV[vIndex].colors[cIndex].imageUrl = e.target.checked ? '' : null;
+                                setForm({...form, variants: newV});
+                              }}
+                            />
+                            แสดงรูปภาพสินค้า
+                          </label>
+                          
+                          {color.imageUrl !== null ? (
+                            <div className="flex items-center gap-2">
+                              <div 
+                                className="w-20 h-20 bg-white border border-gray-300 rounded-lg flex items-center justify-center relative overflow-hidden group cursor-pointer shadow-2xs"
+                                onClick={() => openImagePicker(vIndex, cIndex)}
+                                title="คลิกเพื่อค้นหารูปตามรุ่นและสีจริงจาก Google / Web"
+                              >
+                                {uploadingImage?.vIndex === vIndex && uploadingImage?.cIndex === cIndex ? (
+                                  <div className="absolute inset-0 bg-white/80 z-10 flex flex-col items-center justify-center">
+                                    <Loader2 className="w-5 h-5 animate-spin text-blue-500 mb-1" />
+                                    <span className="text-[9px] text-blue-600 font-medium">กำลังอัปโหลด...</span>
+                                  </div>
+                                ) : null}
+                                <img src={previewImg} alt={color.colorName} className="object-contain w-full h-full p-1" />
+                                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white text-[10px] font-medium text-center px-1">
+                                  <Search className="w-4 h-4 mb-0.5 text-blue-300" />
+                                  <span>ค้นหารูป Google</span>
+                                </div>
+                              </div>
 
-                          <div className="flex flex-col gap-1.5">
-                            <button
-                              type="button"
-                              onClick={() => openImagePicker(vIndex, cIndex)}
-                              className="text-[11px] font-semibold text-zinc-700 hover:text-zinc-950 bg-zinc-100 hover:bg-zinc-200 border border-zinc-200/80 px-2.5 py-1 rounded-full shadow-2xs active:scale-95 transition-all flex items-center justify-center gap-1 cursor-pointer"
-                            >
-                              <Search className="w-3 h-3 text-zinc-500" /> ค้นหารูป Google
-                            </button>
-                            <label className="text-[11px] font-semibold text-zinc-600 hover:text-zinc-950 bg-white hover:bg-zinc-50 border border-zinc-200 px-2.5 py-1 rounded-full shadow-2xs active:scale-95 transition-all flex items-center justify-center gap-1 cursor-pointer">
-                              <UploadCloud className="w-3 h-3 text-zinc-400" /> อัปโหลดไฟล์
-                              <input 
-                                type="file" 
-                                accept="image/*" 
-                                onChange={(e) => handleImageUpload(e, vIndex, cIndex)} 
-                                className="hidden" 
-                              />
-                            </label>
-                          </div>
+                              <div className="flex flex-col gap-1.5">
+                                <button
+                                  type="button"
+                                  onClick={() => openImagePicker(vIndex, cIndex)}
+                                  className="text-[11px] font-semibold text-zinc-700 hover:text-zinc-950 bg-zinc-100 hover:bg-zinc-200 border border-zinc-200/80 px-2.5 py-1 rounded-full shadow-2xs active:scale-95 transition-all flex items-center justify-center gap-1 cursor-pointer"
+                                >
+                                  <Search className="w-3 h-3 text-zinc-500" /> ค้นหารูป Google
+                                </button>
+                                <label className="text-[11px] font-semibold text-zinc-600 hover:text-zinc-950 bg-white hover:bg-zinc-50 border border-zinc-200 px-2.5 py-1 rounded-full shadow-2xs active:scale-95 transition-all flex items-center justify-center gap-1 cursor-pointer">
+                                  <UploadCloud className="w-3 h-3 text-zinc-400" /> อัปโหลดไฟล์
+                                  <input 
+                                    type="file" 
+                                    accept="image/*" 
+                                    onChange={(e) => handleImageUpload(e, vIndex, cIndex)} 
+                                    className="hidden" 
+                                  />
+                                </label>
+                                <div className="flex gap-1.5 mt-0.5">
+                                  <button
+                                    type="button"
+                                    onClick={() => setActiveCameraPicker({ vIndex, cIndex })}
+                                    className="flex-1 text-[10px] font-semibold text-zinc-600 hover:text-zinc-950 bg-zinc-100 hover:bg-zinc-200 border border-zinc-200/80 px-2 py-1 rounded-full shadow-2xs active:scale-95 transition-all flex items-center justify-center gap-1 cursor-pointer"
+                                    title="ถ่ายรูปสินค้าด้วยกล้องมือถือ/แท็บเล็ต"
+                                  >
+                                    <CameraIcon className="w-3 h-3 text-zinc-500" /> ถ่ายรูป
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => setActivePlaceholderPicker({ vIndex, cIndex })}
+                                    className="flex-1 text-[10px] font-semibold text-indigo-700 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200/80 px-2 py-1 rounded-full shadow-2xs active:scale-95 transition-all flex items-center justify-center gap-1 cursor-pointer"
+                                    title="สร้างภาพจำลองสินค้า"
+                                  >
+                                    <LayoutTemplate className="w-3 h-3 text-indigo-500" /> สร้าง
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="w-[200px] h-20 bg-gray-100 border border-gray-200 border-dashed rounded-lg flex items-center justify-center text-[11px] text-gray-400 italic">
+                              ซ่อนรูปภาพสินค้าสำหรับสีนี้
+                            </div>
+                          )}
                         </div>
                         
                         {/* Fields */}
@@ -1011,6 +1086,58 @@ export default function ProductForm() {
       <AdminToast 
         toasts={toasts} 
         onDismiss={(toastId) => setToasts(prev => prev.filter(t => t.id !== toastId))} 
+      />
+
+      {/* Camera Capture Modal */}
+      <CameraCaptureModal
+        isOpen={activeCameraPicker !== null}
+        onClose={() => setActiveCameraPicker(null)}
+        title="ถ่ายรูปสินค้าจริง"
+        subtitle={`ถ่ายรูปเครื่อง ${currentBrand} ${form.model || ''}`}
+        onCapture={async (dataUrl) => {
+          if (activeCameraPicker) {
+            try {
+              setLoading(true);
+              const res = await api.uploadBase64Image(dataUrl);
+              const newVariants = [...(form.variants || [])];
+              newVariants[activeCameraPicker.vIndex].colors[activeCameraPicker.cIndex].imageUrl = res.url;
+              setForm({ ...form, variants: newVariants });
+              setActiveCameraPicker(null);
+            } catch (err) {
+              console.error("Camera upload failed", err);
+              alert("อัปโหลดรูปจากกล้องไม่สำเร็จ กรุณาลองใหม่");
+            } finally {
+              setLoading(false);
+            }
+          }
+        }}
+      />
+
+      {/* Placeholder Generator Modal */}
+      <PlaceholderGeneratorModal
+        isOpen={activePlaceholderPicker !== null}
+        onClose={() => setActivePlaceholderPicker(null)}
+        initialBrand={currentBrand}
+        initialModel={form.model}
+        initialCategory={form.category}
+        initialColorName={activePlaceholderPicker ? form.variants?.[activePlaceholderPicker.vIndex]?.colors?.[activePlaceholderPicker.cIndex]?.colorName : ''}
+        onSelectImage={async (dataUrl) => {
+          if (activePlaceholderPicker) {
+            try {
+              setLoading(true);
+              const res = await api.uploadBase64Image(dataUrl);
+              const newVariants = [...(form.variants || [])];
+              newVariants[activePlaceholderPicker.vIndex].colors[activePlaceholderPicker.cIndex].imageUrl = res.url;
+              setForm({ ...form, variants: newVariants });
+              setActivePlaceholderPicker(null);
+            } catch (err) {
+              console.error("Generated image upload failed", err);
+              alert("อัปโหลดรูปภาพที่สร้างไม่สำเร็จ กรุณาลองใหม่");
+            } finally {
+              setLoading(false);
+            }
+          }
+        }}
       />
     </div>
   );

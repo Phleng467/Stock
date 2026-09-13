@@ -8,6 +8,7 @@ import ProductCard from '../components/ProductCard';
 import { cn } from '../components/ProductCard';
 import PromotionModal from '../components/PromotionModal';
 import CompareModal from '../components/CompareModal';
+import Chatbot from '../components/Chatbot';
 
 export default function Storefront() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -680,6 +681,9 @@ export default function Storefront() {
         onRemoveProduct={handleRemoveComparedProduct}
         onClearAll={handleClearAllCompared}
       />
+
+      {/* Floating Chatbot */}
+      <Chatbot />
     </div>
   );
 }

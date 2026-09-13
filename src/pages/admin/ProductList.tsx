@@ -1,14 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { api } from '../../lib/api';
 import { Product, Brand } from '../../types';
 import { Link } from 'react-router-dom';
-import { Plus, Edit, EyeOff, Eye, Search } from 'lucide-react';
+import { Plus, Edit, EyeOff, Eye, Search, X, Smartphone, Tablet, Filter, PackageSearch, Sparkles, Hash } from 'lucide-react';
 import { cn } from '../../components/ProductCard';
 
 export default function ProductList() {
   const [products, setProducts] = useState<Product[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<'ALL' | 'Mobile' | 'Tablet'>('ALL');
+  const [selectedBrand, setSelectedBrand] = useState<string>('ALL');
+  const [statusFilter, setStatusFilter] = useState<'ALL' | 'VISIBLE' | 'HIDDEN'>('ALL');
 
   useEffect(() => {
     fetchData();
@@ -25,121 +28,372 @@ export default function ProductList() {
     fetchData();
   };
 
-  const filteredProducts = products.filter(p => {
-    const q = searchQuery.toLowerCase();
-    const brandName = brands.find(b => b.id === p.brandId)?.name.toLowerCase() || '';
-    return (
-      p.model.toLowerCase().includes(q) ||
-      brandName.includes(q) ||
-      p.variants.some(v => 
-        v.ram.toLowerCase().includes(q) || 
-        v.rom.toLowerCase().includes(q) || 
-        v.colors.some(c => c.sku.toLowerCase().includes(q))
-      )
-    );
-  });
+  // Real-time filtering by Name, SKU, Brand, Specs, and Category
+  const filteredProducts = useMemo(() => {
+    const q = searchQuery.toLowerCase().trim();
+
+    return products.filter(p => {
+      // Category filter
+      if (selectedCategory !== 'ALL' && p.category !== selectedCategory) {
+        return false;
+      }
+
+      // Brand filter
+      if (selectedBrand !== 'ALL' && p.brandId !== selectedBrand) {
+        return false;
+      }
+
+      // Status filter (Visible / Hidden)
+      if (statusFilter === 'VISIBLE' && p.isHidden) {
+        return false;
+      }
+      if (statusFilter === 'HIDDEN' && !p.isHidden) {
+        return false;
+      }
+
+      // Real-time query search
+      if (!q) return true;
+
+      const brand = brands.find(b => b.id === p.brandId);
+      const brandName = brand?.name.toLowerCase() || '';
+      const modelName = p.model.toLowerCase();
+
+      // Check if matches model name or brand
+      if (modelName.includes(q) || brandName.includes(q)) {
+        return true;
+      }
+
+      // Check if matches category or detail
+      if (p.category.toLowerCase().includes(q) || (p.detail && p.detail.toLowerCase().includes(q))) {
+        return true;
+      }
+
+      // Check if matches any variant ram/rom or any color's SKU / colorName
+      return p.variants.some(v => {
+        const ramMatch = v.ram?.toLowerCase().includes(q);
+        const romMatch = v.rom?.toLowerCase().includes(q);
+        const colorOrSkuMatch = v.colors.some(c => {
+          const skuMatch = c.sku ? c.sku.toLowerCase().includes(q) : false;
+          const colorMatch = c.colorName ? c.colorName.toLowerCase().includes(q) : false;
+          return skuMatch || colorMatch;
+        });
+        return ramMatch || romMatch || colorOrSkuMatch;
+      });
+    });
+  }, [products, brands, searchQuery, selectedCategory, selectedBrand, statusFilter]);
+
+  const clearAllFilters = () => {
+    setSearchQuery('');
+    setSelectedCategory('ALL');
+    setSelectedBrand('ALL');
+    setStatusFilter('ALL');
+  };
+
+  const isSkuMatched = (sku: string) => {
+    if (!searchQuery.trim()) return false;
+    return sku?.toLowerCase().includes(searchQuery.toLowerCase().trim());
+  };
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      {/* Top Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-black text-zinc-900 tracking-tight">จัดการสินค้า</h1>
-          <p className="text-xs text-zinc-500">จัดการรายการสต็อคสินค้าและสเปก</p>
+          <p className="text-xs text-zinc-500">จัดการรายการสต็อคสินค้า สเปก และรหัส SKU</p>
         </div>
         <Link 
           to="/admin/products/new"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-zinc-900 hover:bg-zinc-800 text-white rounded-full text-xs font-bold active:scale-95 transition-all shadow-md shadow-zinc-900/15 cursor-pointer"
+          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-900 hover:bg-zinc-800 text-white rounded-full text-xs font-bold active:scale-95 transition-all shadow-md shadow-zinc-900/15 cursor-pointer shrink-0"
         >
           <Plus className="w-4 h-4" />
           เพิ่มสินค้าใหม่
         </Link>
       </div>
 
+      {/* Main Container */}
       <div className="bg-white rounded-2xl shadow-xs border border-zinc-200/80 overflow-hidden">
-        <div className="p-4 border-b border-zinc-100 flex justify-between items-center">
-          <div className="relative w-72">
-            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-              <Search className="h-4 w-4 text-zinc-400" />
+        {/* Real-time Search & Filter Toolbar */}
+        <div className="p-4 border-b border-zinc-100 space-y-3 bg-zinc-50/40">
+          <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+            {/* Real-time Search Input */}
+            <div className="relative flex-1 max-w-lg">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-400">
+                <Search className="h-4 w-4" />
+              </div>
+              <input
+                type="text"
+                placeholder="ค้นหาแบบ Real-time: ชื่อรุ่น, รหัส SKU, แบรนด์ (เช่น SM-A15, IP16, 256GB)..."
+                className="block w-full pl-10 pr-10 py-2.5 border border-zinc-200/90 rounded-full text-xs bg-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-red-500/25 focus:border-red-500 transition-all shadow-2xs font-medium text-zinc-900"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                autoComplete="off"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-zinc-400 hover:text-zinc-700 cursor-pointer"
+                  title="ล้างคำค้นหา"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
             </div>
-            <input
-              type="text"
-              placeholder="ค้นหา Model, SKU, Brand..."
-              className="block w-full pl-10 pr-4 py-2 border border-zinc-200 rounded-full text-xs bg-zinc-50/70 placeholder-zinc-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all shadow-2xs"
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-            />
+
+            {/* Brand Dropdown Selector */}
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold text-zinc-500 hidden sm:inline">แบรนด์:</span>
+              <select
+                value={selectedBrand}
+                onChange={e => setSelectedBrand(e.target.value)}
+                className="px-3 py-2 border border-zinc-200 rounded-xl text-xs bg-white text-zinc-800 font-medium focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 cursor-pointer shadow-2xs"
+              >
+                <option value="ALL">ทุกแบรนด์ ({products.length})</option>
+                {brands.map(b => (
+                  <option key={b.id} value={b.id}>
+                    {b.name} ({products.filter(p => p.brandId === b.id).length})
+                  </option>
+                ))}
+              </select>
+
+              {/* Status Filter */}
+              <select
+                value={statusFilter}
+                onChange={e => setStatusFilter(e.target.value as any)}
+                className="px-3 py-2 border border-zinc-200 rounded-xl text-xs bg-white text-zinc-800 font-medium focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 cursor-pointer shadow-2xs"
+              >
+                <option value="ALL">สถานะทั้งหมด</option>
+                <option value="VISIBLE">เฉพาะเปิดขาย</option>
+                <option value="HIDDEN">เฉพาะที่ซ่อน</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Secondary Filter Row: Category Tabs & Result Count */}
+          <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-zinc-100">
+            {/* Category Chips */}
+            <div className="flex items-center gap-1.5 overflow-x-auto py-0.5">
+              <button
+                type="button"
+                onClick={() => setSelectedCategory('ALL')}
+                className={cn(
+                  "px-3 py-1 text-xs font-semibold rounded-full transition-all cursor-pointer",
+                  selectedCategory === 'ALL'
+                    ? "bg-zinc-900 text-white shadow-2xs"
+                    : "bg-white text-zinc-600 hover:bg-zinc-200/70 border border-zinc-200/70"
+                )}
+              >
+                ทั้งหมด
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedCategory('Mobile')}
+                className={cn(
+                  "inline-flex items-center gap-1 px-3 py-1 text-xs font-semibold rounded-full transition-all cursor-pointer",
+                  selectedCategory === 'Mobile'
+                    ? "bg-red-600 text-white shadow-2xs"
+                    : "bg-white text-zinc-600 hover:bg-zinc-200/70 border border-zinc-200/70"
+                )}
+              >
+                <Smartphone className="w-3 h-3" />
+                มือถือ
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedCategory('Tablet')}
+                className={cn(
+                  "inline-flex items-center gap-1 px-3 py-1 text-xs font-semibold rounded-full transition-all cursor-pointer",
+                  selectedCategory === 'Tablet'
+                    ? "bg-red-600 text-white shadow-2xs"
+                    : "bg-white text-zinc-600 hover:bg-zinc-200/70 border border-zinc-200/70"
+                )}
+              >
+                <Tablet className="w-3 h-3" />
+                แท็บเล็ต
+              </button>
+            </div>
+
+            {/* Results Count & Active Filter Indicator */}
+            <div className="flex items-center gap-2 text-xs">
+              <span className="font-semibold text-zinc-600">
+                แสดง <strong className="text-zinc-900">{filteredProducts.length}</strong> จากทั้งหมด {products.length} รุ่น
+              </span>
+              {(searchQuery || selectedCategory !== 'ALL' || selectedBrand !== 'ALL' || statusFilter !== 'ALL') && (
+                <button
+                  type="button"
+                  onClick={clearAllFilters}
+                  className="text-red-600 hover:text-red-700 hover:underline font-bold cursor-pointer text-xs ml-1"
+                >
+                  ล้างตัวกรอง
+                </button>
+              )}
+            </div>
           </div>
         </div>
         
+        {/* Table View */}
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+            <thead className="bg-gray-50/80">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">แบรนด์</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">รุ่น</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SKU / สี / ความจุ</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ราคาขาย</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">สถานะ</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">จัดการ</th>
+                <th className="px-6 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">แบรนด์</th>
+                <th className="px-6 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">รุ่นสินค้า</th>
+                <th className="px-6 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                  <div className="flex items-center gap-1">
+                    <Hash className="w-3.5 h-3.5 text-zinc-400" />
+                    <span>SKU / สี / ความจุ / สต็อค</span>
+                  </div>
+                </th>
+                <th className="px-6 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">ราคาขาย</th>
+                <th className="px-6 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">สถานะ</th>
+                <th className="px-6 py-3.5 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">จัดการ</th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white divide-y divide-gray-100">
               {filteredProducts.map(p => {
                 const brand = brands.find(b => b.id === p.brandId);
+                const totalStock = p.variants.reduce((acc, v) => acc + v.colors.reduce((s, c) => s + (c.stock || 0), 0), 0);
+                const minPrice = Math.min(...p.variants.map(v => v.retailPrice));
+                const maxPrice = Math.max(...p.variants.map(v => v.retailPrice));
+
                 return (
-                  <tr key={p.id} className={p.isHidden ? 'opacity-60 bg-gray-50' : ''}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">{brand?.name}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold">{p.model}</td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
-                      <div className="flex flex-col gap-1">
+                  <tr key={p.id} className={cn("hover:bg-zinc-50/60 transition-colors", p.isHidden ? 'opacity-60 bg-gray-50/70' : '')}>
+                    <td className="px-6 py-4 whitespace-nowrap text-xs font-semibold text-zinc-700">
+                      <span className="px-2.5 py-1 rounded-md bg-zinc-100 text-zinc-800 font-bold border border-zinc-200/60">
+                        {brand?.name || 'Unknown'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex flex-col">
+                        <span className="text-sm font-bold text-zinc-900 leading-tight">
+                          {p.model}
+                        </span>
+                        <span className="text-[11px] text-zinc-400 flex items-center gap-1.5 mt-0.5">
+                          <span className="px-1.5 py-0.2 bg-zinc-100 rounded text-[10px] text-zinc-600 font-medium">
+                            {p.category === 'Mobile' ? 'มือถือ' : 'แท็บเล็ต'}
+                          </span>
+                          {p.detail && <span>• {p.detail}</span>}
+                          <span>• รวม {totalStock} เครื่อง</span>
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-xs text-zinc-600 max-w-md">
+                      <div className="space-y-2">
                         {p.variants.map((v, i) => (
-                          <div key={i} className="flex flex-col">
-                            <span className="font-semibold text-gray-700">{v.ram ? `${v.ram}/` : ''}{v.rom}</span>
-                            <div className="pl-2 flex gap-2 flex-wrap">
-                              {v.colors.map((c, j) => (
-                                <span key={j} className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
-                                  {c.colorName} ({c.sku}) [{c.stock}]
-                                </span>
-                              ))}
+                          <div key={i} className="flex flex-col gap-1 border-l-2 border-zinc-200 pl-2">
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-zinc-800 text-[11px]">
+                                {v.ram ? `${v.ram}/` : ''}{v.rom}
+                              </span>
+                              <span className="text-[10px] text-zinc-400">
+                                ฿{v.retailPrice.toLocaleString()}
+                              </span>
+                            </div>
+                            <div className="flex gap-1.5 flex-wrap">
+                              {v.colors.map((c, j) => {
+                                const skuMatch = isSkuMatched(c.sku);
+                                return (
+                                  <span 
+                                    key={j} 
+                                    className={cn(
+                                      "inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium border transition-all",
+                                      skuMatch 
+                                        ? "bg-amber-100 text-amber-900 border-amber-400 font-bold shadow-2xs ring-2 ring-amber-300/40"
+                                        : "bg-zinc-100/90 text-zinc-700 border-zinc-200/70"
+                                    )}
+                                    title={`SKU: ${c.sku || 'ไม่มี'} | สต็อค: ${c.stock || 0} เครื่อง`}
+                                  >
+                                    <span>{c.colorName}</span>
+                                    {c.sku && (
+                                      <span className={cn(
+                                        "font-mono text-[10px] px-1 rounded",
+                                        skuMatch ? "bg-amber-200 text-amber-950 font-black" : "text-zinc-500"
+                                      )}>
+                                        {c.sku}
+                                      </span>
+                                    )}
+                                    <span className={cn(
+                                      "text-[10px] font-bold px-1 rounded-full",
+                                      c.stock > 0 ? "bg-emerald-100 text-emerald-800" : "bg-red-100 text-red-700"
+                                    )}>
+                                      {c.stock}
+                                    </span>
+                                  </span>
+                                );
+                              })}
                             </div>
                           </div>
                         ))}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {p.variants[0]?.retailPrice.toLocaleString()} ฿
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      {p.isHidden ? (
-                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">ซ่อน</span>
+                    <td className="px-6 py-4 whitespace-nowrap text-xs text-zinc-900 font-bold">
+                      {minPrice === maxPrice ? (
+                        <span>฿{minPrice.toLocaleString()}</span>
                       ) : (
-                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">เปิดใช้งาน</span>
+                        <span>฿{minPrice.toLocaleString()} - ฿{maxPrice.toLocaleString()}</span>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <td className="px-6 py-4 whitespace-nowrap text-xs">
+                      {p.isHidden ? (
+                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-zinc-100 text-zinc-600 border border-zinc-200">
+                           ซ่อน
+                         </span>
+                      ) : (
+                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                           เปิดขาย
+                         </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-xs font-medium">
                       <div className="flex justify-end gap-2">
                         <Link 
                           to={`/admin/products/edit/${p.id}`} 
-                          className="w-8 h-8 rounded-full bg-zinc-100 hover:bg-zinc-200 text-zinc-700 hover:text-zinc-950 flex items-center justify-center active:scale-90 transition-all cursor-pointer"
-                          title="แก้ไข"
+                          className="w-8 h-8 rounded-full bg-zinc-100 hover:bg-zinc-200 text-zinc-700 hover:text-zinc-950 flex items-center justify-center active:scale-90 transition-all cursor-pointer shadow-2xs"
+                          title="แก้ไขข้อมูลสินค้าและสต็อค"
                         >
-                          <Edit className="w-4 h-4" />
+                          <Edit className="w-3.5 h-3.5" />
                         </Link>
                         <button 
+                          type="button"
                           onClick={() => toggleHide(p)} 
-                          className="w-8 h-8 rounded-full bg-zinc-100 hover:bg-zinc-200 text-zinc-600 hover:text-zinc-950 flex items-center justify-center active:scale-90 transition-all cursor-pointer"
-                          title={p.isHidden ? "แสดงสินค้า" : "ซ่อนสินค้า"}
+                          className="w-8 h-8 rounded-full bg-zinc-100 hover:bg-zinc-200 text-zinc-600 hover:text-zinc-950 flex items-center justify-center active:scale-90 transition-all cursor-pointer shadow-2xs"
+                          title={p.isHidden ? "คลิกเพื่อเปิดแสดงสินค้า" : "คลิกเพื่อซ่อนสินค้า"}
                         >
-                          {p.isHidden ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4 text-zinc-400" />}
+                          {p.isHidden ? <Eye className="w-3.5 h-3.5 text-zinc-400" /> : <EyeOff className="w-3.5 h-3.5 text-zinc-700" />}
                         </button>
                       </div>
                     </td>
                   </tr>
                 );
               })}
+
+              {/* Empty state */}
               {filteredProducts.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-sm text-gray-500">ไม่พบสินค้า</td>
+                  <td colSpan={6} className="px-6 py-14 text-center">
+                    <div className="flex flex-col items-center justify-center max-w-sm mx-auto space-y-3">
+                      <div className="w-12 h-12 rounded-2xl bg-zinc-100 flex items-center justify-center text-zinc-400">
+                        <PackageSearch className="w-6 h-6" />
+                      </div>
+                      <h3 className="text-sm font-bold text-zinc-900">ไม่พบรายการสินค้าที่ค้นหา</h3>
+                      <p className="text-xs text-zinc-500 leading-relaxed">
+                        {searchQuery ? (
+                          <>ไม่พบสินค้าที่มีชื่อรุ่น, แบรนด์ หรือรหัส SKU ตรงกับ <span className="font-semibold text-zinc-800 font-mono">"{searchQuery}"</span></>
+                        ) : (
+                          <>ไม่มีสินค้าในหมวดหมู่หรือเงื่อนไขที่เลือก</>
+                        )}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={clearAllFilters}
+                        className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-zinc-900 hover:bg-zinc-800 rounded-full shadow-md active:scale-95 transition-all cursor-pointer mt-1"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                        ล้างคำค้นหาและตัวกรองทั้งหมด
+                      </button>
+                    </div>
+                  </td>
                 </tr>
               )}
             </tbody>

@@ -9,6 +9,50 @@ import multer from 'multer';
 
 export const apiRouter = Router();
 
+// Ensure uploads directory exists
+const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: (_req, _file, cb) => {
+    cb(null, uploadsDir);
+  },
+  filename: (_req, file, cb) => {
+    const ext = path.extname(file.originalname) || '.png';
+    cb(null, `prod_${Date.now()}_${Math.random().toString(36).substring(7)}${ext}`);
+  }
+});
+const upload = multer({
+  storage,
+  limits: { fileSize: 30 * 1024 * 1024 } // 30MB
+});
+
+// Image Upload Endpoint (supports multipart file or base64 dataUrl)
+apiRouter.post('/upload', upload.single('image'), (req, res) => {
+  try {
+    if (req.file) {
+      return res.json({ url: `/uploads/${req.file.filename}` });
+    }
+    if (req.body && req.body.dataUrl) {
+      const dataUrl = req.body.dataUrl as string;
+      const matches = dataUrl.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+      if (matches && matches.length === 3) {
+        const ext = matches[1].includes('jpeg') || matches[1].includes('jpg') ? '.jpg' : matches[1].includes('webp') ? '.webp' : '.png';
+        const filename = `capture_${Date.now()}_${Math.random().toString(36).substring(7)}${ext}`;
+        const buffer = Buffer.from(matches[2], 'base64');
+        fs.writeFileSync(path.join(uploadsDir, filename), buffer);
+        return res.json({ url: `/uploads/${filename}` });
+      }
+    }
+    return res.status(400).json({ error: 'ไม่พบไฟล์รูปภาพ' });
+  } catch (err) {
+    console.error('Upload handling error:', err);
+    return res.status(500).json({ error: 'เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ' });
+  }
+});
+
 apiRouter.post('/auth/login', (req, res) => {
   const { password } = req.body;
   if (password === 'aaa1480') {
@@ -230,41 +274,110 @@ apiRouter.post('/sync/sheets', async (req, res) => {
   }
 });
 
-// Promotions route
+// Promotions routes
 apiRouter.get('/promotions', (req, res) => {
+  const db = readDB();
+  const dbPromos = db.promotions || [];
+  
+  // Return just the array of image URLs to maintain compatibility with storefront
+  // But also include full objects for admin
+  res.json({
+    images: dbPromos.map(p => p.url),
+    promotions: dbPromos
+  });
+});
+
+apiRouter.post('/promotions', (req, res) => {
+  const { url } = req.body;
+  if (!url) return res.status(400).json({ error: 'URL is required' });
+  
+  const db = readDB();
+  if (!db.promotions) db.promotions = [];
+  
+  const newPromo = { id: uuidv4(), url };
+  db.promotions.push(newPromo);
+  writeDB(db);
+  
+  res.json(newPromo);
+});
+
+apiRouter.delete('/promotions/:id', (req, res) => {
+  const db = readDB();
+  if (!db.promotions) db.promotions = [];
+  
+  const initialLen = db.promotions.length;
+  db.promotions = db.promotions.filter(p => p.id !== req.params.id);
+  
+  if (db.promotions.length < initialLen) {
+    writeDB(db);
+    res.json({ success: true });
+  } else {
+    res.status(404).json({ error: 'Promotion not found' });
+  }
+});
+
+// Chatbot route
+apiRouter.post('/chat', async (req, res) => {
   try {
-    const promoDir = path.join(process.cwd(), 'public', 'promotions');
-    let localImages: string[] = [];
-    if (fs.existsSync(promoDir)) {
-      localImages = fs.readdirSync(promoDir)
-        .filter((f: string) => /\.(jpg|jpeg|png|webp|gif)$/i.test(f))
-        .sort()
-        .map((f: string) => '/promotions/' + f);
-    }
+    const { message, history } = req.body;
     
-    // Always ensure at least one image if available
-    if (localImages.length === 0) {
-      localImages = [
-        'https://lh3.googleusercontent.com/d/1Z6fzVIUoBnHFNez6D0HBDhEf_QXLyKgf',
-        'https://lh3.googleusercontent.com/d/1znNOJ8wCYGpoZJJo3ub_Q_C30MQ1Zmx8'
-      ];
+    if (!message) {
+      return res.status(400).json({ error: 'Message is required' });
     }
 
-    res.json({
-      folderUrl: 'https://drive.google.com/drive/folders/1XgkBQ2BwvQHqFBs5aXHDlKvLqiXhl4U3',
-      images: localImages,
-      driveImages: [
-        'https://lh3.googleusercontent.com/d/1Z6fzVIUoBnHFNez6D0HBDhEf_QXLyKgf',
-        'https://lh3.googleusercontent.com/d/1znNOJ8wCYGpoZJJo3ub_Q_C30MQ1Zmx8'
-      ]
+    const ai = new GoogleGenAI({
+      apiKey: process.env.GEMINI_API_KEY,
+      httpOptions: { headers: { 'User-Agent': 'aistudio-build' } }
     });
-  } catch (err) {
-    res.json({
-      folderUrl: 'https://drive.google.com/drive/folders/1XgkBQ2BwvQHqFBs5aXHDlKvLqiXhl4U3',
-      images: [
-        'https://lh3.googleusercontent.com/d/1Z6fzVIUoBnHFNez6D0HBDhEf_QXLyKgf',
-        'https://lh3.googleusercontent.com/d/1znNOJ8wCYGpoZJJo3ub_Q_C30MQ1Zmx8'
-      ]
-    });
+
+    const db = readDB();
+    const productInfo = db.products.map(p => {
+      const brand = db.brands.find(b => b.id === p.brandId);
+      return `${brand?.name || 'Unknown'} ${p.model}: ${p.variants.map(v => `${v.ram}/${v.rom} - ฿${v.retailPrice}`).join(', ')}`;
+    }).join('\n');
+
+    const systemInstruction = `คุณคือผู้ช่วย AI ของร้าน เจมาร์ท (Jaymart) สาขาโรบินสันสุรินทร์ ชั้น 2 ตอบคำถามลูกค้าด้วยความสุภาพ น่ารัก เป็นกันเอง
+มีข้อมูลสินค้าปัจจุบันดังนี้ (ราคาและสเปค):
+${productInfo}
+
+ให้ตอบคำถามเกี่ยวกับมือถือและแท็บเล็ตในร้าน แนะนำสินค้าตามงบ หรือบอกข้อมูลราคา หากไม่ทราบให้บอกว่า "สามารถเข้ามาสอบถามได้ที่หน้าร้านเจมาร์ท สาขาโรบินสันสุรินทร์ ชั้น 2 ได้เลยค่ะ"`;
+
+    // Format history for Gemini API
+    const formattedHistory = history.map((msg: any) => ({
+      role: msg.role === 'user' ? 'user' : 'model',
+      parts: [{ text: msg.text }]
+    }));
+
+    // Generate response using history context
+    const contents = [
+      ...formattedHistory,
+      { role: 'user', parts: [{ text: message }] }
+    ];
+
+    // Add a simple retry logic for 503 High Demand errors
+    let response;
+    try {
+      response = await ai.models.generateContent({
+        model: 'gemini-3.8-flash',
+        contents: contents,
+        config: {
+          systemInstruction,
+          temperature: 0.7
+        }
+      });
+    } catch (err: any) {
+      if (err?.status === 503 || err?.message?.includes('503') || err?.message?.includes('high demand')) {
+        console.warn('Gemini API 503 High Demand Error. Returning fallback message.');
+        return res.json({ 
+          reply: 'ขออภัยด้วยนะคะ ตอนนี้ระบบผู้ช่วย AI กำลังมีผู้ใช้งานเยอะมาก อาจจะตอบกลับล่าช้าไปบ้าง สามารถเข้ามาสอบถามโดยตรงได้ที่หน้าร้านเจมาร์ท สาขาโรบินสันสุรินทร์ ชั้น 2 ได้เลยค่ะ' 
+        });
+      }
+      throw err;
+    }
+
+    res.json({ reply: response.text });
+  } catch (err: any) {
+    console.error('Chat API Error:', err);
+    res.status(500).json({ error: 'Failed to communicate with AI', details: err.message });
   }
 });

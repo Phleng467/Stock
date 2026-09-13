@@ -71,6 +71,16 @@ export const api = {
       method: 'POST',
       body: formData
     });
+    if (!res.ok) throw new Error('Upload failed');
+    return res.json();
+  },
+  uploadBase64Image: async (dataUrl: string) => {
+    const res = await fetch(`${API_BASE}/upload`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ dataUrl })
+    });
+    if (!res.ok) throw new Error('Upload base64 failed');
     return res.json();
   }
 };

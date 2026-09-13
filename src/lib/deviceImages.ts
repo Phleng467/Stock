@@ -231,19 +231,34 @@ export function resolveProductImage(
   brandName: string,
   modelName: string,
   colorName: string = '',
-  existingUrl?: string,
+  existingUrl?: string | null,
   category: 'Mobile' | 'Tablet' = 'Mobile'
-): string {
-  if (existingUrl && existingUrl.trim().length > 0 && !existingUrl.includes('placehold.co')) {
+): string | null {
+  if (existingUrl === null) {
+    return null; // Explicitly hidden
+  }
+
+  if (existingUrl && existingUrl.trim().length > 0 && !existingUrl.includes('placehold.co') && !existingUrl.includes('unsplash.com')) {
     return existingUrl;
   }
 
-  // Try to find matching image from curated options
-  const suggested = getSuggestedImages(brandName, modelName, colorName);
-  if (suggested.length > 0 && suggested[0].url) {
-    return suggested[0].url;
+  const cleanModel = modelName.trim().toLowerCase();
+  const cleanColor = colorName.trim().toLowerCase();
+  
+  // 1. Try to find an exact curated match
+  for (const [key, colorMap] of Object.entries(CURATED_DEVICE_DATABASE)) {
+    if (cleanModel.includes(key) || key.includes(cleanModel)) {
+      // Find matching color
+      for (const [cKey, url] of Object.entries(colorMap)) {
+         if (cKey !== 'default' && (cleanColor.includes(cKey) || cKey.includes(cleanColor))) {
+            return url;
+         }
+      }
+      // Or default color for this model
+      if (colorMap.default) return colorMap.default;
+    }
   }
 
-  // Fallback to high-quality SVG mockup
+  // 2. Fallback to smart SVG mockup with the correct model name
   return generateDeviceSvg(modelName, colorName, category);
 }

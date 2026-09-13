@@ -135,18 +135,31 @@ export default function ProductCard({
         {/* Device Image with Cross-fade / Smooth transition */}
         <div className="relative w-full h-full flex items-center justify-center p-2">
           <AnimatePresence mode="wait">
-            <motion.img
-              key={`${selectedColor.id}-${currentImageUrl}`}
-              src={currentImageUrl}
-              alt={`${product.model} - ${selectedColor.colorName}`}
-              initial={{ opacity: 0, scale: 0.94 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.96 }}
-              transition={{ duration: 0.25, ease: 'easeOut' }}
-              onLoad={() => setImageLoaded(true)}
-              className="max-h-full max-w-full object-contain filter drop-shadow-md group-hover:scale-105 transition-transform duration-500 ease-out select-none"
-              loading="lazy"
-            />
+            {currentImageUrl !== null ? (
+              <motion.img
+                key={`${selectedColor.id}-${currentImageUrl}`}
+                src={currentImageUrl}
+                alt={`${product.model} - ${selectedColor.colorName}`}
+                initial={{ opacity: 0, scale: 0.94 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.96 }}
+                transition={{ duration: 0.25, ease: 'easeOut' }}
+                onLoad={() => setImageLoaded(true)}
+                className="max-h-full max-w-full object-contain filter drop-shadow-md group-hover:scale-105 transition-transform duration-500 ease-out select-none"
+                loading="lazy"
+              />
+            ) : (
+              <motion.div
+                key={`no-img-${selectedColor.id}`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="flex flex-col items-center justify-center text-gray-400 w-full h-full opacity-60"
+              >
+                <Smartphone className="w-12 h-12 mb-2 stroke-[1.5]" />
+                <span className="text-[10px] uppercase font-medium tracking-wider">No Image</span>
+              </motion.div>
+            )}
           </AnimatePresence>
         </div>
 
@@ -265,9 +278,6 @@ export default function ProductCard({
                         isSelected ? "border-transparent" : ""
                       )} 
                     />
-                    {isSelected && (
-                      <Check className={cn("w-2.5 h-2.5 drop-shadow-xs", hex === '#f5f5f7' || hex === '#ffffff' ? "text-zinc-900" : "text-white")} />
-                    )}
                   </button>
                 );
               })}

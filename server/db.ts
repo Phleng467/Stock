@@ -8,6 +8,7 @@ export interface DBState {
   brands: any[];
   products: any[];
   settings: any;
+  promotions: any[];
 }
 
 const defaultState: DBState = {
@@ -20,7 +21,11 @@ const defaultState: DBState = {
     { id: 'b5', name: 'Xiaomi', order: 5, isHidden: false }
   ],
   products: [],
-  settings: { lowStockThreshold: 5, syncStatus: 'idle' }
+  settings: { lowStockThreshold: 5, syncStatus: 'idle' },
+  promotions: [
+    { id: 'p1', url: 'https://lh3.googleusercontent.com/d/1Z6fzVIUoBnHFNez6D0HBDhEf_QXLyKgf' },
+    { id: 'p2', url: 'https://lh3.googleusercontent.com/d/1znNOJ8wCYGpoZJJo3ub_Q_C30MQ1Zmx8' }
+  ]
 };
 
 export function readDB(): DBState {

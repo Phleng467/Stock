@@ -10,7 +10,7 @@ export interface ProductColor {
   colorName: string;
   sku: string;
   stock: number;
-  imageUrl: string;
+  imageUrl: string | null;
 }
 
 export interface ProductVariant {
