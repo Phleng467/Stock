@@ -43,107 +43,107 @@ export default function ProductList() {
 
     setImportingCsv(true);
 
-    Papa.parse(file, {
-      encoding: "UTF-8", // Or "windows-874" if Thai Excel format, but we'll try to let Papa handle it.
-      // We will remove the strict header checking which fails on weird invisible characters
-      header: true,
-      skipEmptyLines: true,
-      transformHeader: (header) => header.trim(),
-      complete: async (results) => {
-        try {
-          const newProducts: Partial<Product>[] = [];
-
-          for (let i = 0; i < results.data.length; i++) {
-            const row: any = results.data[i];
+    const reader = new FileReader();
+    
+    // First, try reading as text to manually parse the array or specify encoding
+    reader.onload = (e) => {
+      const text = e.target?.result as string;
+      const encoding = text.includes('') ? 'windows-874' : 'UTF-8';
+      
+      Papa.parse(file, {
+        encoding: encoding,
+        header: false, // Use index based approach to bypass header string match issues
+        skipEmptyLines: true,
+        complete: async (results) => {
+          try {
+            const newProducts: Partial<Product>[] = [];
             
-            // Handle both English and Thai column names
-            
-            // Find keys dynamically to avoid hidden characters/BOM issues
-            const keys = Object.keys(row);
-            const getVal = (matches: string[]) => {
-              const foundKey = keys.find(k => matches.some(m => k.toLowerCase().includes(m.toLowerCase())));
-              return foundKey ? (row[foundKey] || '') : '';
-            };
+            // Assume row 0 is header, start from 1
+            for (let i = 1; i < results.data.length; i++) {
+              const row: any = results.data[i];
+              if (!row || row.length < 3) continue;
+              
+              // 0: ITEM CODE, 1: แบรนด์, 2: รุ่น, 3: ความจุ, 4: สี, 5: จำนวน, 6: หมวดหมู่, 7: ราคาปกติ, 8: ราคาขายส่ง, 9: รายละเอียด
+              const itemCode = (row[0] || '').toString().trim();
+              const brandName = (row[1] || '').toString().trim();
+              const model = (row[2] || '').toString().trim();
+              const capacity = (row[3] || '').toString().trim();
+              const color = (row[4] || '').toString().trim() || 'Default';
+              const stockStr = (row[5] || '').toString().replace(/,/g, '') || '0';
+              const categoryStr = (row[6] || '').toString().trim() || 'Mobile';
+              const basePriceStr = (row[7] || '').toString().replace(/,/g, '') || '0';
+              const costPriceStr = (row[8] || '').toString().replace(/,/g, '') || '0';
+              const desc = (row[9] || '').toString().trim();
 
-            const brandName = getVal(['brand', 'แบรนด์']).toString().trim();
-            const model = getVal(['model', 'รุ่น']).toString().trim();
-            const capacity = getVal(['capacity', 'ความจุ']).toString().trim();
-            const color = getVal(['color', 'สี']).toString().trim() || 'Default';
-            const itemCode = getVal(['item code', 'รหัสสินค้า', 'item_code']).toString().trim();
-            const stockStr = getVal(['stock', 'จำนวน']).toString().replace(/,/g, '') || '0';
-            const categoryStr = getVal(['category', 'หมวดหมู่']).toString().trim() || 'Mobile';
-            const basePriceStr = getVal(['ราคาปกติ', 'base price']).toString().replace(/,/g, '') || '0';
-            const costPriceStr = getVal(['ราคาขายส่ง', 'ต้นทุน', 'cost price', 'wholesale']).toString().replace(/,/g, '') || '0';
-            const desc = getVal(['description', 'รายละเอียด']).toString().trim();
+              if (!model) continue;
 
-            
-            if (!model) continue; // Skip if no model name
+              const brandObj = brands.find(b => b.name.toLowerCase() === brandName.toLowerCase());
+              const brandId = brandObj ? brandObj.id : (brands[0]?.id || 'unknown');
+              
+              let ram = '';
+              let rom = capacity;
+              if (capacity.includes('/')) {
+                const parts = capacity.split('/');
+                ram = parts[0].trim();
+                rom = parts.slice(1).join('/').trim();
+              }
 
-            const brandObj = brands.find(b => b.name.toLowerCase() === brandName.toLowerCase());
-            const brandId = brandObj ? brandObj.id : (brands[0]?.id || 'unknown');
-            
-            let ram = '';
-            let rom = capacity;
-            if (capacity.includes('/')) {
-              const parts = capacity.split('/');
-              ram = parts[0].trim();
-              rom = parts.slice(1).join('/').trim();
+              const parsedStock = parseInt(stockStr, 10) || 0;
+              const parsedBasePrice = parseFloat(basePriceStr) || 0;
+              const parsedCostPrice = parseFloat(costPriceStr) || 0;
+
+              const newProduct: Partial<Product> = {
+                brandId,
+                model,
+                category: categoryStr.toLowerCase().includes('tablet') || categoryStr === 'แท็บเล็ต' ? 'Tablet' : 'Mobile',
+                description: desc,
+                basePrice: parsedBasePrice,
+                costPrice: parsedCostPrice,
+                isHidden: false,
+                variants: [{
+                  id: Math.random().toString(36).substring(7),
+                  ram: ram,
+                  rom: rom,
+                  retailPrice: parsedBasePrice,
+                  wholesalePrice: parsedCostPrice,
+                  colors: [{
+                    id: Math.random().toString(36).substring(7),
+                    colorName: color || 'Default',
+                    sku: itemCode,
+                    stock: parsedStock,
+                    imageUrl: null
+                  }]
+                }]
+              };
+              newProducts.push(newProduct);
             }
 
-            const parsedStock = parseInt(stockStr, 10) || 0;
-            const parsedBasePrice = parseFloat(basePriceStr) || 0;
-            const parsedCostPrice = parseFloat(costPriceStr) || 0;
+            if (newProducts.length === 0) {
+               alert('ไม่พบข้อมูล หรือหัวคอลัมน์ไม่ถูกต้อง กรุณาใช้หัวคอลัมน์: ITEM CODE, แบรนด์, รุ่น, ความจุ, สี, จำนวน, หมวดหมู่, ราคาปกติ, ราคาขายส่ง, รายละเอียด');
+               setImportingCsv(false);
+               if (fileInputRef.current) fileInputRef.current.value = '';
+               return;
+            }
 
-            const newProduct: Partial<Product> = {
-              brandId,
-              model,
-              category: categoryStr.toLowerCase().includes('tablet') || categoryStr === 'แท็บเล็ต' ? 'Tablet' : 'Mobile',
-              description: desc,
-              basePrice: parsedBasePrice,
-              costPrice: parsedCostPrice,
-              isHidden: false,
-              variants: [{
-                id: Math.random().toString(36).substring(7),
-                ram: ram,
-                rom: rom,
-                retailPrice: parsedBasePrice,
-                wholesalePrice: parsedCostPrice,
-                colors: [{
-                  id: Math.random().toString(36).substring(7),
-                  colorName: color || 'Default',
-                  sku: itemCode,
-                  stock: parsedStock,
-                  imageUrl: null
-                }]
-              }]
-            };
-            newProducts.push(newProduct);
+            setCsvPreviewData(newProducts);
+            setCsvSelectedIndices([]);
+            setCsvPreviewOpen(true);
+          } catch (err: any) {
+            console.error(err);
+            alert('ประมวลผลไฟล์ CSV ไม่สำเร็จ: ' + err.message);
+          } finally {
+            setImportingCsv(false);
+            if (fileInputRef.current) fileInputRef.current.value = '';
           }
-
-          if (newProducts.length === 0) {
-             alert('ไม่พบข้อมูล หรือหัวคอลัมน์ไม่ถูกต้อง กรุณาใช้หัวคอลัมน์: ITEM CODE, แบรนด์, รุ่น, ความจุ, สี, จำนวน, หมวดหมู่, ราคาปกติ, ราคาขายส่ง, รายละเอียด');
-             setImportingCsv(false);
-             if (fileInputRef.current) fileInputRef.current.value = '';
-             return;
-          }
-
-          setCsvPreviewData(newProducts);
-          setCsvSelectedIndices([]);
-          setCsvPreviewOpen(true);
-        } catch (err: any) {
-          console.error(err);
-          alert('ประมวลผลไฟล์ CSV ไม่สำเร็จ: ' + err.message);
-        } finally {
+        },
+        error: (error) => {
+          alert('ไม่สามารถอ่านไฟล์ CSV ได้');
           setImportingCsv(false);
           if (fileInputRef.current) fileInputRef.current.value = '';
         }
-      },
-      error: (error) => {
-        alert('ไม่สามารถอ่านไฟล์ CSV ได้');
-        setImportingCsv(false);
-        if (fileInputRef.current) fileInputRef.current.value = '';
-      }
-    });
+      });
+    };
+    reader.readAsText(file, 'UTF-8');
   };
 
   const toggleHide = async (product: Product) => {
