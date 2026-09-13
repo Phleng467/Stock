@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef, ChangeEvent } from 'react';
+import Papa from 'papaparse';
 import { api } from '../../lib/api';
 import { Product, Brand } from '../../types';
 import { Link } from 'react-router-dom';
@@ -35,72 +36,95 @@ export default function ProductList() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    try {
-      setImportingCsv(true);
-      const text = await file.text();
-      const rows = text.split('\n').filter(r => r.trim());
-      if (rows.length < 2) throw new Error("ไฟล์ CSV ไม่มีข้อมูล");
+    setImportingCsv(true);
 
-      const headerRow = rows[0].split(',').map(h => h.trim().toLowerCase());
-      
-      const newProducts: Partial<Product>[] = [];
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      transformHeader: (header) => header.trim(),
+      complete: async (results) => {
+        try {
+          const newProducts: Partial<Product>[] = [];
 
-      for (let i = 1; i < rows.length; i++) {
-        // Use a simple regex to split CSV respecting quotes
-        const regex = /,(?=(?:(?:[^"]*"){2})*[^"]*$)/;
-        const cols = rows[i].split(regex).map(c => c.trim().replace(/^"|"$/g, ''));
-        
-        if (cols.length < 3) continue;
+          for (let i = 0; i < results.data.length; i++) {
+            const row: any = results.data[i];
+            
+            // Handle both English and Thai column names
+            const brandName = (row['brand'] || row['แบรนด์'] || row['Brand'] || '').trim();
+            const model = (row['model'] || row['รุ่น'] || row['Model'] || '').trim();
+            const capacity = (row['capacity'] || row['ความจุ'] || row['Capacity'] || '').trim();
+            const color = (row['color'] || row['สี'] || row['Color'] || 'Default').trim();
+            const stockStr = (row['stock'] || row['จำนวน'] || row['Stock'] || '0').toString().replace(/,/g, '');
+            const categoryStr = (row['category'] || row['หมวดหมู่'] || row['Category'] || 'Mobile').trim();
+            const basePriceStr = (row['base price'] || row['ราคาปกติ'] || row['Base Price'] || '0').toString().replace(/,/g, '');
+            const costPriceStr = (row['cost price'] || row['wholesale price'] || row['ราคาขายส่ง'] || row['ต้นทุน'] || '0').toString().replace(/,/g, '');
+            const desc = (row['description'] || row['รายละเอียด'] || row['Description'] || '').trim();
+            
+            if (!model) continue; // Skip if no model name
 
-        const brandName = cols[headerRow.indexOf('brand')] || cols[1] || '';
-        const brandObj = brands.find(b => b.name.toLowerCase() === brandName.toLowerCase());
-        const brandId = brandObj ? brandObj.id : (brands[0]?.id || 'unknown');
+            const brandObj = brands.find(b => b.name.toLowerCase() === brandName.toLowerCase());
+            const brandId = brandObj ? brandObj.id : (brands[0]?.id || 'unknown');
+            
+            let ram = '';
+            let rom = capacity;
+            if (capacity.includes('/')) {
+              const parts = capacity.split('/');
+              ram = parts[0].trim();
+              rom = parts.slice(1).join('/').trim();
+            }
 
-        const model = cols[headerRow.indexOf('model')] || cols[2] || 'New Product';
-        const categoryStr = cols[headerRow.indexOf('category')] || cols[3] || 'Mobile';
-        const basePriceStr = cols[headerRow.indexOf('base price')] || cols[4] || '0';
-        const costPriceStr = cols[headerRow.indexOf('cost price')] || cols[5] || '0';
-        const desc = cols[headerRow.indexOf('description')] || cols[6] || '';
-        
-        // Handle image URL and wholesale toggles if they exist (simplification for bulk upload)
-        // Usually you'd map these to variants, but for a basic CSV, we'll create one default variant
-        
-        const newProduct: Partial<Product> = {
-          brandId,
-          model,
-          category: categoryStr.includes('Tablet') ? 'Tablet' : 'Mobile',
-          description: desc,
-          basePrice: parseFloat(basePriceStr),
-          costPrice: parseFloat(costPriceStr),
-          isHidden: false,
-          variants: [{
-            id: Math.random().toString(36).substring(7),
-            ram: '',
-            rom: '',
-            retailPrice: parseFloat(basePriceStr),
-            wholesalePrice: null, // Default null for wholesale price toggle
-            colors: [{
-              id: Math.random().toString(36).substring(7),
-              colorName: 'Default',
-              sku: '',
-              stock: 0,
-              imageUrl: null // No image by default
-            }]
-          }]
-        };
-        newProducts.push(newProduct);
+            const parsedStock = parseInt(stockStr, 10) || 0;
+            const parsedBasePrice = parseFloat(basePriceStr) || 0;
+            const parsedCostPrice = parseFloat(costPriceStr) || 0;
+
+            const newProduct: Partial<Product> = {
+              brandId,
+              model,
+              category: categoryStr.toLowerCase().includes('tablet') || categoryStr === 'แท็บเล็ต' ? 'Tablet' : 'Mobile',
+              description: desc,
+              basePrice: parsedBasePrice,
+              costPrice: parsedCostPrice,
+              isHidden: false,
+              variants: [{
+                id: Math.random().toString(36).substring(7),
+                ram: ram,
+                rom: rom,
+                retailPrice: parsedBasePrice,
+                wholesalePrice: parsedCostPrice,
+                colors: [{
+                  id: Math.random().toString(36).substring(7),
+                  colorName: color || 'Default',
+                  sku: '',
+                  stock: parsedStock,
+                  imageUrl: null
+                }]
+              }]
+            };
+            newProducts.push(newProduct);
+          }
+
+          if (newProducts.length === 0) {
+             alert('ไม่พบข้อมูล หรือหัวคอลัมน์ไม่ถูกต้อง กรุณาใช้หัวคอลัมน์: แบรนด์, รุ่น, ความจุ, สี, จำนวน, หมวดหมู่, ราคาปกติ, ราคาขายส่ง, รายละเอียด');
+             return;
+          }
+
+          await api.addProductsBulk(newProducts);
+          await fetchData();
+          alert(`นำเข้าข้อมูลสินค้าสำเร็จ ${newProducts.length} รายการ!`);
+        } catch (err: any) {
+          console.error(err);
+          alert('นำเข้าไฟล์ CSV ไม่สำเร็จ: ' + err.message);
+        } finally {
+          setImportingCsv(false);
+          if (fileInputRef.current) fileInputRef.current.value = '';
+        }
+      },
+      error: (error) => {
+        alert('ไม่สามารถอ่านไฟล์ CSV ได้');
+        setImportingCsv(false);
+        if (fileInputRef.current) fileInputRef.current.value = '';
       }
-
-      await api.addProductsBulk(newProducts);
-      await fetchData();
-      alert(`นำเข้าข้อมูลสินค้าสำเร็จ ${newProducts.length} รายการ!`);
-    } catch (err: any) {
-      console.error(err);
-      alert('นำเข้าไฟล์ CSV ไม่สำเร็จ: ' + err.message);
-    } finally {
-      setImportingCsv(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
-    }
+    });
   };
 
   const toggleHide = async (product: Product) => {
@@ -199,6 +223,13 @@ export default function ProductList() {
           <p className="text-xs text-zinc-500">จัดการรายการสต็อคสินค้า สเปก และรหัส ITEM CODE</p>
         </div>
         <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => alert('รูปแบบไฟล์ CSV ที่รองรับ:\n\nคอลัมน์ (ภาษาไทย):\nแบรนด์, รุ่น, ความจุ, สี, จำนวน, หมวดหมู่, ราคาปกติ, ราคาขายส่ง, รายละเอียด\n\nตัวอย่าง:\nApple, iPhone 15 Pro, 8/256, Titanium, 10, Mobile, 39900, 35000, เครื่องศูนย์ไทย')}
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white text-zinc-600 hover:bg-zinc-50 border border-zinc-200 rounded-full text-xs font-bold active:scale-95 transition-all shadow-sm cursor-pointer shrink-0"
+          >
+            วิธีทำ CSV
+          </button>
           <label className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 rounded-full text-xs font-bold active:scale-95 transition-all shadow-sm cursor-pointer shrink-0">
             {importingCsv ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
             {importingCsv ? 'กำลังนำเข้า...' : 'อัปโหลด CSV'}
