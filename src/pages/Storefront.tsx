@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback, MouseEvent } from 'react';
-import { Search, Loader2, LogIn, X, Smartphone, Tablet, SlidersHorizontal, RotateCcw, Sparkles, History, Layers, Calculator, ExternalLink, Clock } from 'lucide-react';
+import { Search, Loader2, LogIn, X, Smartphone, Tablet, SlidersHorizontal, RotateCcw, Sparkles, History, Layers, Calculator, ExternalLink, Clock, Menu, ChevronDown, ChevronRight, Package } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { api } from '../lib/api';
 import { Product, Brand } from '../types';
 import ProductCard from '../components/ProductCard';
@@ -11,6 +11,7 @@ import CompareModal from '../components/CompareModal';
 import Chatbot from '../components/Chatbot';
 
 export default function Storefront() {
+  const location = useLocation();
   const [products, setProducts] = useState<Product[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [loading, setLoading] = useState(true);
@@ -23,6 +24,9 @@ export default function Storefront() {
   const [showCompareModal, setShowCompareModal] = useState(false);
   const [compareToast, setCompareToast] = useState<string | null>(null);
   const [lastUpdatedAt, setLastUpdatedAt] = useState<Date | null>(null);
+  
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isStockExpanded, setIsStockExpanded] = useState(true);
 
   // Load recent searches from localStorage
   useEffect(() => {
@@ -124,9 +128,18 @@ export default function Storefront() {
   useEffect(() => {
     Promise.all([api.getBrands(), api.getProducts()]).then(([b, p]) => {
       setBrands(b.filter(brand => !brand.isHidden));
-      setProducts(p.filter(prod => !prod.isHidden));
+      setProducts(p.filter(prod => !prod.isHidden && !prod.deletedAt));
       setLastUpdatedAt(new Date());
-      setLoading(false);
+
+      const fromAdmin = location.state?.fromAdmin;
+      if (fromAdmin) {
+        setLoading(false);
+      } else {
+        // Add a slight artificial delay (หน่วงเวลา) when not coming from Admin
+        setTimeout(() => {
+          setLoading(false);
+        }, 1200);
+      }
 
       // Auto show promotion popup if not dismissed today or in this session
       try {
@@ -147,6 +160,11 @@ export default function Storefront() {
       }
     });
   }, []);
+
+  // Determine which brands actually have active products (since products are already filtered in state)
+  const visibleBrands = useMemo(() => {
+    return brands.filter(b => products.some(p => p.brandId === b.id));
+  }, [brands, products]);
 
   const filteredProducts = useMemo(() => {
     return products.filter(p => {
@@ -198,6 +216,7 @@ export default function Storefront() {
     setSearchQuery('');
     setSelectedCategory('ALL');
     setActiveBrand(null);
+    setIsSidebarOpen(false);
   };
 
   const isLoggedIn = !!localStorage.getItem('token');
@@ -211,7 +230,7 @@ export default function Storefront() {
               <img 
                 src="/branch_logo.jpg" 
                 alt="เจมาร์ท สาขาโรบินสันสุรินทร์" 
-                className="w-full h-full object-contain rounded-full"
+                className="w-full h-full object-contain rounded-full" decoding="async" fetchPriority="high"
               />
             </div>
             <span className="absolute -inset-2 rounded-full bg-red-500/15 blur-md -z-10 animate-pulse" />
@@ -233,22 +252,173 @@ export default function Storefront() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
+      {/* Sidebar Overlay */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-[60] backdrop-blur-xs transition-opacity"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar Drawer */}
+      <aside className={cn(
+        "fixed inset-y-0 left-0 w-72 bg-white shadow-2xl z-[70] transform transition-transform duration-300 ease-in-out flex flex-col",
+        isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+      )}>
+        <div className="h-16 flex items-center px-4 border-b border-gray-100 justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full overflow-hidden bg-white border border-red-200 shadow-xs p-0.5">
+              <img src="/branch_logo.jpg" alt="Jaymart" className="w-full h-full object-contain rounded-full" decoding="async" fetchPriority="high" />
+            </div>
+            <span className="font-black text-gray-900 text-sm">Jaymart Surin</span>
+          </div>
+          <button onClick={() => setIsSidebarOpen(false)} className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        
+        <div className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+          <button
+            onClick={() => {
+              setShowPromoModal(true);
+              setIsSidebarOpen(false);
+            }}
+            className="w-full flex items-center px-3 py-3 text-sm font-semibold rounded-xl text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors"
+          >
+            <Sparkles className="w-5 h-5 mr-3 text-red-500" />
+            โปรโมชั่น
+          </button>
+          
+          <a
+            href="https://installment-calculator.pchindasook.workers.dev/"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => setIsSidebarOpen(false)}
+            className="w-full flex items-center px-3 py-3 text-sm font-semibold rounded-xl text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors"
+          >
+            <Calculator className="w-5 h-5 mr-3 text-blue-600" />
+            ตารางคำนวณไฟแนนซ์
+            <ExternalLink className="w-3.5 h-3.5 ml-auto text-blue-400" />
+          </a>
+
+          <div className="pt-2 mt-2 border-t border-gray-100">
+            <button
+              onClick={() => setIsStockExpanded(!isStockExpanded)}
+              className="w-full flex items-center justify-between px-3 py-3 text-sm font-semibold rounded-xl text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              <div className="flex items-center">
+                <Package className="w-5 h-5 mr-3 text-emerald-500" />
+                สต๊อกสินค้า
+              </div>
+              {isStockExpanded ? <ChevronDown className="w-4 h-4 text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-400" />}
+            </button>
+            
+            {isStockExpanded && (
+              <div className="mt-1 ml-4 pl-4 border-l-2 border-gray-100 space-y-3 pb-2">
+                
+                {/* Category Filters */}
+                <div className="space-y-1">
+                  <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">หมวดหมู่</div>
+                  <button
+                    onClick={() => {
+                      setSelectedCategory('ALL');
+                      setIsSidebarOpen(false);
+                    }}
+                    className={cn(
+                      "w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors",
+                      selectedCategory === 'ALL' ? "bg-gray-100 text-gray-900 font-bold" : "text-gray-600 hover:bg-gray-50"
+                    )}
+                  >
+                    ทั้งหมด
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSelectedCategory('Mobile');
+                      setIsSidebarOpen(false);
+                    }}
+                    className={cn(
+                      "w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors",
+                      selectedCategory === 'Mobile' ? "bg-red-50 text-red-700 font-bold" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                    )}
+                  >
+                    <Smartphone className="w-4 h-4 mr-2" /> มือถือ
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSelectedCategory('Tablet');
+                      setIsSidebarOpen(false);
+                    }}
+                    className={cn(
+                      "w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors",
+                      selectedCategory === 'Tablet' ? "bg-red-50 text-red-700 font-bold" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                    )}
+                  >
+                    <Tablet className="w-4 h-4 mr-2" /> แท็บเล็ต
+                  </button>
+                </div>
+
+                {/* Brand Filters */}
+                <div className="space-y-1">
+                  <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">แบรนด์</div>
+                  <button
+                    onClick={() => {
+                      setActiveBrand(null);
+                      setSearchQuery('');
+                      setIsSidebarOpen(false);
+                    }}
+                    className={cn(
+                      "w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors",
+                      activeBrand === null ? "bg-gray-100 text-gray-900 font-bold" : "text-gray-600 hover:bg-gray-50"
+                    )}
+                  >
+                    ทุกแบรนด์
+                  </button>
+                  {visibleBrands.map((brand) => (
+                    <button
+                      key={brand.id}
+                      onClick={() => {
+                        setActiveBrand(brand.id);
+                        setSearchQuery('');
+                        setIsSidebarOpen(false);
+                      }}
+                      className={cn(
+                        "w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors",
+                        activeBrand === brand.id ? "bg-red-50 text-red-700 font-bold" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                      )}
+                    >
+                      {brand.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </aside>
+
       {/* Header */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Main Bar: Brand / Logo + Search Bar + Login Button */}
           <div className="flex justify-between items-center h-16 gap-3 sm:gap-6">
-            {/* Logo / Brand Name */}
-            <div 
-              className="flex items-center gap-2.5 cursor-pointer shrink-0 group" 
-              onClick={clearFilters}
-              title="เจมาร์ท สาขาโรบินสันสุรินทร์ (คลิกเพื่อรีเซ็ต)"
-            >
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={() => setIsSidebarOpen(true)}
+                className="p-2 rounded-full border border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50 active:scale-95 transition-all cursor-pointer shadow-2xs"
+              >
+                <Menu className="w-5 h-5 sm:w-6 sm:h-6" />
+              </button>
+              {/* Logo / Brand Name */}
+              <div 
+                className="flex items-center gap-2.5 cursor-pointer shrink-0 group" 
+                onClick={clearFilters}
+                title="เจมาร์ท สาขาโรบินสันสุรินทร์ (คลิกเพื่อรีเซ็ต)"
+              >
               <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden bg-white border border-red-200/80 shadow-xs p-0.5 shrink-0 group-hover:scale-105 transition-transform duration-200">
                 <img 
                   src="/branch_logo.jpg" 
                   alt="เจมาร์ท สาขาโรบินสันสุรินทร์" 
-                  className="w-full h-full object-contain rounded-full" 
+                  className="w-full h-full object-contain rounded-full" decoding="async" fetchPriority="high" 
                 />
               </div>
               <div className="flex flex-col">
@@ -260,6 +430,7 @@ export default function Storefront() {
                 </span>
                 <span className="text-[10px] text-gray-400 font-medium">ชั้น 2 • สต็อคและผ่อนสินค้า</span>
               </div>
+            </div>
             </div>
 
             {/* Desktop / Tablet Search Bar */}
@@ -396,103 +567,6 @@ export default function Storefront() {
                 <span>พิมพ์ค้นหารุ่นสินค้า เช่น iPhone, S24, Reno เพื่อตรวจสอบสต็อค</span>
               </div>
             )}
-
-            {/* Promotion & Calculator Actions */}
-            <div className="flex items-center gap-2 shrink-0 sm:ml-auto">
-              <a
-                href="https://installment-calculator.pchindasook.workers.dev/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-700 hover:text-blue-800 bg-blue-50 hover:bg-blue-100/80 active:scale-95 px-3 py-1.5 rounded-full border border-blue-200 transition-all duration-150 whitespace-nowrap cursor-pointer shadow-2xs"
-                title="เครื่องคำนวณเงินผ่อน • Samsung Finance+"
-              >
-                <Calculator className="w-3.5 h-3.5 text-blue-600" />
-                <span>คำนวณผ่อน</span>
-                <ExternalLink className="w-2.5 h-2.5 text-blue-400" />
-              </a>
-
-              <button
-                onClick={() => setShowPromoModal(true)}
-                className="inline-flex items-center gap-1.5 text-xs font-medium text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 active:scale-95 px-3 py-1.5 rounded-full border border-red-200 transition-all duration-150 whitespace-nowrap cursor-pointer shadow-2xs"
-                title="ดูโปรโมชั่นพิเศษ"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-red-500" />
-                <span>โปรโมชั่น</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Category & Brand Navigation Bar */}
-        <div className="border-t border-zinc-100 bg-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex flex-col md:flex-row md:items-center md:justify-between gap-2.5">
-            {/* Category Quick Filter */}
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-hide">
-              <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider mr-1 hidden sm:inline">หมวด:</span>
-              <button
-                onClick={() => setSelectedCategory('ALL')}
-                className={cn(
-                  "px-3.5 py-1.5 text-xs font-semibold rounded-full transition-all duration-150 active:scale-95 whitespace-nowrap cursor-pointer",
-                  selectedCategory === 'ALL'
-                    ? "bg-zinc-900 text-white shadow-sm shadow-zinc-900/20 scale-[1.02]"
-                    : "bg-zinc-100/90 text-zinc-600 hover:bg-zinc-200 hover:text-zinc-900"
-                )}
-              >
-                ✨ ทั้งหมด
-              </button>
-              <button
-                onClick={() => setSelectedCategory('Mobile')}
-                className={cn(
-                  "px-3.5 py-1.5 text-xs font-semibold rounded-full transition-all duration-150 active:scale-95 flex items-center gap-1.5 whitespace-nowrap cursor-pointer",
-                  selectedCategory === 'Mobile'
-                    ? "bg-red-600 text-white shadow-sm shadow-red-500/25 scale-[1.02]"
-                    : "bg-zinc-100/90 text-zinc-600 hover:bg-zinc-200 hover:text-zinc-900"
-                )}
-              >
-                <Smartphone className="w-3.5 h-3.5" /> มือถือ
-              </button>
-              <button
-                onClick={() => setSelectedCategory('Tablet')}
-                className={cn(
-                  "px-3.5 py-1.5 text-xs font-semibold rounded-full transition-all duration-150 active:scale-95 flex items-center gap-1.5 whitespace-nowrap cursor-pointer",
-                  selectedCategory === 'Tablet'
-                    ? "bg-red-600 text-white shadow-sm shadow-red-500/25 scale-[1.02]"
-                    : "bg-zinc-100/90 text-zinc-600 hover:bg-zinc-200 hover:text-zinc-900"
-                )}
-              >
-                <Tablet className="w-3.5 h-3.5" /> แท็บเล็ต
-              </button>
-            </div>
-
-            {/* Brand Nav */}
-            <div className="flex items-center space-x-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-hide border-t md:border-t-0 pt-2 md:pt-0 border-zinc-100">
-              <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider mr-1 hidden sm:inline">แบรนด์:</span>
-              <button 
-                onClick={() => setActiveBrand(null)}
-                className={cn(
-                  "px-3 py-1 text-xs font-semibold rounded-full whitespace-nowrap transition-all duration-150 active:scale-95 cursor-pointer", 
-                  activeBrand === null 
-                    ? "bg-zinc-900 text-white shadow-xs scale-105" 
-                    : "text-zinc-600 hover:text-zinc-900 bg-zinc-100/70 hover:bg-zinc-200/70"
-                )}
-              >
-                ทุกแบรนด์
-              </button>
-              {brands.map(brand => (
-                <button
-                  key={brand.id}
-                  onClick={() => setActiveBrand(activeBrand === brand.id ? null : brand.id)}
-                  className={cn(
-                    "px-3 py-1 text-xs font-semibold rounded-full whitespace-nowrap transition-all duration-150 active:scale-95 cursor-pointer", 
-                    activeBrand === brand.id 
-                    ? "bg-zinc-900 text-white shadow-xs scale-105" 
-                    : "text-zinc-600 hover:text-zinc-900 bg-zinc-100/70 hover:bg-zinc-200/70"
-                  )}
-                >
-                  {brand.name}
-                </button>
-              ))}
-            </div>
           </div>
         </div>
       </header>
@@ -670,7 +744,7 @@ export default function Storefront() {
             <img 
               src="/branch_logo.jpg" 
               alt="เจมาร์ท สาขาโรบินสันสุรินทร์" 
-              className="w-full h-full object-contain rounded-full" 
+              className="w-full h-full object-contain rounded-full" decoding="async" fetchPriority="high" 
             />
           </div>
           <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 text-center sm:text-left">

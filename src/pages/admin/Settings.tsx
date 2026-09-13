@@ -1,5 +1,5 @@
 import { useState, useEffect, ChangeEvent, useRef } from 'react';
-import { Database, HardDrive, Download, Upload, Image as ImageIcon, Trash2, Plus, Loader2, FileSpreadsheet, Sparkles } from 'lucide-react';
+import { Database, HardDrive, Download, Upload, Image as ImageIcon, Trash2, Plus, Loader2, FileSpreadsheet, Sparkles, UploadCloud, DownloadCloud, ExternalLink } from 'lucide-react';
 import { api } from '../../lib/api';
 
 export default function Settings() {
@@ -137,8 +137,16 @@ export default function Settings() {
   const [googleUser, setGoogleUser] = useState<any>(null);
   const [isLoggingInGoogle, setIsLoggingInGoogle] = useState(false);
   const [syncingGoogleSheets, setSyncingGoogleSheets] = useState(false);
+  const [spreadsheetId, setSpreadsheetId] = useState<string | null>(null);
 
   useEffect(() => {
+    // Fetch settings to get spreadsheetId
+    api.getSettings().then(settings => {
+      if (settings && settings.spreadsheetId) {
+        setSpreadsheetId(settings.spreadsheetId);
+      }
+    }).catch(err => console.error('Failed to load settings:', err));
+
     import('../../lib/firebaseAuth').then(({ initAuth }) => {
       initAuth((user, token) => {
         setGoogleUser(user);
@@ -178,7 +186,7 @@ export default function Settings() {
     }
   };
 
-  const handleSyncToGoogleSheets = async () => {
+  const handlePushToGoogleSheets = async () => {
     if (!googleToken) {
       alert('กรุณาลงชื่อเข้าใช้ Google ก่อนซิงค์ข้อมูล');
       return;
@@ -186,15 +194,41 @@ export default function Settings() {
     
     setSyncingGoogleSheets(true);
     try {
-      const result = await api.syncSheets(googleToken);
+      const { googleSheetsSyncService } = await import('../../lib/googleSheetsSync');
+      const result = await googleSheetsSyncService.pushLocalInventory(googleToken);
       if (result.success) {
-        alert('ซิงค์ข้อมูลไปยัง Google Sheets เรียบร้อยแล้ว');
+        if (result.spreadsheetId) setSpreadsheetId(result.spreadsheetId);
+        alert('ส่งออกข้อมูลไปยัง Google Sheets เรียบร้อยแล้ว');
       } else {
-        alert('เกิดข้อผิดพลาดในการซิงค์ข้อมูล');
+        alert('เกิดข้อผิดพลาดในการส่งออกข้อมูล');
       }
     } catch (err: any) {
-      console.error('Sync error:', err);
-      alert('ซิงค์ข้อมูลล้มเหลว: ' + err.message);
+      console.error('Push error:', err);
+      alert('ส่งออกข้อมูลล้มเหลว: ' + err.message);
+    } finally {
+      setSyncingGoogleSheets(false);
+    }
+  };
+
+  const handlePullFromGoogleSheets = async () => {
+    if (!googleToken) {
+      alert('กรุณาลงชื่อเข้าใช้ Google ก่อนดึงข้อมูล');
+      return;
+    }
+    
+    setSyncingGoogleSheets(true);
+    try {
+      const { googleSheetsSyncService } = await import('../../lib/googleSheetsSync');
+      const result = await googleSheetsSyncService.fetchLatestSheetData(googleToken);
+      if (result.success) {
+        if (result.spreadsheetId) setSpreadsheetId(result.spreadsheetId);
+        alert('ดึงข้อมูลล่าสุดจาก Google Sheets เรียบร้อยแล้ว');
+      } else {
+        alert('เกิดข้อผิดพลาดในการดึงข้อมูล');
+      }
+    } catch (err: any) {
+      console.error('Pull error:', err);
+      alert('ดึงข้อมูลล้มเหลว: ' + err.message);
     } finally {
       setSyncingGoogleSheets(false);
     }
@@ -304,14 +338,35 @@ export default function Settings() {
                      </div>
                      <button onClick={handleGoogleSignOut} className="text-xs text-red-600 hover:text-red-700 font-medium">ยกเลิก</button>
                   </div>
-                  <button 
-                    onClick={handleSyncToGoogleSheets}
-                    disabled={syncingGoogleSheets}
-                    className="w-full flex justify-center items-center px-4 py-2 bg-[#4285F4] hover:bg-[#3367d6] text-white rounded-lg shadow-sm text-sm font-medium transition-colors cursor-pointer disabled:opacity-50"
-                  >
-                    {syncingGoogleSheets ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <FileSpreadsheet className="w-4 h-4 mr-2" />}
-                    {syncingGoogleSheets ? 'กำลังซิงค์...' : 'ซิงค์ข้อมูลไปยัง Google Sheets'}
-                  </button>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button 
+                      onClick={handlePushToGoogleSheets}
+                      disabled={syncingGoogleSheets}
+                      className="w-full flex justify-center items-center px-4 py-2 bg-[#4285F4] hover:bg-[#3367d6] text-white rounded-lg shadow-sm text-sm font-medium transition-colors cursor-pointer disabled:opacity-50"
+                    >
+                      {syncingGoogleSheets ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <UploadCloud className="w-4 h-4 mr-2" />}
+                      ส่งข้อมูลขึ้นชีท
+                    </button>
+                    <button 
+                      onClick={handlePullFromGoogleSheets}
+                      disabled={syncingGoogleSheets}
+                      className="w-full flex justify-center items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-sm text-sm font-medium transition-colors cursor-pointer disabled:opacity-50"
+                    >
+                      {syncingGoogleSheets ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <DownloadCloud className="w-4 h-4 mr-2" />}
+                      ดึงข้อมูลจากชีท
+                    </button>
+                  </div>
+                  {spreadsheetId && (
+                    <a 
+                      href={`https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit`} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="w-full mt-2 flex justify-center items-center px-4 py-2 bg-white border border-green-600 text-green-700 hover:bg-green-50 rounded-lg shadow-sm text-sm font-medium transition-colors cursor-pointer"
+                    >
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      เปิดแผ่นงาน Google Sheets
+                    </a>
+                  )}
                 </div>
               ) : (
                 <button 

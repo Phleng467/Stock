@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useRef, ChangeEvent } from 'react';
 import { api } from '../../lib/api';
 import { Product, Brand } from '../../types';
 import { Link } from 'react-router-dom';
-import { Plus, Edit, EyeOff, Eye, Search, X, Smartphone, Tablet, Filter, PackageSearch, Sparkles, Hash, Upload, Loader2, PackageOpen } from 'lucide-react';
+import { Plus, Edit, EyeOff, Eye, Search, X, Smartphone, Tablet, Filter, PackageSearch, Sparkles, Hash, Upload, Loader2, PackageOpen, Trash2, RotateCcw } from 'lucide-react';
 import { cn } from '../../components/ProductCard';
 import QuickStockModal from '../../components/QuickStockModal';
 
@@ -13,6 +13,7 @@ export default function ProductList() {
   const [selectedCategory, setSelectedCategory] = useState<'ALL' | 'Mobile' | 'Tablet'>('ALL');
   const [selectedBrand, setSelectedBrand] = useState<string>('ALL');
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'VISIBLE' | 'HIDDEN'>('ALL');
+  const [viewMode, setViewMode] = useState<'active' | 'trash'>('active');
   const [importingCsv, setImportingCsv] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -107,11 +108,27 @@ export default function ProductList() {
     fetchData();
   };
 
-  // Real-time filtering by Name, SKU, Brand, Specs, and Category
-  const filteredProducts = useMemo(() => {
+  const deleteProduct = async (product: Product) => {
+    if (confirm(`คุณต้องการลบ ${product.model} ใช่หรือไม่? (ย้ายไปถังขยะ 30 วัน)`)) {
+      await api.deleteProduct(product.id);
+      fetchData();
+    }
+  };
+
+  const restoreProduct = async (product: Product) => {
+    await api.restoreProduct(product.id);
+    fetchData();
+  };
+
+  // Real-time filtering by Name, ITEM CODE, Brand, Specs, and Category
+  const displayedProducts = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
 
     return products.filter(p => {
+      // Trash / Active view filter
+      if (viewMode === 'active' && p.deletedAt) return false;
+      if (viewMode === 'trash' && !p.deletedAt) return false;
+
       // Category filter
       if (selectedCategory !== 'ALL' && p.category !== selectedCategory) {
         return false;
@@ -147,7 +164,7 @@ export default function ProductList() {
         return true;
       }
 
-      // Check if matches any variant ram/rom or any color's SKU / colorName
+      // Check if matches any variant ram/rom or any color's ITEM CODE / colorName
       return p.variants.some(v => {
         const ramMatch = v.ram?.toLowerCase().includes(q);
         const romMatch = v.rom?.toLowerCase().includes(q);
@@ -179,7 +196,7 @@ export default function ProductList() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-black text-zinc-900 tracking-tight">จัดการสินค้า</h1>
-          <p className="text-xs text-zinc-500">จัดการรายการสต็อคสินค้า สเปก และรหัส SKU</p>
+          <p className="text-xs text-zinc-500">จัดการรายการสต็อคสินค้า สเปก และรหัส ITEM CODE</p>
         </div>
         <div className="flex gap-2">
           <label className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 rounded-full text-xs font-bold active:scale-95 transition-all shadow-sm cursor-pointer shrink-0">
@@ -199,6 +216,28 @@ export default function ProductList() {
 
       {/* Main Container */}
       <div className="bg-white rounded-2xl shadow-xs border border-zinc-200/80 overflow-hidden">
+        {/* Active / Trash Tabs */}
+        <div className="flex border-b border-zinc-200/80">
+          <button
+            onClick={() => setViewMode('active')}
+            className={cn(
+              "flex-1 py-3 text-xs font-bold text-center transition-colors border-b-2",
+              viewMode === 'active' ? "border-zinc-900 text-zinc-900 bg-white" : "border-transparent text-zinc-500 hover:bg-zinc-50 hover:text-zinc-700 bg-zinc-50/50"
+            )}
+          >
+            สินค้าที่ใช้งานอยู่
+          </button>
+          <button
+            onClick={() => setViewMode('trash')}
+            className={cn(
+              "flex-1 py-3 text-xs font-bold text-center transition-colors border-b-2",
+              viewMode === 'trash' ? "border-red-600 text-red-600 bg-white" : "border-transparent text-zinc-500 hover:bg-zinc-50 hover:text-zinc-700 bg-zinc-50/50"
+            )}
+          >
+            ถังขยะ (เก็บ 30 วัน)
+          </button>
+        </div>
+
         {/* Real-time Search & Filter Toolbar */}
         <div className="p-4 border-b border-zinc-100 space-y-3 bg-zinc-50/40">
           <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
@@ -209,7 +248,7 @@ export default function ProductList() {
               </div>
               <input
                 type="text"
-                placeholder="ค้นหาแบบ Real-time: ชื่อรุ่น, รหัส SKU, แบรนด์ (เช่น SM-A15, IP16, 256GB)..."
+                placeholder="ค้นหาแบบ Real-time: ชื่อรุ่น, รหัส ITEM CODE, แบรนด์ (เช่น SM-A15, IP16, 256GB)..."
                 className="block w-full pl-10 pr-10 py-2.5 border border-zinc-200/90 rounded-full text-xs bg-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-red-500/25 focus:border-red-500 transition-all shadow-2xs font-medium text-zinc-900"
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
@@ -303,7 +342,7 @@ export default function ProductList() {
             {/* Results Count & Active Filter Indicator */}
             <div className="flex items-center gap-2 text-xs">
               <span className="font-semibold text-zinc-600">
-                แสดง <strong className="text-zinc-900">{filteredProducts.length}</strong> จากทั้งหมด {products.length} รุ่น
+                แสดง <strong className="text-zinc-900">{displayedProducts.length}</strong> จากทั้งหมด {products.length} รุ่น
               </span>
               {(searchQuery || selectedCategory !== 'ALL' || selectedBrand !== 'ALL' || statusFilter !== 'ALL') && (
                 <button
@@ -328,7 +367,7 @@ export default function ProductList() {
                 <th className="px-6 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
                   <div className="flex items-center gap-1">
                     <Hash className="w-3.5 h-3.5 text-zinc-400" />
-                    <span>SKU / สี / ความจุ / สต็อค</span>
+                    <span>ITEM CODE / สี / ความจุ / สต็อค</span>
                   </div>
                 </th>
                 <th className="px-6 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">ราคาขาย</th>
@@ -337,7 +376,7 @@ export default function ProductList() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-100">
-              {filteredProducts.map(p => {
+              {displayedProducts.map(p => {
                 const brand = brands.find(b => b.id === p.brandId);
                 const totalStock = p.variants.reduce((acc, v) => acc + v.colors.reduce((s, c) => s + (c.stock || 0), 0), 0);
                 const minPrice = Math.min(...p.variants.map(v => v.retailPrice));
@@ -393,7 +432,7 @@ export default function ProductList() {
                                         ? "bg-amber-100 text-amber-900 border-amber-400 font-bold shadow-2xs ring-2 ring-amber-300/40"
                                         : "bg-zinc-100/90 text-zinc-700 border-zinc-200/70"
                                     )}
-                                    title={`คลิกแก้ไขสต็อคด่วน | SKU: ${c.sku || 'ไม่มี'} | สต็อค: ${c.stock || 0} เครื่อง`}
+                                    title={`คลิกแก้ไขสต็อคด่วน | ITEM CODE: ${c.sku || 'ไม่มี'} | สต็อค: ${c.stock || 0} เครื่อง`}
                                   >
                                     <span>{c.colorName}</span>
                                     {c.sku && (
@@ -438,32 +477,53 @@ export default function ProductList() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-xs font-medium">
                       <div className="flex justify-end gap-1.5 sm:gap-2">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setQuickStockProduct(p);
-                            setQuickStockOpen(true);
-                          }}
-                          className="w-8 h-8 rounded-full bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 flex items-center justify-center active:scale-90 transition-all cursor-pointer shadow-2xs border border-red-200/60"
-                          title="ปรับปรุงจำนวนสต็อคแบบด่วน (Quick Stock Edit)"
-                        >
-                          <PackageOpen className="w-3.5 h-3.5" />
-                        </button>
-                        <Link 
-                          to={`/admin/products/edit/${p.id}`} 
-                          className="w-8 h-8 rounded-full bg-zinc-100 hover:bg-zinc-200 text-zinc-700 hover:text-zinc-950 flex items-center justify-center active:scale-90 transition-all cursor-pointer shadow-2xs"
-                          title="แก้ไขข้อมูลสินค้าและสต็อคเต็มรูปแบบ"
-                        >
-                          <Edit className="w-3.5 h-3.5" />
-                        </Link>
-                        <button 
-                          type="button"
-                          onClick={() => toggleHide(p)} 
-                          className="w-8 h-8 rounded-full bg-zinc-100 hover:bg-zinc-200 text-zinc-600 hover:text-zinc-950 flex items-center justify-center active:scale-90 transition-all cursor-pointer shadow-2xs"
-                          title={p.isHidden ? "คลิกเพื่อเปิดแสดงสินค้า" : "คลิกเพื่อซ่อนสินค้า"}
-                        >
-                          {p.isHidden ? <Eye className="w-3.5 h-3.5 text-zinc-400" /> : <EyeOff className="w-3.5 h-3.5 text-zinc-700" />}
-                        </button>
+                        {viewMode === 'active' ? (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setQuickStockProduct(p);
+                                setQuickStockOpen(true);
+                              }}
+                              className="w-8 h-8 rounded-full bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 flex items-center justify-center active:scale-90 transition-all cursor-pointer shadow-2xs border border-red-200/60"
+                              title="ปรับปรุงจำนวนสต็อคแบบด่วน (Quick Stock Edit)"
+                            >
+                              <PackageOpen className="w-3.5 h-3.5" />
+                            </button>
+                            <Link 
+                              to={`/admin/products/edit/${p.id}`} 
+                              className="w-8 h-8 rounded-full bg-zinc-100 hover:bg-zinc-200 text-zinc-700 hover:text-zinc-950 flex items-center justify-center active:scale-90 transition-all cursor-pointer shadow-2xs"
+                              title="แก้ไขข้อมูลสินค้าและสต็อคเต็มรูปแบบ"
+                            >
+                              <Edit className="w-3.5 h-3.5" />
+                            </Link>
+                            <button 
+                              type="button"
+                              onClick={() => toggleHide(p)} 
+                              className="w-8 h-8 rounded-full bg-zinc-100 hover:bg-zinc-200 text-zinc-600 hover:text-zinc-950 flex items-center justify-center active:scale-90 transition-all cursor-pointer shadow-2xs"
+                              title={p.isHidden ? "คลิกเพื่อเปิดแสดงสินค้า" : "คลิกเพื่อซ่อนสินค้า"}
+                            >
+                              {p.isHidden ? <Eye className="w-3.5 h-3.5 text-zinc-400" /> : <EyeOff className="w-3.5 h-3.5 text-zinc-700" />}
+                            </button>
+                            <button 
+                              type="button"
+                              onClick={() => deleteProduct(p)} 
+                              className="w-8 h-8 rounded-full bg-zinc-100 hover:bg-red-100 text-zinc-500 hover:text-red-600 flex items-center justify-center active:scale-90 transition-all cursor-pointer shadow-2xs"
+                              title="ย้ายไปถังขยะ"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </>
+                        ) : (
+                          <button 
+                            type="button"
+                            onClick={() => restoreProduct(p)} 
+                            className="w-auto px-3 h-8 rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-700 flex items-center gap-1.5 justify-center active:scale-90 transition-all cursor-pointer shadow-2xs border border-emerald-200/60 font-semibold"
+                            title="กู้คืนสินค้านี้กลับไปที่ใช้งานอยู่"
+                          >
+                            <RotateCcw className="w-3.5 h-3.5" /> กู้คืน
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -471,7 +531,7 @@ export default function ProductList() {
               })}
 
               {/* Empty state */}
-              {filteredProducts.length === 0 && (
+              {displayedProducts.length === 0 && (
                 <tr>
                   <td colSpan={6} className="px-6 py-14 text-center">
                     <div className="flex flex-col items-center justify-center max-w-sm mx-auto space-y-3">
@@ -481,7 +541,7 @@ export default function ProductList() {
                       <h3 className="text-sm font-bold text-zinc-900">ไม่พบรายการสินค้าที่ค้นหา</h3>
                       <p className="text-xs text-zinc-500 leading-relaxed">
                         {searchQuery ? (
-                          <>ไม่พบสินค้าที่มีชื่อรุ่น, แบรนด์ หรือรหัส SKU ตรงกับ <span className="font-semibold text-zinc-800 font-mono">"{searchQuery}"</span></>
+                          <>ไม่พบสินค้าที่มีชื่อรุ่น, แบรนด์ หรือรหัส ITEM CODE ตรงกับ <span className="font-semibold text-zinc-800 font-mono">"{searchQuery}"</span></>
                         ) : (
                           <>ไม่มีสินค้าในหมวดหมู่หรือเงื่อนไขที่เลือก</>
                         )}

@@ -37,6 +37,108 @@
       "name": "Xiaomi",
       "order": 5,
       "isHidden": false
+    },
+    {
+      "id": "e86034ed-1e58-40c9-88f1-a032cf613aef",
+      "name": "realme",
+      "order": 6,
+      "isHidden": false
+    },
+    {
+      "id": "f9f2d8a2-8cb1-427c-951a-35f117fbb037",
+      "name": "HONOR",
+      "order": 7,
+      "isHidden": false
+    },
+    {
+      "id": "f15ed38d-b567-42f5-843f-41b063aed278",
+      "name": "Infinix",
+      "order": 8,
+      "isHidden": false
+    },
+    {
+      "id": "ed36c4a7-4208-4359-9950-8594755ffea4",
+      "name": "TECNO",
+      "order": 9,
+      "isHidden": false
+    },
+    {
+      "id": "f7145986-5736-4eee-bc4d-c98c76771421",
+      "name": "OnePlus",
+      "order": 10,
+      "isHidden": false
+    },
+    {
+      "id": "b9a59a6b-f35f-4da3-9d3e-2d777d93a431",
+      "name": "Motorola",
+      "order": 11,
+      "isHidden": false
+    },
+    {
+      "id": "1c137b96-86e9-4967-90bc-4ebc3936b416",
+      "name": "Nothing",
+      "order": 12,
+      "isHidden": false
+    },
+    {
+      "id": "58b6d632-3777-4c84-b839-a5bd43cf8134",
+      "name": "HUAWEI",
+      "order": 13,
+      "isHidden": false
+    },
+    {
+      "id": "e7cd0fb5-ca6c-4f17-9a5f-e3d6ecf55fda",
+      "name": "Asus",
+      "order": 14,
+      "isHidden": false
+    },
+    {
+      "id": "522e0347-175c-4a3e-a653-ba5716f176a7",
+      "name": "ROG",
+      "order": 15,
+      "isHidden": false
+    },
+    {
+      "id": "661bf3b9-5b17-4384-b6f3-a5c939c76e0b",
+      "name": "POCO",
+      "order": 16,
+      "isHidden": false
+    },
+    {
+      "id": "ea2506e4-1728-49be-91e8-2bc74aff0bc8",
+      "name": "iQOO",
+      "order": 17,
+      "isHidden": false
+    },
+    {
+      "id": "c4288524-a1f9-4ae1-850d-8a01a2e9db16",
+      "name": "ZTE",
+      "order": 18,
+      "isHidden": false
+    },
+    {
+      "id": "4eeb3b06-3e30-44df-9d65-6af8eb24d3bb",
+      "name": "TCL",
+      "order": 19,
+      "isHidden": false
+    },
+    {
+      "id": "95f22462-88b8-42a2-b705-5eff001b5882",
+      "name": "Itel",
+      "order": 20,
+      "isHidden": false
+    },
+    {
+      "id": "32510d3e-9977-4eef-a2c2-d77e9e56bc4a",
+      "name": "Benco",
+      "order": 21,
+      "isHidden": false
+    },
+    {
+      "id": "461d2cf9-da75-455b-a74b-f792f95a4ad3",
+      "name": "Redmi",
+      "order": 22,
+      "isHidden": false
     }
   ],
   "products": [
@@ -206,10 +308,55 @@
           ]
         }
       ]
+    },
+    {
+      "id": "cc8fc297-4f16-4759-84b9-31c684b25dc0",
+      "category": "Mobile",
+      "brandId": "b5",
+      "model": "Redmi Note 17 Pro 5G",
+      "detail": "",
+      "specs": {
+        "screen": "6.67-inch 120Hz AMOLED",
+        "chipset": "MediaTek Dimensity 7300-Ultra",
+        "camera": "200MP Main + 8MP Ultra-Wide + 2MP Macro",
+        "battery": "5100 mAh",
+        "os": "Android 15, Xiaomi HyperOS",
+        "weight": "190g"
+      },
+      "isHidden": false,
+      "variants": [
+        {
+          "id": "okmqup",
+          "ram": "8",
+          "rom": "256",
+          "retailPrice": 14999,
+          "wholesalePrice": 0,
+          "colors": [
+            {
+              "id": "xzy6tm",
+              "colorName": "Black",
+              "sku": "133555",
+              "stock": 0,
+              "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Xiaomi_logo.svg/120px-Xiaomi_logo.svg.png"
+            }
+          ]
+        }
+      ]
     }
   ],
   "settings": {
     "lowStockThreshold": 5,
-    "syncStatus": "idle"
-  }
+    "syncStatus": "error",
+    "spreadsheetId": "1RBRiNEXhTneJ2cThsyta7BNh9cdQwH1FLTsL4D9bBKc"
+  },
+  "promotions": [
+    {
+      "id": "aa251222-387b-4313-98df-683f3c1cec92",
+      "url": "/uploads/prod_1789283889558_p0w358.jpg"
+    },
+    {
+      "id": "703945f1-628e-4ceb-beb9-60ac0e114bb5",
+      "url": "/uploads/prod_1789283911021_ck7fm.jpg"
+    }
+  ]
 }

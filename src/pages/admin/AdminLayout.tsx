@@ -27,8 +27,17 @@ export default function AdminLayout() {
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-zinc-50 selection:bg-red-500 selection:text-white">
       {/* Mobile Top Bar */}
-      <header className="md:hidden bg-white border-b border-zinc-200 px-4 py-3 flex items-center justify-between sticky top-0 z-30 shadow-2xs">
-        <div className="flex items-center gap-2.5 min-w-0">
+      <header className="md:hidden bg-white border-b border-zinc-200 px-4 py-3 flex items-center sticky top-0 z-30 shadow-2xs gap-3">
+        <button
+          type="button"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="p-2 rounded-full border border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50 active:scale-95 transition-all cursor-pointer shadow-2xs"
+          title="เมนู"
+        >
+          {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        </button>
+
+        <Link to="/" state={{ fromAdmin: true }} className="flex items-center gap-2.5 min-w-0 transition-opacity hover:opacity-80">
           <div className="w-8 h-8 rounded-full overflow-hidden bg-white border border-red-200 shadow-2xs p-0.5 shrink-0">
             <img 
               src="/branch_logo.jpg" 
@@ -40,16 +49,7 @@ export default function AdminLayout() {
             <span className="text-xs font-black text-zinc-900 block truncate">Jaymart Surin Admin</span>
             <p className="text-[10px] text-red-600 font-semibold leading-none">ระบบจัดการสต็อค</p>
           </div>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="p-2 rounded-xl bg-zinc-100 text-zinc-700 hover:bg-zinc-200 active:scale-95 transition-all cursor-pointer"
-          title="เมนู"
-        >
-          {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-        </button>
+        </Link>
       </header>
 
       {/* Mobile Menu Backdrop & Drawer */}
@@ -67,17 +67,19 @@ export default function AdminLayout() {
         mobileMenuOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full md:translate-x-0"
       )}>
         <div className="h-16 flex items-center px-4 border-b border-zinc-100 gap-3">
-          <div className="w-10 h-10 rounded-full overflow-hidden bg-white border border-red-200 shadow-2xs p-0.5 shrink-0 flex items-center justify-center">
-            <img 
-              src="/branch_logo.jpg" 
-              alt="Jaymart Robinson Surin" 
-              className="w-full h-full object-contain rounded-full" 
-            />
-          </div>
-          <div className="min-w-0 flex-1">
-            <span className="text-xs font-black text-zinc-900 block truncate">Jaymart Robinson Surin</span>
-            <p className="text-[10px] text-red-600 font-semibold">ระบบจัดการสต็อค</p>
-          </div>
+          <Link to="/" state={{ fromAdmin: true }} className="flex items-center gap-3 flex-1 min-w-0 transition-opacity hover:opacity-80">
+            <div className="w-10 h-10 rounded-full overflow-hidden bg-white border border-red-200 shadow-2xs p-0.5 shrink-0 flex items-center justify-center">
+              <img 
+                src="/branch_logo.jpg" 
+                alt="Jaymart Robinson Surin" 
+                className="w-full h-full object-contain rounded-full" 
+              />
+            </div>
+            <div className="min-w-0 flex-1">
+              <span className="text-xs font-black text-zinc-900 block truncate">Jaymart Robinson Surin</span>
+              <p className="text-[10px] text-red-600 font-semibold">ระบบจัดการสต็อค</p>
+            </div>
+          </Link>
           <button
             type="button"
             onClick={() => setMobileMenuOpen(false)}
@@ -88,7 +90,7 @@ export default function AdminLayout() {
         </div>
         <nav className="flex-1 py-5 px-3.5 space-y-1 overflow-y-auto">
           <Link
-            to="/"
+            to="/" state={{ fromAdmin: true }}
             onClick={() => setMobileMenuOpen(false)}
             className="flex items-center px-3.5 py-2.5 text-xs font-bold rounded-full text-zinc-800 bg-zinc-100 hover:bg-zinc-200/80 mb-4 transition-all active:scale-98 group"
           >
@@ -119,23 +121,6 @@ export default function AdminLayout() {
               </Link>
             )
           })}
-
-          <div className="pt-3 pb-1">
-            <div className="px-3 text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-2">ลิงก์ภายนอก</div>
-          </div>
-
-          <a
-            href="https://installment-calculator.pchindasook.workers.dev/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-between px-3.5 py-2.5 text-xs font-semibold rounded-full text-blue-700 bg-blue-50/80 hover:bg-blue-100/80 border border-blue-200/60 transition-all group active:scale-98"
-          >
-            <div className="flex items-center min-w-0">
-              <Calculator className="w-4 h-4 mr-2.5 text-blue-600 flex-shrink-0" />
-              <span className="truncate">Samsung Finance+</span>
-            </div>
-            <ExternalLink className="w-3 h-3 text-blue-500 opacity-70 ml-1.5 flex-shrink-0" />
-          </a>
         </nav>
         <div className="p-3.5 border-t border-zinc-100">
           <button

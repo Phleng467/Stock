@@ -198,7 +198,7 @@ export default function QuickStockModal({
                       key={c.id || cIndex}
                       className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 first:pt-0"
                     >
-                      {/* Color info + SKU */}
+                      {/* Color info + ITEM CODE */}
                       <div className="flex items-center gap-2.5 min-w-[140px]">
                         <span 
                           className="w-4 h-4 rounded-full border border-black/10 shadow-2xs shrink-0" 
@@ -214,9 +214,9 @@ export default function QuickStockModal({
                               type="text"
                               value={c.sku || ''}
                               onChange={(e) => handleSkuChange(vIndex, cIndex, e.target.value)}
-                              placeholder="รหัส SKU"
+                              placeholder="รหัส ITEM CODE"
                               className="w-24 px-1.5 py-0.5 bg-zinc-50 border border-zinc-200 rounded font-mono text-[10px] text-zinc-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-red-500"
-                              title="รหัส SKU (แก้ไขได้)"
+                              title="รหัส ITEM CODE (แก้ไขได้)"
                             />
                           </div>
                         </div>

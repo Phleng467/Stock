@@ -146,7 +146,7 @@ export default function ProductCard({
                 transition={{ duration: 0.25, ease: 'easeOut' }}
                 onLoad={() => setImageLoaded(true)}
                 className="max-h-full max-w-full object-contain filter drop-shadow-md group-hover:scale-105 transition-transform duration-500 ease-out select-none"
-                loading="lazy"
+                loading="lazy" decoding="async"
               />
             ) : (
               <motion.div

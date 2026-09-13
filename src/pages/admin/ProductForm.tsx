@@ -1,8 +1,8 @@
-import { useState, useEffect, type FormEvent, type ChangeEvent } from 'react';
+import { useState, useEffect, useRef, type FormEvent, type ChangeEvent } from 'react';
 import { api } from '../../lib/api';
 import { Product, Brand, ProductVariant, ProductColor } from '../../types';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Plus, Trash2, Wand2, UploadCloud, AlertCircle, AlertTriangle, Sparkles, Image as ImageIcon, Check, X, ExternalLink, Search, Globe, RefreshCw, Loader2, Camera as CameraIcon, LayoutTemplate } from 'lucide-react';
+import { Plus, Trash2, Wand2, UploadCloud, AlertCircle, AlertTriangle, Sparkles, Image as ImageIcon, Check, X, ExternalLink, Search, Globe, ChevronDown, RefreshCw, Loader2, Camera as CameraIcon, LayoutTemplate } from 'lucide-react';
 import { getSuggestedImages, getColorHex, resolveProductImage, type ImageOption } from '../../lib/deviceImages';
 import AdminToast, { ToastItem, MarginViolation } from '../../components/AdminToast';
 import { cn } from '../../components/ProductCard';
@@ -34,6 +34,21 @@ export default function ProductForm() {
   const [autoFillingImages, setAutoFillingImages] = useState(false);
   const [uploadingImage, setUploadingImage] = useState<{ vIndex: number; cIndex: number } | null>(null);
 
+  // Brand dropdown state
+  const [brandSearchOpen, setBrandSearchOpen] = useState(false);
+  const [brandSearchQuery, setBrandSearchQuery] = useState('');
+  const brandDropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (brandDropdownRef.current && !brandDropdownRef.current.contains(event.target as Node)) {
+        setBrandSearchOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const [form, setForm] = useState<Partial<Product>>({
     category: 'Mobile',
     brandId: '',
@@ -44,8 +59,8 @@ export default function ProductForm() {
     variants: [
       {
         id: Math.random().toString(36).substring(7),
-        ram: '',
-        rom: '',
+        ram: '3GB',
+        rom: '64GB',
         retailPrice: 0,
         wholesalePrice: null,
         colors: [
@@ -163,7 +178,7 @@ export default function ProductForm() {
       ...f,
       variants: [...(f.variants || []), {
         id: Math.random().toString(36).substring(7),
-        ram: '', rom: '', retailPrice: 0, wholesalePrice: null,
+        ram: '3GB', rom: '64GB', retailPrice: 0, wholesalePrice: null,
         colors: [{ id: Math.random().toString(36).substring(7), colorName: '', sku: '', stock: 0, imageUrl: '' }]
       }]
     }));
@@ -244,7 +259,7 @@ export default function ProductForm() {
     }
   };
 
-  // Auto-populate official standard colors for this device with matching images & SKU template
+  // Auto-populate official standard colors for this device with matching images & ITEM CODE template
   const handleAutoPopulateStandardColors = (vIndex: number) => {
     if (!form.model) {
       setError('กรุณากรอกรุ่นสินค้าก่อน');
@@ -412,15 +427,49 @@ export default function ProductForm() {
                 <option value="Tablet">Tablet (แท็บเล็ต)</option>
               </select>
             </div>
-            <div>
+            <div className="relative" ref={brandDropdownRef}>
               <label className="block text-sm font-medium text-gray-700">แบรนด์</label>
-              <select 
-                value={form.brandId} 
-                onChange={e => setForm({...form, brandId: e.target.value})}
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-2xs focus:ring-primary focus:border-primary sm:text-sm py-2 px-3 border bg-white"
+              <div
+                className="mt-1 flex w-full items-center justify-between border-gray-300 rounded-md shadow-2xs focus:ring-primary focus:border-primary sm:text-sm py-2 px-3 border bg-white cursor-pointer"
+                onClick={() => setBrandSearchOpen(!brandSearchOpen)}
               >
-                {brands.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
-              </select>
+                <span>{brands.find(b => b.id === form.brandId)?.name || 'เลือกแบรนด์...'}</span>
+                <ChevronDown className="w-4 h-4 text-gray-400" />
+              </div>
+              {brandSearchOpen && (
+                <div className="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
+                  <div className="sticky top-0 px-2 pb-2 bg-white pt-2">
+                    <div className="relative">
+                      <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
+                      <input
+                        type="text"
+                        className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-500 bg-gray-50"
+                        placeholder="ค้นหาแบรนด์..."
+                        value={brandSearchQuery}
+                        onChange={(e) => setBrandSearchQuery(e.target.value)}
+                        onClick={(e) => e.stopPropagation()}
+                        autoFocus
+                      />
+                    </div>
+                  </div>
+                  {brands.filter(b => b.name.toLowerCase().includes(brandSearchQuery.toLowerCase())).map(b => (
+                    <div
+                      key={b.id}
+                      className={`cursor-pointer select-none relative py-2.5 pl-3 pr-9 hover:bg-red-50 hover:text-red-900 transition-colors ${form.brandId === b.id ? 'bg-red-50 text-red-900 font-bold' : 'text-gray-900'}`}
+                      onClick={() => {
+                        setForm({...form, brandId: b.id});
+                        setBrandSearchOpen(false);
+                        setBrandSearchQuery('');
+                      }}
+                    >
+                      {b.name}
+                    </div>
+                  ))}
+                  {brands.filter(b => b.name.toLowerCase().includes(brandSearchQuery.toLowerCase())).length === 0 && (
+                    <div className="py-3 px-3 text-sm text-gray-500 text-center">ไม่พบแบรนด์ที่ค้นหา</div>
+                  )}
+                </div>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">รุ่นสินค้า (Model)</label>
@@ -511,20 +560,40 @@ export default function ProductForm() {
                   {!isApple && (
                     <div className="flex-1 min-w-[120px]">
                       <label className="block text-xs font-medium text-gray-500 uppercase">RAM</label>
-                      <input type="text" placeholder="เช่น 8GB" required
+                      <select required
                         value={variant.ram} onChange={e => {
                           const newV = [...form.variants!]; newV[vIndex].ram = e.target.value; setForm({...form, variants: newV});
                         }}
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-2xs sm:text-sm py-2 px-3 border bg-white" />
+                        className="mt-1 block w-full border-gray-300 rounded-md shadow-2xs sm:text-sm py-2 px-3 border bg-white text-gray-900"
+                      >
+                        <option value="">เลือก RAM</option>
+                        <option value="3GB">3GB</option>
+                        <option value="4GB">4GB</option>
+                        <option value="6GB">6GB</option>
+                        <option value="8GB">8GB</option>
+                        <option value="12GB">12GB</option>
+                        <option value="16GB">16GB</option>
+                        <option value="18GB">18GB</option>
+                        <option value="24GB">24GB</option>
+                      </select>
                     </div>
                   )}
                   <div className="flex-1 min-w-[120px]">
                     <label className="block text-xs font-medium text-gray-500 uppercase">ROM (ความจุ)</label>
-                    <input type="text" placeholder="เช่น 128, 256GB" required
+                    <select required
                       value={variant.rom} onChange={e => {
                         const newV = [...form.variants!]; newV[vIndex].rom = e.target.value; setForm({...form, variants: newV});
                       }}
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-2xs sm:text-sm py-2 px-3 border bg-white" />
+                      className="mt-1 block w-full border-gray-300 rounded-md shadow-2xs sm:text-sm py-2 px-3 border bg-white text-gray-900"
+                    >
+                      <option value="">เลือก ROM</option>
+                      <option value="64GB">64GB</option>
+                      <option value="128GB">128GB</option>
+                      <option value="256GB">256GB</option>
+                      <option value="512GB">512GB</option>
+                      <option value="1TB">1TB</option>
+                      <option value="2TB">2TB</option>
+                    </select>
                   </div>
                   <div className="flex-1 min-w-[120px]">
                     <label className="block text-xs font-medium text-gray-500 uppercase">ราคาขาย (฿)</label>
@@ -619,7 +688,7 @@ export default function ProductForm() {
                       type="button" 
                       onClick={() => handleAutoPopulateStandardColors(vIndex)}
                       className="text-xs inline-flex items-center font-semibold text-purple-700 bg-purple-50/80 hover:bg-purple-100/80 active:scale-95 px-3 py-1.5 rounded-full border border-purple-200/80 transition-all cursor-pointer"
-                      title="สร้างตัวเลือกสีมาตรฐานทั้งหมดพร้อมรูปภาพและ SKU"
+                      title="สร้างตัวเลือกสีมาตรฐานทั้งหมดพร้อมรูปภาพและ ITEM CODE"
                     >
                       <Wand2 className="w-3.5 h-3.5 mr-1" /> สร้างสีมาตรฐาน Auto
                     </button>
@@ -751,7 +820,7 @@ export default function ProductForm() {
                             />
                           </div>
                           <div>
-                            <label className="block text-xs font-medium text-gray-500">SKU</label>
+                            <label className="block text-xs font-medium text-gray-500">ITEM CODE</label>
                             <input type="text" required placeholder="เช่น IP15-128-BLK"
                               value={color.sku} onChange={e => {
                                 const newV = [...form.variants!]; newV[vIndex].colors[cIndex].sku = e.target.value; setForm({...form, variants: newV});

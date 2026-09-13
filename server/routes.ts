@@ -4,10 +4,63 @@ import path from 'path';
 import { readDB, writeDB } from './db';
 import { v4 as uuidv4 } from 'uuid';
 import { GoogleGenAI } from '@google/genai';
-import { syncWithGoogleSheets } from './sheets';
+import { pushToGoogleSheets, pullFromGoogleSheets } from './sheets';
 import multer from 'multer';
 
 export const apiRouter = Router();
+
+apiRouter.post('/sync/sheets/push', async (req, res) => {
+  const { token } = req.body;
+  try {
+    let db = readDB();
+    db.settings.syncStatus = 'syncing';
+    writeDB(db);
+
+    await pushToGoogleSheets(token);
+    
+    db = readDB();
+    db.settings.syncStatus = 'idle';
+    db.settings.lastSync = new Date().toISOString();
+    writeDB(db);
+
+    res.json({ success: true, spreadsheetId: db.settings.spreadsheetId });
+  } catch (err: any) {
+    const db = readDB();
+    db.settings.syncStatus = 'error';
+    writeDB(db);
+    console.error('Sheets push error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+apiRouter.post('/sync/sheets/pull', async (req, res) => {
+  const { token } = req.body;
+  try {
+    const db = readDB();
+    db.settings.syncStatus = 'syncing';
+    writeDB(db);
+
+    await pullFromGoogleSheets(token);
+    
+    const updatedDb = readDB();
+    updatedDb.settings.syncStatus = 'idle';
+    updatedDb.settings.lastSync = new Date().toISOString();
+    writeDB(updatedDb);
+
+    res.json({ success: true, spreadsheetId: updatedDb.settings.spreadsheetId });
+  } catch (err: any) {
+    const db = readDB();
+    db.settings.syncStatus = 'error';
+    writeDB(db);
+    console.error('Sheets pull error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+apiRouter.get('/settings', (req, res) => {
+  const db = readDB();
+  res.json(db.settings);
+});
 
 // Ensure uploads directory exists
 const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
@@ -85,8 +138,29 @@ apiRouter.put('/brands/:id', (req, res) => {
 });
 
 apiRouter.get('/products', (req, res) => {
-  res.json(readDB().products);
+  const db = readDB();
+  const now = Date.now();
+  const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
+  let changed = false;
+
+  db.products = db.products.filter(p => {
+    if (p.deletedAt) {
+      const deletedTime = new Date(p.deletedAt).getTime();
+      if (now - deletedTime > thirtyDaysMs) {
+        changed = true;
+        return false; // permanently delete
+      }
+    }
+    return true;
+  });
+
+  if (changed) {
+    writeDB(db);
+  }
+
+  res.json(db.products);
 });
+
 apiRouter.post('/products', (req, res) => {
   const db = readDB();
   const newProduct = { id: uuidv4(), ...req.body };
@@ -94,6 +168,31 @@ apiRouter.post('/products', (req, res) => {
   writeDB(db);
   res.json(newProduct);
 });
+
+apiRouter.delete('/products/:id', (req, res) => {
+  const db = readDB();
+  const product = db.products.find(p => p.id === req.params.id);
+  if (product) {
+    product.deletedAt = new Date().toISOString();
+    writeDB(db);
+    res.json(product);
+  } else {
+    res.status(404).json({ error: 'Not found' });
+  }
+});
+
+apiRouter.post('/products/:id/restore', (req, res) => {
+  const db = readDB();
+  const product = db.products.find(p => p.id === req.params.id);
+  if (product) {
+    delete product.deletedAt;
+    writeDB(db);
+    res.json(product);
+  } else {
+    res.status(404).json({ error: 'Not found' });
+  }
+});
+
 apiRouter.post('/products/bulk', (req, res) => {
   const db = readDB();
   const products = req.body;
@@ -362,28 +461,6 @@ apiRouter.post('/products/search-images', async (req, res) => {
 
   // Return results safely (never 500)
   res.json({ results, query: searchQuery });
-});
-
-apiRouter.post('/sync/sheets', async (req, res) => {
-  const { token } = req.body;
-  try {
-    const db = readDB();
-    db.settings.syncStatus = 'syncing';
-    writeDB(db);
-    
-    await syncWithGoogleSheets(token);
-    
-    const newDb = readDB();
-    newDb.settings.syncStatus = 'success';
-    writeDB(newDb);
-    res.json({ success: true });
-  } catch (error) {
-    console.error(error);
-    const db = readDB();
-    db.settings.syncStatus = 'error';
-    writeDB(db);
-    res.status(500).json({ error: 'Sync failed' });
-  }
 });
 
 // Promotions routes

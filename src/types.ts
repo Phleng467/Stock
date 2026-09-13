@@ -34,6 +34,7 @@ export interface Product {
   specs: Record<string, string>;
   isHidden: boolean;
   variants: ProductVariant[];
+  deletedAt?: string;
 }
 
 export interface Settings {

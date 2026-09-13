@@ -7,6 +7,10 @@ export const api = {
     const res = await fetch(`${API_BASE}/brands`);
     return res.json();
   },
+  getSettings: async (): Promise<any> => {
+    const res = await fetch(`${API_BASE}/settings`);
+    return res.json();
+  },
   getProducts: async (): Promise<Product[]> => {
     const res = await fetch(`${API_BASE}/products`);
     return res.json();
@@ -78,6 +82,16 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(product)
     });
+    return res.json();
+  },
+  deleteProduct: async (id: string) => {
+    const res = await fetch(`${API_BASE}/products/${id}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error('Delete failed');
+    return res.json();
+  },
+  restoreProduct: async (id: string) => {
+    const res = await fetch(`${API_BASE}/products/${id}/restore`, { method: 'POST' });
+    if (!res.ok) throw new Error('Restore failed');
     return res.json();
   },
   searchImages: async (params: { query?: string; brand?: string; model?: string; color?: string }) => {
