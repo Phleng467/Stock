@@ -1,7 +1,8 @@
 import { useState, useEffect, ChangeEvent, useRef } from 'react';
 import CsvUploader from '../../components/CsvUploader';
 import Papa from 'papaparse';
-import { Database, HardDrive, Download, Upload, Image as ImageIcon, Trash2, Plus, Loader2, FileSpreadsheet, Sparkles, UploadCloud, DownloadCloud, ExternalLink } from 'lucide-react';
+import { useTheme } from '../../contexts/ThemeContext';
+import { Sun, Moon, Monitor, Database, HardDrive, Download, Upload, Image as ImageIcon, Trash2, Plus, Loader2, FileSpreadsheet, Sparkles, UploadCloud, DownloadCloud, ExternalLink } from 'lucide-react';
 import { api } from '../../lib/api';
 
 export default function Settings() {
@@ -284,9 +285,28 @@ export default function Settings() {
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold text-gray-900">ตั้งค่าระบบ & จัดการข้อมูล</h1>
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-white">ตั้งค่าระบบ & จัดการข้อมูล</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        {/* Theme Settings Card */}
+        <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-800 p-6 col-span-1 md:col-span-2">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-center">
+              <div className="p-3 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-lg mr-4">
+                <Sun className="w-6 h-6 hidden dark:block" />
+                <Moon className="w-6 h-6 block dark:hidden" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white">ธีมและการแสดงผล (Theme)</h2>
+                <p className="text-sm text-gray-500 dark:text-zinc-400">สลับการแสดงผลระหว่างโหมดสว่างและโหมดมืด</p>
+              </div>
+            </div>
+            
+            <ThemeSelector />
+          </div>
+        </div>
+
         
         {/* Promotion Management Card */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -445,6 +465,46 @@ export default function Settings() {
         </div>
 
       </div>
+    </div>
+  );
+}
+
+
+function ThemeSelector() {
+  const { theme, setTheme } = useTheme();
+  
+  return (
+    <div className="flex p-1 bg-gray-100 dark:bg-zinc-800/50 rounded-xl w-full md:w-auto self-start">
+      <button
+        onClick={() => setTheme('light')}
+        className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+          theme === 'light' 
+            ? 'bg-white text-indigo-600 shadow-sm border border-gray-200/50' 
+            : 'text-gray-500 dark:text-zinc-400 hover:text-gray-700 dark:hover:text-zinc-200'
+        }`}
+      >
+        <Sun className="w-4 h-4" /> สว่าง
+      </button>
+      <button
+        onClick={() => setTheme('dark')}
+        className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+          theme === 'dark' 
+            ? 'bg-zinc-800 text-indigo-400 shadow-sm border border-zinc-700' 
+            : 'text-gray-500 dark:text-zinc-400 hover:text-gray-700 dark:hover:text-zinc-200'
+        }`}
+      >
+        <Moon className="w-4 h-4" /> มืด
+      </button>
+      <button
+        onClick={() => setTheme('system')}
+        className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+          theme === 'system' 
+            ? 'bg-white dark:bg-zinc-800 text-indigo-600 dark:text-indigo-400 shadow-sm border border-gray-200/50 dark:border-zinc-700' 
+            : 'text-gray-500 dark:text-zinc-400 hover:text-gray-700 dark:hover:text-zinc-200'
+        }`}
+      >
+        <Monitor className="w-4 h-4" /> ตามระบบ
+      </button>
     </div>
   );
 }

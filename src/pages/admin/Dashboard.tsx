@@ -81,9 +81,9 @@ export default function Dashboard() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-900">ภาพรวมระบบ (Dashboard)</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">ภาพรวมระบบ (Dashboard)</h1>
         <div className="flex items-center gap-4">
-          {syncStatus && <span className="text-sm font-medium text-gray-600">{syncStatus}</span>}
+          {syncStatus && <span className="text-sm font-medium text-gray-600 dark:text-zinc-300">{syncStatus}</span>}
           <button 
             onClick={handleSync}
             disabled={syncing}
@@ -96,30 +96,30 @@ export default function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-800 p-6">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-blue-50 text-blue-600 rounded-lg"><Package className="w-6 h-6"/></div>
             <div>
-              <p className="text-sm font-medium text-gray-500">จำนวนรุ่นสินค้า</p>
-              <h3 className="text-2xl font-bold text-gray-900">{totalProducts}</h3>
+              <p className="text-sm font-medium text-gray-500 dark:text-zinc-400">จำนวนรุ่นสินค้า</p>
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{totalProducts}</h3>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-800 p-6">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-amber-50 text-amber-600 rounded-lg"><AlertTriangle className="w-6 h-6"/></div>
             <div>
-              <p className="text-sm font-medium text-gray-500">สินค้าใกล้หมด (Stock {"<="} 5)</p>
-              <h3 className="text-2xl font-bold text-gray-900">{lowStockCount}</h3>
+              <p className="text-sm font-medium text-gray-500 dark:text-zinc-400">สินค้าใกล้หมด (Stock {"<="} 5)</p>
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{lowStockCount}</h3>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-800 p-6">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-red-50 text-red-600 rounded-lg"><AlertCircle className="w-6 h-6"/></div>
             <div>
-              <p className="text-sm font-medium text-gray-500">สินค้าหมด (Stock = 0)</p>
-              <h3 className="text-2xl font-bold text-gray-900">{outOfStockCount}</h3>
+              <p className="text-sm font-medium text-gray-500 dark:text-zinc-400">สินค้าหมด (Stock = 0)</p>
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{outOfStockCount}</h3>
             </div>
           </div>
         </div>
@@ -127,10 +127,10 @@ export default function Dashboard() {
 
 
       {/* Top Selling Chart */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-800 p-6">
         <div className="flex items-center gap-2 mb-6">
           <TrendingUp className="w-5 h-5 text-indigo-500" />
-          <h2 className="text-lg font-bold text-gray-900">สินค้าขายดี (Top Selling Products)</h2>
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white">สินค้าขายดี (Top Selling Products)</h2>
         </div>
         <div className="h-80 w-full">
           <ResponsiveContainer width="100%" height="100%">
@@ -153,28 +153,28 @@ export default function Dashboard() {
       </div>
 
       {/* Basic list of items near out of stock */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <h2 className="text-lg font-bold text-gray-900 mb-4">รายการสินค้า Stock ต่ำ</h2>
+      <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-800 p-6">
+        <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">รายการสินค้า Stock ต่ำ</h2>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead>
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">แบรนด์</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">รุ่น</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ความจุ / สี</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ITEM CODE</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-zinc-400 uppercase tracking-wider">แบรนด์</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-zinc-400 uppercase tracking-wider">รุ่น</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-zinc-400 uppercase tracking-wider">ความจุ / สี</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-zinc-400 uppercase tracking-wider">ITEM CODE</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-zinc-400 uppercase tracking-wider">Stock</th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white dark:bg-zinc-900 divide-y divide-gray-200">
               {products.flatMap(p => 
                 p.variants.flatMap(v => 
                   v.colors.filter(c => c.stock <= 5).map(c => (
                     <tr key={c.id}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{brands.find(b=>b.id===p.brandId)?.name || ''}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{p.model}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{v.ram ? `${v.ram}/` : ''}{v.rom} - {c.colorName}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{c.sku}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{brands.find(b=>b.id===p.brandId)?.name || ''}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{p.model}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-zinc-400">{v.ram ? `${v.ram}/` : ''}{v.rom} - {c.colorName}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-zinc-400">{c.sku}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-bold">{c.stock}</td>
                     </tr>
                   ))

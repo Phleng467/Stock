@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { ThemeProvider } from './contexts/ThemeContext';
 import { motion, AnimatePresence } from 'motion/react';
 import Storefront from './pages/Storefront';
 import AdminLayout from './pages/admin/AdminLayout';
@@ -103,6 +104,7 @@ export default function App() {
         {showSplash && <SplashScreen key="splash" />}
       </AnimatePresence>
 
+      <ThemeProvider>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Storefront />} />
@@ -118,6 +120,7 @@ export default function App() {
           </Route>
         </Routes>
       </BrowserRouter>
+      </ThemeProvider>
     </>
   );
 }

@@ -49,12 +49,12 @@ export default function BrandManager() {
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold text-gray-900">จัดการแบรนด์</h1>
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-white">จัดการแบรนด์</h1>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-700 p-6">
         <form onSubmit={handleAdd} className="flex gap-4 items-end">
           <div className="flex-1">
-            <label className="block text-sm font-medium text-gray-700 mb-1">เพิ่มแบรนด์ใหม่</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1">เพิ่มแบรนด์ใหม่</label>
             <input
               type="text"
               value={newBrandName}
@@ -69,24 +69,24 @@ export default function BrandManager() {
         </form>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-700 overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+          <thead className="bg-gray-50 dark:bg-zinc-800/50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ลำดับ</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">แบรนด์</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">สถานะ</th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">จัดการ</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-zinc-400 uppercase">ลำดับ</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-zinc-400 uppercase">แบรนด์</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-zinc-400 uppercase">สถานะ</th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-zinc-400 uppercase">จัดการ</th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-white dark:bg-zinc-900 divide-y divide-gray-200">
             {brands.map((brand, i) => (
-              <tr key={brand.id} className={brand.isHidden ? 'opacity-60 bg-gray-50' : ''}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-medium">{brand.order}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold">{brand.name}</td>
+              <tr key={brand.id} className={brand.isHidden ? 'opacity-60 bg-gray-50 dark:bg-zinc-800/50' : ''}>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-zinc-400 font-medium">{brand.order}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white font-bold">{brand.name}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm">
                   {brand.isHidden ? (
-                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">ซ่อน</span>
+                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-zinc-800 text-gray-800 dark:text-zinc-100">ซ่อน</span>
                   ) : (
                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">เปิดใช้งาน</span>
                   )}
@@ -94,11 +94,11 @@ export default function BrandManager() {
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <div className="flex justify-end gap-3 items-center">
                     {i > 0 && (
-                      <button onClick={() => moveUp(i)} className="text-gray-400 hover:text-gray-900 text-xs">
+                      <button onClick={() => moveUp(i)} className="text-gray-400 hover:text-gray-900 dark:text-white text-xs">
                         เลื่อนขึ้น
                       </button>
                     )}
-                    <button onClick={() => toggleHide(brand)} className="text-gray-500 hover:text-gray-700">
+                    <button onClick={() => toggleHide(brand)} className="text-gray-500 dark:text-zinc-400 hover:text-gray-700 dark:text-zinc-300">
                       {brand.isHidden ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
                     </button>
                   </div>

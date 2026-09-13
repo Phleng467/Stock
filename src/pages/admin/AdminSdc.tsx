@@ -114,11 +114,11 @@ export default function AdminSdc() {
     <div className="p-4 sm:p-6 lg:p-8 max-w-6xl mx-auto space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl sm:text-2xl font-black text-zinc-900 tracking-tight flex items-center gap-2">
+          <h1 className="text-xl sm:text-2xl font-black text-zinc-900 dark:text-white tracking-tight flex items-center gap-2">
             <Percent className="w-6 h-6 text-emerald-600" />
             จัดการโปรโมชั่นช่วยดาวน์ SDC
           </h1>
-          <p className="text-xs sm:text-sm text-zinc-500 mt-1">อัปโหลดไฟล์ CSV (แบรนด์, รุ่น, ราคาปกติ, ช่วยดาวน์, รับเครื่อง, ระยะเวลา, หมายเหตุ)</p>
+          <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-1">อัปโหลดไฟล์ CSV (แบรนด์, รุ่น, ราคาปกติ, ช่วยดาวน์, รับเครื่อง, ระยะเวลา, หมายเหตุ)</p>
         </div>
         
         <div className="flex items-center gap-3 w-full sm:w-auto">
@@ -131,7 +131,7 @@ export default function AdminSdc() {
           />
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-zinc-200 text-zinc-700 font-semibold rounded-xl hover:bg-zinc-50 active:scale-95 transition-all text-sm shadow-2xs"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 font-semibold rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-800 dark:bg-zinc-800/50 active:scale-95 transition-all text-sm shadow-2xs"
           >
             <Upload className="w-4 h-4" />
             อัปโหลด CSV
@@ -162,10 +162,10 @@ export default function AdminSdc() {
           <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
         </div>
       ) : (
-        <div className="bg-white rounded-2xl shadow-2xs border border-zinc-200 overflow-hidden">
+        <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xs border border-zinc-200 dark:border-zinc-700 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm whitespace-nowrap">
-              <thead className="bg-zinc-50/80 border-b border-zinc-200 text-zinc-500">
+              <thead className="bg-zinc-50 dark:bg-zinc-800/50/80 border-b border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400">
                 <tr>
                   <th className="px-6 py-4 font-semibold text-xs uppercase tracking-wider">แบรนด์</th>
                   <th className="px-6 py-4 font-semibold text-xs uppercase tracking-wider">รุ่น</th>
@@ -177,7 +177,7 @@ export default function AdminSdc() {
                   <th className="px-6 py-4 font-semibold text-xs uppercase tracking-wider text-right">ลบ</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-100">
+              <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
                 {promotions.length === 0 ? (
                   <tr>
                     <td colSpan={8} className="px-6 py-12 text-center text-zinc-400">
@@ -186,14 +186,14 @@ export default function AdminSdc() {
                   </tr>
                 ) : (
                   promotions.map((p, idx) => (
-                    <tr key={idx} className="hover:bg-zinc-50/50 transition-colors">
-                      <td className="px-6 py-3 font-semibold text-zinc-900">{p.brand}</td>
-                      <td className="px-6 py-3 font-medium text-zinc-900">{p.model}</td>
+                    <tr key={idx} className="hover:bg-zinc-50 dark:hover:bg-zinc-800 dark:bg-zinc-800/50/50 transition-colors">
+                      <td className="px-6 py-3 font-semibold text-zinc-900 dark:text-white">{p.brand}</td>
+                      <td className="px-6 py-3 font-medium text-zinc-900 dark:text-white">{p.model}</td>
                       <td className="px-6 py-3 text-right tabular-nums">฿{p.normalPrice?.toLocaleString()}</td>
                       <td className="px-6 py-3 text-right font-bold text-blue-600 tabular-nums">฿{p.sdcAmount?.toLocaleString()}</td>
                       <td className="px-6 py-3 text-right font-bold text-emerald-600 tabular-nums">฿{p.takeDeviceAmount?.toLocaleString()}</td>
-                      <td className="px-6 py-3 text-zinc-600">{p.duration}</td>
-                      <td className="px-6 py-3 text-zinc-500 text-xs truncate max-w-[200px]">{p.note}</td>
+                      <td className="px-6 py-3 text-zinc-600 dark:text-zinc-400">{p.duration}</td>
+                      <td className="px-6 py-3 text-zinc-500 dark:text-zinc-400 text-xs truncate max-w-[200px]">{p.note}</td>
                       <td className="px-6 py-3 text-right">
                         <button
                           onClick={() => setPromotions(promotions.filter((_, i) => i !== idx))}
@@ -208,7 +208,7 @@ export default function AdminSdc() {
               </tbody>
             </table>
           </div>
-          <div className="bg-zinc-50 px-6 py-3 border-t border-zinc-200 text-xs text-zinc-500 font-medium">
+          <div className="bg-zinc-50 dark:bg-zinc-800/50 px-6 py-3 border-t border-zinc-200 dark:border-zinc-700 text-xs text-zinc-500 dark:text-zinc-400 font-medium">
             รวมทั้งหมด {promotions.length} รายการ
           </div>
         </div>

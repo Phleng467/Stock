@@ -341,7 +341,7 @@ Example: {"screen": "6.1-inch OLED", "chipset": "A16 Bionic", "camera": "48MP Ma
     let response;
     try {
       response = await ai.models.generateContent({
-        model: 'gemini-3.8-flash',
+        model: 'gemini-3.6-flash',
         contents: prompt,
         config: {
           responseMimeType: 'application/json',
@@ -547,7 +547,7 @@ ${productInfo}
     let response;
     try {
       response = await ai.models.generateContent({
-        model: 'gemini-3.8-flash',
+        model: 'gemini-3.6-flash',
         contents: contents,
         config: {
           systemInstruction,

@@ -402,7 +402,7 @@ export default function ProductForm() {
   return (
     <div className="max-w-5xl mx-auto space-y-6 pb-20">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-900">{id ? 'แก้ไขสินค้า' : 'เพิ่มสินค้าใหม่'}</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{id ? 'แก้ไขสินค้า' : 'เพิ่มสินค้าใหม่'}</h1>
       </div>
 
       {error && (
@@ -413,37 +413,37 @@ export default function ProductForm() {
 
       <form onSubmit={handleSave} className="space-y-8">
         {/* Basic Info */}
-        <div className="bg-white p-6 rounded-xl shadow-xs border border-gray-200 space-y-6">
-          <h2 className="text-lg font-bold text-gray-900 border-b pb-2">ข้อมูลทั่วไป</h2>
+        <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl shadow-xs border border-gray-200 dark:border-zinc-700 space-y-6">
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white border-b pb-2">ข้อมูลทั่วไป</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700">หมวดหมู่</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300">หมวดหมู่</label>
               <select 
                 value={form.category} 
                 onChange={e => setForm({...form, category: e.target.value as 'Mobile' | 'Tablet'})}
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-2xs focus:ring-primary focus:border-primary sm:text-sm py-2 px-3 border bg-white"
+                className="mt-1 block w-full border-gray-300 rounded-md shadow-2xs focus:ring-primary focus:border-primary sm:text-sm py-2 px-3 border bg-white dark:bg-zinc-900"
               >
                 <option value="Mobile">Mobile (โทรศัพท์มือถือ)</option>
                 <option value="Tablet">Tablet (แท็บเล็ต)</option>
               </select>
             </div>
             <div className="relative" ref={brandDropdownRef}>
-              <label className="block text-sm font-medium text-gray-700">แบรนด์</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300">แบรนด์</label>
               <div
-                className="mt-1 flex w-full items-center justify-between border-gray-300 rounded-md shadow-2xs focus:ring-primary focus:border-primary sm:text-sm py-2 px-3 border bg-white cursor-pointer"
+                className="mt-1 flex w-full items-center justify-between border-gray-300 rounded-md shadow-2xs focus:ring-primary focus:border-primary sm:text-sm py-2 px-3 border bg-white dark:bg-zinc-900 cursor-pointer"
                 onClick={() => setBrandSearchOpen(!brandSearchOpen)}
               >
                 <span>{brands.find(b => b.id === form.brandId)?.name || 'เลือกแบรนด์...'}</span>
                 <ChevronDown className="w-4 h-4 text-gray-400" />
               </div>
               {brandSearchOpen && (
-                <div className="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
-                  <div className="sticky top-0 px-2 pb-2 bg-white pt-2">
+                <div className="absolute z-10 mt-1 w-full bg-white dark:bg-zinc-900 shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
+                  <div className="sticky top-0 px-2 pb-2 bg-white dark:bg-zinc-900 pt-2">
                     <div className="relative">
                       <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
                       <input
                         type="text"
-                        className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-500 bg-gray-50"
+                        className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-500 bg-gray-50 dark:bg-zinc-800/50"
                         placeholder="ค้นหาแบรนด์..."
                         value={brandSearchQuery}
                         onChange={(e) => setBrandSearchQuery(e.target.value)}
@@ -455,7 +455,7 @@ export default function ProductForm() {
                   {brands.filter(b => b.name.toLowerCase().includes(brandSearchQuery.toLowerCase())).map(b => (
                     <div
                       key={b.id}
-                      className={`cursor-pointer select-none relative py-2.5 pl-3 pr-9 hover:bg-red-50 hover:text-red-900 transition-colors ${form.brandId === b.id ? 'bg-red-50 text-red-900 font-bold' : 'text-gray-900'}`}
+                      className={`cursor-pointer select-none relative py-2.5 pl-3 pr-9 hover:bg-red-50 hover:text-red-900 transition-colors ${form.brandId === b.id ? 'bg-red-50 text-red-900 font-bold' : 'text-gray-900 dark:text-white'}`}
                       onClick={() => {
                         setForm({...form, brandId: b.id});
                         setBrandSearchOpen(false);
@@ -466,13 +466,13 @@ export default function ProductForm() {
                     </div>
                   ))}
                   {brands.filter(b => b.name.toLowerCase().includes(brandSearchQuery.toLowerCase())).length === 0 && (
-                    <div className="py-3 px-3 text-sm text-gray-500 text-center">ไม่พบแบรนด์ที่ค้นหา</div>
+                    <div className="py-3 px-3 text-sm text-gray-500 dark:text-zinc-400 text-center">ไม่พบแบรนด์ที่ค้นหา</div>
                   )}
                 </div>
               )}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">รุ่นสินค้า (Model)</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300">รุ่นสินค้า (Model)</label>
               <input 
                 type="text" required
                 placeholder="เช่น iPhone 15, Galaxy S24, Reno 12"
@@ -483,7 +483,7 @@ export default function ProductForm() {
             </div>
             {form.category === 'Tablet' && (
               <div>
-                <label className="block text-sm font-medium text-gray-700">รายละเอียดเพิ่มเติม (เช่น Wi-Fi, 5G)</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300">รายละเอียดเพิ่มเติม (เช่น Wi-Fi, 5G)</label>
                 <input 
                   type="text" 
                   value={form.detail} 
@@ -496,17 +496,17 @@ export default function ProductForm() {
         </div>
 
         {/* Specs */}
-        <div className="bg-white p-6 rounded-xl shadow-xs border border-gray-200 space-y-6">
+        <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl shadow-xs border border-gray-200 dark:border-zinc-700 space-y-6">
           <div className="flex justify-between items-center border-b pb-2">
             <div>
-              <h2 className="text-lg font-bold text-gray-900">สเปกเครื่อง (Specifications)</h2>
-              <p className="text-xs text-gray-500">ดึงข้อมูลสเปกอัตโนมัติด้วย AI พร้อมแนะนำสีและรูปภาพประจำรุ่น</p>
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white">สเปกเครื่อง (Specifications)</h2>
+              <p className="text-xs text-gray-500 dark:text-zinc-400">ดึงข้อมูลสเปกอัตโนมัติด้วย AI พร้อมแนะนำสีและรูปภาพประจำรุ่น</p>
             </div>
             <button 
               type="button" 
               onClick={handleFetchSpecs}
               disabled={fetchingSpecs}
-              className="inline-flex items-center text-xs font-bold text-zinc-900 bg-zinc-100 hover:bg-zinc-200 active:scale-95 px-4 py-2 rounded-full border border-zinc-200/70 transition-all cursor-pointer"
+              className="inline-flex items-center text-xs font-bold text-zinc-900 dark:text-white bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 active:scale-95 px-4 py-2 rounded-full border border-zinc-200 dark:border-zinc-700/70 transition-all cursor-pointer"
             >
               <Wand2 className={`w-3.5 h-3.5 mr-1.5 ${fetchingSpecs ? 'animate-spin' : ''}`} /> 
               {fetchingSpecs ? 'กำลังดึงข้อมูลสเปก & สี...' : '✨ Auto Fetch Specs & Images'}
@@ -515,12 +515,12 @@ export default function ProductForm() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {['screen', 'chipset', 'camera', 'battery', 'os', 'weight'].map((key) => (
               <div key={key}>
-                <label className="block text-sm font-medium text-gray-700 capitalize">{key}</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 capitalize">{key}</label>
                 <input 
                   type="text" 
                   value={form.specs?.[key] || ''} 
                   onChange={e => setForm({...form, specs: {...form.specs, [key]: e.target.value}})}
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-2xs focus:ring-primary focus:border-primary sm:text-sm py-2 px-3 border bg-gray-50/60"
+                  className="mt-1 block w-full border-gray-300 rounded-md shadow-2xs focus:ring-primary focus:border-primary sm:text-sm py-2 px-3 border bg-gray-50 dark:bg-zinc-800/50/60"
                   placeholder={fetchingSpecs ? 'กำลังดึงข้อมูล...' : ''}
                 />
               </div>
@@ -531,7 +531,7 @@ export default function ProductForm() {
         {/* Variants & Colors */}
         <div className="space-y-6">
           <div className="flex justify-between items-center">
-            <h2 className="text-xl font-bold text-gray-900">ความจุ และ สี (Variants & Colors)</h2>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">ความจุ และ สี (Variants & Colors)</h2>
             <button 
               type="button" 
               onClick={addVariant} 
@@ -550,21 +550,21 @@ export default function ProductForm() {
                 key={variant.id} 
                 id={`variant-card-${variant.id}`} 
                 className={cn(
-                  "bg-white rounded-xl shadow-xs border overflow-hidden transition-all duration-300",
+                  "bg-white dark:bg-zinc-900 rounded-xl shadow-xs border overflow-hidden transition-all duration-300",
                   isNegativeMargin 
                     ? "border-red-400 ring-2 ring-red-400/20" 
-                    : "border-gray-200"
+                    : "border-gray-200 dark:border-zinc-700"
                 )}
               >
-                <div className="bg-gray-50 p-4 border-b border-gray-200 flex gap-4 items-end flex-wrap">
+                <div className="bg-gray-50 dark:bg-zinc-800/50 p-4 border-b border-gray-200 dark:border-zinc-700 flex gap-4 items-end flex-wrap">
                   {!isApple && (
                     <div className="flex-1 min-w-[120px]">
-                      <label className="block text-xs font-medium text-gray-500 uppercase">RAM</label>
+                      <label className="block text-xs font-medium text-gray-500 dark:text-zinc-400 uppercase">RAM</label>
                       <select required
                         value={variant.ram} onChange={e => {
                           const newV = [...form.variants!]; newV[vIndex].ram = e.target.value; setForm({...form, variants: newV});
                         }}
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-2xs sm:text-sm py-2 px-3 border bg-white text-gray-900"
+                        className="mt-1 block w-full border-gray-300 rounded-md shadow-2xs sm:text-sm py-2 px-3 border bg-white dark:bg-zinc-900 text-gray-900 dark:text-white"
                       >
                         <option value="">เลือก RAM</option>
                         <option value="3GB">3GB</option>
@@ -579,12 +579,12 @@ export default function ProductForm() {
                     </div>
                   )}
                   <div className="flex-1 min-w-[120px]">
-                    <label className="block text-xs font-medium text-gray-500 uppercase">ROM (ความจุ)</label>
+                    <label className="block text-xs font-medium text-gray-500 dark:text-zinc-400 uppercase">ROM (ความจุ)</label>
                     <select required
                       value={variant.rom} onChange={e => {
                         const newV = [...form.variants!]; newV[vIndex].rom = e.target.value; setForm({...form, variants: newV});
                       }}
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-2xs sm:text-sm py-2 px-3 border bg-white text-gray-900"
+                      className="mt-1 block w-full border-gray-300 rounded-md shadow-2xs sm:text-sm py-2 px-3 border bg-white dark:bg-zinc-900 text-gray-900 dark:text-white"
                     >
                       <option value="">เลือก ROM</option>
                       <option value="64GB">64GB</option>
@@ -596,17 +596,17 @@ export default function ProductForm() {
                     </select>
                   </div>
                   <div className="flex-1 min-w-[120px]">
-                    <label className="block text-xs font-medium text-gray-500 uppercase">ราคาขาย (฿)</label>
+                    <label className="block text-xs font-medium text-gray-500 dark:text-zinc-400 uppercase">ราคาขาย (฿)</label>
                     <input type="number" required min="0"
                       value={variant.retailPrice} onChange={e => {
                         const newV = [...form.variants!]; newV[vIndex].retailPrice = Number(e.target.value); setForm({...form, variants: newV});
                       }}
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-2xs sm:text-sm py-2 px-3 border text-red-600 font-bold bg-white" />
+                      className="mt-1 block w-full border-gray-300 rounded-md shadow-2xs sm:text-sm py-2 px-3 border text-red-600 font-bold bg-white dark:bg-zinc-900" />
                   </div>
                   <div className="flex-1 min-w-[120px]">
                     <div className="flex items-center justify-between">
-                      <label className="block text-xs font-medium text-gray-500 uppercase">ราคาส่ง (฿)</label>
-                      <label className="flex items-center gap-1 text-[10px] text-gray-500 cursor-pointer">
+                      <label className="block text-xs font-medium text-gray-500 dark:text-zinc-400 uppercase">ราคาส่ง (฿)</label>
+                      <label className="flex items-center gap-1 text-[10px] text-gray-500 dark:text-zinc-400 cursor-pointer">
                         <input
                           type="checkbox"
                           className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-3 h-3"
@@ -629,11 +629,11 @@ export default function ProductForm() {
                           const newV = [...form.variants!]; newV[vIndex].wholesalePrice = e.target.value ? Number(e.target.value) : 0; setForm({...form, variants: newV});
                         }}
                         className={cn(
-                          "mt-1 block w-full rounded-md shadow-2xs sm:text-sm py-2 px-3 border bg-white",
+                          "mt-1 block w-full rounded-md shadow-2xs sm:text-sm py-2 px-3 border bg-white dark:bg-zinc-900",
                           isNegativeMargin ? "border-red-500 text-red-700 focus:ring-red-500 focus:border-red-500 font-semibold" : "border-gray-300"
                         )} />
                     ) : (
-                      <div className="mt-1 block w-full rounded-md shadow-2xs sm:text-sm py-2 px-3 border border-gray-200 bg-gray-100 text-gray-400 italic">
+                      <div className="mt-1 block w-full rounded-md shadow-2xs sm:text-sm py-2 px-3 border border-gray-200 dark:border-zinc-700 bg-gray-100 dark:bg-zinc-800 text-gray-400 italic">
                         ไม่มีราคาส่ง
                       </div>
                     )}
@@ -666,7 +666,7 @@ export default function ProductForm() {
               {/* Colors for this variant */}
               <div className="p-4 space-y-4">
                 <div className="flex flex-wrap justify-between items-center gap-2">
-                  <h4 className="text-sm font-bold text-gray-700">ตัวเลือกสีสำหรับความจุนี้</h4>
+                  <h4 className="text-sm font-bold text-gray-700 dark:text-zinc-300">ตัวเลือกสีสำหรับความจุนี้</h4>
                   
                   {/* Quick Auto-Image Helpers */}
                   <div className="flex items-center gap-2 flex-wrap">
@@ -695,7 +695,7 @@ export default function ProductForm() {
                     <button 
                       type="button" 
                       onClick={() => addColor(vIndex)} 
-                      className="text-xs inline-flex items-center font-semibold text-zinc-900 bg-zinc-100 hover:bg-zinc-200 active:scale-95 px-3 py-1.5 rounded-full transition-all cursor-pointer"
+                      className="text-xs inline-flex items-center font-semibold text-zinc-900 dark:text-white bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 active:scale-95 px-3 py-1.5 rounded-full transition-all cursor-pointer"
                     >
                       <Plus className="w-3.5 h-3.5 mr-1" /> เพิ่มสีใหม่
                     </button>
@@ -708,10 +708,10 @@ export default function ProductForm() {
                     const colorHex = getColorHex(color.colorName);
 
                     return (
-                      <div key={color.id} className="flex flex-col sm:flex-row gap-3 items-start sm:items-center bg-gray-50/70 p-3 rounded-lg border border-gray-200">
+                      <div key={color.id} className="flex flex-col sm:flex-row gap-3 items-start sm:items-center bg-gray-50 dark:bg-zinc-800/50/70 p-3 rounded-lg border border-gray-200 dark:border-zinc-700">
                         {/* Image Thumbnail & Quick Picker */}
                         <div className="flex flex-col gap-2 shrink-0">
-                          <label className="flex items-center gap-1 text-[10px] text-gray-500 cursor-pointer mb-1 self-start">
+                          <label className="flex items-center gap-1 text-[10px] text-gray-500 dark:text-zinc-400 cursor-pointer mb-1 self-start">
                             <input
                               type="checkbox"
                               className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-3 h-3"
@@ -728,12 +728,12 @@ export default function ProductForm() {
                           {color.imageUrl !== null ? (
                             <div className="flex items-center gap-2">
                               <div 
-                                className="w-20 h-20 bg-white border border-gray-300 rounded-lg flex items-center justify-center relative overflow-hidden group cursor-pointer shadow-2xs"
+                                className="w-20 h-20 bg-white dark:bg-zinc-900 border border-gray-300 rounded-lg flex items-center justify-center relative overflow-hidden group cursor-pointer shadow-2xs"
                                 onClick={() => openImagePicker(vIndex, cIndex)}
                                 title="คลิกเพื่อค้นหารูปตามรุ่นและสีจริงจาก Google / Web"
                               >
                                 {uploadingImage?.vIndex === vIndex && uploadingImage?.cIndex === cIndex ? (
-                                  <div className="absolute inset-0 bg-white/80 z-10 flex flex-col items-center justify-center">
+                                  <div className="absolute inset-0 bg-white dark:bg-zinc-900/80 z-10 flex flex-col items-center justify-center">
                                     <Loader2 className="w-5 h-5 animate-spin text-blue-500 mb-1" />
                                     <span className="text-[9px] text-blue-600 font-medium">กำลังอัปโหลด...</span>
                                   </div>
@@ -749,11 +749,11 @@ export default function ProductForm() {
                                 <button
                                   type="button"
                                   onClick={() => openImagePicker(vIndex, cIndex)}
-                                  className="text-[11px] font-semibold text-zinc-700 hover:text-zinc-950 bg-zinc-100 hover:bg-zinc-200 border border-zinc-200/80 px-2.5 py-1 rounded-full shadow-2xs active:scale-95 transition-all flex items-center justify-center gap-1 cursor-pointer"
+                                  className="text-[11px] font-semibold text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 border border-zinc-200 dark:border-zinc-700/80 px-2.5 py-1 rounded-full shadow-2xs active:scale-95 transition-all flex items-center justify-center gap-1 cursor-pointer"
                                 >
-                                  <Search className="w-3 h-3 text-zinc-500" /> ค้นหารูป Google
+                                  <Search className="w-3 h-3 text-zinc-500 dark:text-zinc-400" /> ค้นหารูป Google
                                 </button>
-                                <label className="text-[11px] font-semibold text-zinc-600 hover:text-zinc-950 bg-white hover:bg-zinc-50 border border-zinc-200 px-2.5 py-1 rounded-full shadow-2xs active:scale-95 transition-all flex items-center justify-center gap-1 cursor-pointer">
+                                <label className="text-[11px] font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 px-2.5 py-1 rounded-full shadow-2xs active:scale-95 transition-all flex items-center justify-center gap-1 cursor-pointer">
                                   <UploadCloud className="w-3 h-3 text-zinc-400" /> อัปโหลดไฟล์
                                   <input 
                                     type="file" 
@@ -766,10 +766,10 @@ export default function ProductForm() {
                                   <button
                                     type="button"
                                     onClick={() => setActiveCameraPicker({ vIndex, cIndex })}
-                                    className="flex-1 text-[10px] font-semibold text-zinc-600 hover:text-zinc-950 bg-zinc-100 hover:bg-zinc-200 border border-zinc-200/80 px-2 py-1 rounded-full shadow-2xs active:scale-95 transition-all flex items-center justify-center gap-1 cursor-pointer"
+                                    className="flex-1 text-[10px] font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 border border-zinc-200 dark:border-zinc-700/80 px-2 py-1 rounded-full shadow-2xs active:scale-95 transition-all flex items-center justify-center gap-1 cursor-pointer"
                                     title="ถ่ายรูปสินค้าด้วยกล้องมือถือ/แท็บเล็ต"
                                   >
-                                    <CameraIcon className="w-3 h-3 text-zinc-500" /> ถ่ายรูป
+                                    <CameraIcon className="w-3 h-3 text-zinc-500 dark:text-zinc-400" /> ถ่ายรูป
                                   </button>
                                   <button
                                     type="button"
@@ -794,7 +794,7 @@ export default function ProductForm() {
                               </div>
                             </div>
                           ) : (
-                            <div className="w-[200px] h-20 bg-gray-100 border border-gray-200 border-dashed rounded-lg flex items-center justify-center text-[11px] text-gray-400 italic">
+                            <div className="w-[200px] h-20 bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 border-dashed rounded-lg flex items-center justify-center text-[11px] text-gray-400 italic">
                               ซ่อนรูปภาพสินค้าสำหรับสีนี้
                             </div>
                           )}
@@ -804,7 +804,7 @@ export default function ProductForm() {
                         <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-3 w-full">
                           <div>
                             <div className="flex items-center justify-between">
-                              <label className="block text-xs font-medium text-gray-500">ชื่อสี</label>
+                              <label className="block text-xs font-medium text-gray-500 dark:text-zinc-400">ชื่อสี</label>
                               <span 
                                 className="w-3 h-3 rounded-full border border-gray-300"
                                 style={{ backgroundColor: colorHex }}
@@ -816,24 +816,24 @@ export default function ProductForm() {
                               value={color.colorName} onChange={e => {
                                 const newV = [...form.variants!]; newV[vIndex].colors[cIndex].colorName = e.target.value; setForm({...form, variants: newV});
                               }}
-                              className="mt-1 block w-full border-gray-300 rounded-md shadow-2xs sm:text-sm py-1.5 px-3 border bg-white" 
+                              className="mt-1 block w-full border-gray-300 rounded-md shadow-2xs sm:text-sm py-1.5 px-3 border bg-white dark:bg-zinc-900" 
                             />
                           </div>
                           <div>
-                            <label className="block text-xs font-medium text-gray-500">ITEM CODE</label>
+                            <label className="block text-xs font-medium text-gray-500 dark:text-zinc-400">ITEM CODE</label>
                             <input type="text" required placeholder="เช่น IP15-128-BLK"
                               value={color.sku} onChange={e => {
                                 const newV = [...form.variants!]; newV[vIndex].colors[cIndex].sku = e.target.value; setForm({...form, variants: newV});
                               }}
-                              className="mt-1 block w-full border-gray-300 rounded-md shadow-2xs sm:text-sm py-1.5 px-3 border bg-white" />
+                              className="mt-1 block w-full border-gray-300 rounded-md shadow-2xs sm:text-sm py-1.5 px-3 border bg-white dark:bg-zinc-900" />
                           </div>
                           <div>
-                            <label className="block text-xs font-medium text-gray-500">จำนวน Stock</label>
+                            <label className="block text-xs font-medium text-gray-500 dark:text-zinc-400">จำนวน Stock</label>
                             <input type="number" required min="0"
                               value={color.stock} onChange={e => {
                                 const newV = [...form.variants!]; newV[vIndex].colors[cIndex].stock = Number(e.target.value); setForm({...form, variants: newV});
                               }}
-                              className="mt-1 block w-full border-gray-300 rounded-md shadow-2xs sm:text-sm py-1.5 px-3 border bg-white" />
+                              className="mt-1 block w-full border-gray-300 rounded-md shadow-2xs sm:text-sm py-1.5 px-3 border bg-white dark:bg-zinc-900" />
                           </div>
                         </div>
                         
@@ -855,11 +855,11 @@ export default function ProductForm() {
         </div>
 
         {/* Footer Actions */}
-        <div className="fixed bottom-0 left-64 right-0 bg-white/95 backdrop-blur-md border-t border-zinc-200/80 p-4 px-8 flex justify-end gap-3 z-40">
+        <div className="fixed bottom-0 left-64 right-0 bg-white dark:bg-zinc-900/95 backdrop-blur-md border-t border-zinc-200 dark:border-zinc-700/80 p-4 px-8 flex justify-end gap-3 z-40">
           <button 
             type="button" 
             onClick={() => navigate('/admin/products')} 
-            className="px-5 py-2 rounded-full text-xs font-semibold text-zinc-600 hover:text-zinc-900 bg-zinc-100 hover:bg-zinc-200 active:scale-95 transition-all cursor-pointer"
+            className="px-5 py-2 rounded-full text-xs font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:text-white bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 active:scale-95 transition-all cursor-pointer"
           >
             ยกเลิก
           </button>
@@ -876,20 +876,20 @@ export default function ProductForm() {
       {/* Auto-Image Picker Modal (Google / Web Search Style) */}
       {activeImagePicker && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl max-w-3xl w-full max-h-[92vh] flex flex-col shadow-2xl border border-gray-200 overflow-hidden animate-in fade-in zoom-in duration-200">
+          <div className="bg-white dark:bg-zinc-900 rounded-2xl max-w-3xl w-full max-h-[92vh] flex flex-col shadow-2xl border border-gray-200 dark:border-zinc-700 overflow-hidden animate-in fade-in zoom-in duration-200">
             
             {/* Modal Header */}
-            <div className="p-4 sm:p-5 border-b border-gray-200 bg-gradient-to-r from-blue-50/60 via-indigo-50/30 to-white flex items-center justify-between">
+            <div className="p-4 sm:p-5 border-b border-gray-200 dark:border-zinc-700 bg-gradient-to-r from-blue-50/60 via-indigo-50/30 to-white flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-500/20">
                   <Globe className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base sm:text-lg font-bold text-gray-900 flex items-center gap-2">
+                  <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
                     ค้นหารูปภาพตามรุ่นและสี (Google / Web Search)
                   </h3>
-                  <div className="flex items-center gap-2 text-xs text-gray-600 mt-0.5">
-                    <span>แบรนด์ & รุ่น: <strong className="text-gray-900">{currentBrand} {form.model || 'ไม่ได้ระบุ'}</strong></span>
+                  <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-zinc-400 mt-0.5">
+                    <span>แบรนด์ & รุ่น: <strong className="text-gray-900 dark:text-white">{currentBrand} {form.model || 'ไม่ได้ระบุ'}</strong></span>
                     {activeColor?.colorName && (
                       <>
                         <span>•</span>
@@ -910,21 +910,21 @@ export default function ProductForm() {
               <button 
                 type="button"
                 onClick={() => setActiveImagePicker(null)} 
-                className="p-2 text-gray-400 hover:text-gray-700 rounded-xl hover:bg-gray-100 transition-colors"
+                className="p-2 text-gray-400 hover:text-gray-700 dark:text-zinc-300 rounded-xl hover:bg-gray-100 dark:hover:bg-zinc-700 dark:bg-zinc-800 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Navigation Tabs */}
-            <div className="flex border-b border-gray-200 bg-gray-50/80 px-4 pt-2 gap-2 text-xs sm:text-sm font-medium">
+            <div className="flex border-b border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-800/50/80 px-4 pt-2 gap-2 text-xs sm:text-sm font-medium">
               <button
                 type="button"
                 onClick={() => setPickerTab('google')}
                 className={`pb-2.5 px-3 border-b-2 flex items-center gap-1.5 transition-colors cursor-pointer ${
                   pickerTab === 'google'
                     ? 'border-blue-600 text-blue-600 font-bold'
-                    : 'border-transparent text-gray-500 hover:text-gray-800'
+                    : 'border-transparent text-gray-500 dark:text-zinc-400 hover:text-gray-800 dark:text-zinc-100'
                 }`}
               >
                 <Search className="w-4 h-4 text-blue-600" />
@@ -942,7 +942,7 @@ export default function ProductForm() {
                 className={`pb-2.5 px-3 border-b-2 flex items-center gap-1.5 transition-colors cursor-pointer ${
                   pickerTab === 'presets'
                     ? 'border-blue-600 text-blue-600 font-bold'
-                    : 'border-transparent text-gray-500 hover:text-gray-800'
+                    : 'border-transparent text-gray-500 dark:text-zinc-400 hover:text-gray-800 dark:text-zinc-100'
                 }`}
               >
                 <Sparkles className="w-4 h-4 text-amber-500" />
@@ -955,7 +955,7 @@ export default function ProductForm() {
                 className={`pb-2.5 px-3 border-b-2 flex items-center gap-1.5 transition-colors cursor-pointer ${
                   pickerTab === 'custom'
                     ? 'border-blue-600 text-blue-600 font-bold'
-                    : 'border-transparent text-gray-500 hover:text-gray-800'
+                    : 'border-transparent text-gray-500 dark:text-zinc-400 hover:text-gray-800 dark:text-zinc-100'
                 }`}
               >
                 <ExternalLink className="w-4 h-4" />
@@ -982,13 +982,13 @@ export default function ProductForm() {
                           value={webSearchQuery}
                           onChange={(e) => setWebSearchQuery(e.target.value)}
                           placeholder="พิมพ์รุ่น และสี เพื่อค้นหา เช่น iPhone 15 Blue official png"
-                          className="w-full pl-10 pr-10 py-2.5 bg-white border border-gray-300 rounded-xl text-xs sm:text-sm text-gray-900 placeholder:text-gray-400 shadow-xs focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-hidden transition-all"
+                          className="w-full pl-10 pr-10 py-2.5 bg-white dark:bg-zinc-900 border border-gray-300 rounded-xl text-xs sm:text-sm text-gray-900 dark:text-white placeholder:text-gray-400 shadow-xs focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-hidden transition-all"
                         />
                         {webSearchQuery && (
                           <button
                             type="button"
                             onClick={() => setWebSearchQuery('')}
-                            className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                            className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:text-zinc-400"
                           >
                             <X className="w-4 h-4" />
                           </button>
@@ -1026,7 +1026,7 @@ export default function ProductForm() {
                             setWebSearchQuery(newQ);
                             fetchWebImages(newQ);
                           }}
-                          className="text-[11px] bg-gray-100 hover:bg-blue-50 hover:text-blue-700 text-gray-600 px-2.5 py-1 rounded-lg border border-gray-200 transition-colors cursor-pointer"
+                          className="text-[11px] bg-gray-100 dark:bg-zinc-800 hover:bg-blue-50 hover:text-blue-700 text-gray-600 dark:text-zinc-400 px-2.5 py-1 rounded-lg border border-gray-200 dark:border-zinc-700 transition-colors cursor-pointer"
                         >
                           + {tag}
                         </button>
@@ -1037,18 +1037,18 @@ export default function ProductForm() {
                   {/* Results Gallery */}
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <label className="text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                      <label className="text-xs font-semibold text-gray-700 dark:text-zinc-300 uppercase tracking-wider">
                         ผลการค้นหารูปภาพจริงตรงรุ่น & สี (คลิกเลือกได้ทันที):
                       </label>
                       {webImageResults.length > 0 && (
-                        <span className="text-xs text-gray-500">พบ {webImageResults.length} ภาพ</span>
+                        <span className="text-xs text-gray-500 dark:text-zinc-400">พบ {webImageResults.length} ภาพ</span>
                       )}
                     </div>
 
                     {searchingWebImages ? (
                       <div className="py-16 text-center space-y-3">
                         <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto" />
-                        <p className="text-sm font-medium text-gray-600">กำลังค้นหารูปภาพตรงรุ่นและสีจาก Google / Web...</p>
+                        <p className="text-sm font-medium text-gray-600 dark:text-zinc-400">กำลังค้นหารูปภาพตรงรุ่นและสีจาก Google / Web...</p>
                         <p className="text-xs text-gray-400">ระบบกำลังดึงภาพตัวเครื่องความละเอียดสูงและภาพทางการประจำรุ่น</p>
                       </div>
                     ) : webImageResults.length > 0 ? (
@@ -1057,7 +1057,7 @@ export default function ProductForm() {
                           <div
                             key={idx}
                             onClick={() => handleSelectSuggestedImage(item.imageUrl)}
-                            className="group relative border border-gray-200 hover:border-blue-500 hover:ring-2 hover:ring-blue-100 rounded-xl p-2 bg-white flex flex-col items-center justify-between cursor-pointer transition-all shadow-2xs hover:shadow-md"
+                            className="group relative border border-gray-200 dark:border-zinc-700 hover:border-blue-500 hover:ring-2 hover:ring-blue-100 rounded-xl p-2 bg-white dark:bg-zinc-900 flex flex-col items-center justify-between cursor-pointer transition-all shadow-2xs hover:shadow-md"
                           >
                             <div className="w-full h-32 flex items-center justify-center overflow-hidden mb-2 bg-[#fcfcfc] rounded-lg p-1">
                               <img 
@@ -1069,7 +1069,7 @@ export default function ProductForm() {
                             </div>
                             
                             <div className="w-full text-left space-y-0.5">
-                              <p className="text-[11px] text-gray-800 font-medium line-clamp-1 group-hover:text-blue-600">
+                              <p className="text-[11px] text-gray-800 dark:text-zinc-100 font-medium line-clamp-1 group-hover:text-blue-600">
                                 {item.title || `${currentBrand} ${form.model}`}
                               </p>
                               <div className="flex items-center justify-between text-[9px] text-gray-400">
@@ -1088,9 +1088,9 @@ export default function ProductForm() {
                         ))}
                       </div>
                     ) : (
-                      <div className="py-12 text-center border-2 border-dashed border-gray-200 rounded-xl space-y-3">
+                      <div className="py-12 text-center border-2 border-dashed border-gray-200 dark:border-zinc-700 rounded-xl space-y-3">
                         <Search className="w-8 h-8 text-gray-300 mx-auto" />
-                        <p className="text-sm font-medium text-gray-600">ไม่พบรูปภาพจากคำค้นนี้</p>
+                        <p className="text-sm font-medium text-gray-600 dark:text-zinc-400">ไม่พบรูปภาพจากคำค้นนี้</p>
                         <p className="text-xs text-gray-400 max-w-sm mx-auto">
                           ลองเปลี่ยนคำค้นหาให้สั้นลง เช่น &quot;{form.model} {activeColor?.colorName}&quot; หรือเลือกภาพจากแท็บคลังภาพมาตรฐาน
                         </p>
@@ -1114,7 +1114,7 @@ export default function ProductForm() {
               {pickerTab === 'presets' && (
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <label className="text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                    <label className="text-xs font-semibold text-gray-700 dark:text-zinc-300 uppercase tracking-wider">
                       รูปภาพมาตรฐานประจำรุ่นที่แนะนำ:
                     </label>
                   </div>
@@ -1123,12 +1123,12 @@ export default function ProductForm() {
                       <div
                         key={idx}
                         onClick={() => handleSelectSuggestedImage(item.url)}
-                        className="group border border-gray-200 hover:border-blue-500 hover:ring-2 hover:ring-blue-100 rounded-xl p-2 bg-gray-50 flex flex-col items-center justify-between cursor-pointer transition-all hover:shadow-md"
+                        className="group border border-gray-200 dark:border-zinc-700 hover:border-blue-500 hover:ring-2 hover:ring-blue-100 rounded-xl p-2 bg-gray-50 dark:bg-zinc-800/50 flex flex-col items-center justify-between cursor-pointer transition-all hover:shadow-md"
                       >
-                        <div className="w-full h-28 flex items-center justify-center overflow-hidden mb-2 bg-white rounded-lg p-1">
+                        <div className="w-full h-28 flex items-center justify-center overflow-hidden mb-2 bg-white dark:bg-zinc-900 rounded-lg p-1">
                           <img src={item.url} alt={item.label} className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform" />
                         </div>
-                        <span className="text-[11px] text-gray-700 font-medium text-center line-clamp-1 group-hover:text-blue-600">
+                        <span className="text-[11px] text-gray-700 dark:text-zinc-300 font-medium text-center line-clamp-1 group-hover:text-blue-600">
                           {item.label}
                         </span>
                       </div>
@@ -1139,8 +1139,8 @@ export default function ProductForm() {
 
               {pickerTab === 'custom' && (
                 <div className="space-y-4 py-2">
-                  <div className="bg-gray-50 p-4 rounded-xl border border-gray-200 space-y-3">
-                    <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  <div className="bg-gray-50 dark:bg-zinc-800/50 p-4 rounded-xl border border-gray-200 dark:border-zinc-700 space-y-3">
+                    <label className="block text-xs font-semibold text-gray-700 dark:text-zinc-300 uppercase tracking-wider">
                       ใส่ลิงก์รูปภาพโดยตรง (Direct Image URL):
                     </label>
                     <div className="flex gap-2">
@@ -1149,7 +1149,7 @@ export default function ProductForm() {
                         placeholder="https://example.com/phone-black.jpg"
                         value={customUrlInput}
                         onChange={(e) => setCustomUrlInput(e.target.value)}
-                        className="flex-1 text-xs sm:text-sm border border-gray-300 rounded-xl px-3.5 py-2.5 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white"
+                        className="flex-1 text-xs sm:text-sm border border-gray-300 rounded-xl px-3.5 py-2.5 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white dark:bg-zinc-900"
                       />
                       <button
                         type="button"
@@ -1162,16 +1162,16 @@ export default function ProductForm() {
                     </div>
 
                     {customUrlInput.trim() && (
-                      <div className="mt-3 p-3 bg-white rounded-lg border border-gray-200 flex items-center gap-3">
+                      <div className="mt-3 p-3 bg-white dark:bg-zinc-900 rounded-lg border border-gray-200 dark:border-zinc-700 flex items-center gap-3">
                         <img 
                           src={customUrlInput.trim()} 
                           alt="Preview" 
-                          className="w-16 h-16 object-contain border border-gray-200 rounded-md p-1 bg-gray-50"
+                          className="w-16 h-16 object-contain border border-gray-200 dark:border-zinc-700 rounded-md p-1 bg-gray-50 dark:bg-zinc-800/50"
                           onError={(e) => {
                             (e.target as HTMLElement).style.display = 'none';
                           }}
                         />
-                        <span className="text-xs text-gray-500">ตัวอย่างรูปภาพจากลิงก์ที่กรอก</span>
+                        <span className="text-xs text-gray-500 dark:text-zinc-400">ตัวอย่างรูปภาพจากลิงก์ที่กรอก</span>
                       </div>
                     )}
                   </div>
@@ -1180,15 +1180,15 @@ export default function ProductForm() {
             </div>
 
             {/* Modal Footer */}
-            <div className="p-4 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
-              <span className="text-xs text-gray-500 hidden sm:inline">
+            <div className="p-4 border-t border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-800/50 flex items-center justify-between">
+              <span className="text-xs text-gray-500 dark:text-zinc-400 hidden sm:inline">
                 เคล็ดลับ: สามารถคลิกที่รูปภาพใดก็ได้เพื่อนำไปใช้ทันที
               </span>
               <div className="flex gap-2 ml-auto">
                 <button
                   type="button"
                   onClick={() => setActiveImagePicker(null)}
-                  className="px-5 py-2 border border-gray-300 text-xs font-semibold text-gray-700 rounded-xl hover:bg-white transition-colors cursor-pointer"
+                  className="px-5 py-2 border border-gray-300 text-xs font-semibold text-gray-700 dark:text-zinc-300 rounded-xl hover:bg-white dark:bg-zinc-900 transition-colors cursor-pointer"
                 >
                   ปิดหน้าต่าง
                 </button>
