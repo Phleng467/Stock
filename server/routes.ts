@@ -161,9 +161,25 @@ apiRouter.get('/products', (req, res) => {
   res.json(db.products);
 });
 
+function cleanAppleRAM(product: any, brands: any[]) {
+  if (!product) return;
+  const brand = brands.find(b => b.id === product.brandId);
+  const isApple = (brand?.name || '').toLowerCase().includes('apple') || 
+                  (brand?.name || '').toLowerCase().includes('iphone') || 
+                  (product.model || '').toLowerCase().includes('iphone') || 
+                  (product.model || '').toLowerCase().includes('ipad');
+  if (isApple && Array.isArray(product.variants)) {
+    product.variants.forEach((v: any) => {
+      v.ram = '';
+    });
+  }
+}
+
 apiRouter.post('/products', (req, res) => {
   const db = readDB();
-  const newProduct = { id: uuidv4(), ...req.body };
+  const productData = { ...req.body };
+  cleanAppleRAM(productData, db.brands || []);
+  const newProduct = { id: uuidv4(), ...productData };
   db.products.push(newProduct);
   writeDB(db);
   res.json(newProduct);
@@ -205,6 +221,7 @@ apiRouter.post('/products/bulk', (req, res) => {
   let addedCount = 0;
 
   products.forEach(p => {
+    cleanAppleRAM(p, db.brands || []);
     // Check if model already exists (case insensitive)
     const existingIdx = db.products.findIndex((dp) => 
       dp.model.toLowerCase() === p.model.toLowerCase() && 
@@ -358,7 +375,9 @@ apiRouter.put('/products/:id', (req, res) => {
   const db = readDB();
   const index = db.products.findIndex(p => p.id === req.params.id);
   if (index !== -1) {
-    db.products[index] = { ...db.products[index], ...req.body };
+    const updated = { ...db.products[index], ...req.body };
+    cleanAppleRAM(updated, db.brands || []);
+    db.products[index] = updated;
     writeDB(db);
     res.json(db.products[index]);
   } else {

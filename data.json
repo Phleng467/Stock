@@ -139,6 +139,12 @@
       "name": "Redmi",
       "order": 22,
       "isHidden": false
+    },
+    {
+      "id": "08778e25-3454-4c5f-a10a-bb3f9f7133df",
+      "name": "Sheet1",
+      "order": 23,
+      "isHidden": false
     }
   ],
   "products": [
@@ -208,6 +214,21 @@
               "sku": "IP15-256-BLU",
               "stock": 3,
               "imageUrl": "https://images.unsplash.com/photo-1695048133148-f8605ee71569?w=600&auto=format&fit=crop&q=80"
+            }
+          ]
+        },
+        {
+          "id": "28b9b185-2c42-4908-84d1-d8e548fba818",
+          "ram": "",
+          "rom": "128GB",
+          "retailPrice": 23900,
+          "wholesalePrice": 0,
+          "colors": [
+            {
+              "id": "004876ce-9eac-4d3f-acf2-9e33787a8cf1",
+              "colorName": "Black",
+              "sku": "1.01006E+15",
+              "stock": 1
             }
           ]
         }
@@ -342,12 +363,47 @@
           ]
         }
       ]
+    },
+    {
+      "id": "abb21764-ad6a-4285-891a-d38f3f2a0932",
+      "category": "Mobile",
+      "brandId": "b1",
+      "model": "iPhone 15",
+      "detail": "",
+      "specs": {
+        "screen": "6.1-inch Super Retina XDR OLED",
+        "chipset": "A16 Bionic",
+        "camera": "48MP Main, 12MP Ultra Wide",
+        "battery": "3349 mAh",
+        "os": "iOS 17",
+        "weight": "171g"
+      },
+      "isHidden": false,
+      "variants": [
+        {
+          "id": "nv9l2t",
+          "ram": "",
+          "rom": "128GB",
+          "retailPrice": 23900,
+          "wholesalePrice": null,
+          "colors": [
+            {
+              "id": "n5cuczb",
+              "colorName": "Black",
+              "sku": "1010060811000640",
+              "stock": 1,
+              "imageUrl": "/uploads/prod_1789303713805_awfq1k.webp"
+            }
+          ]
+        }
+      ]
     }
   ],
   "settings": {
     "lowStockThreshold": 5,
-    "syncStatus": "error",
-    "spreadsheetId": "1RBRiNEXhTneJ2cThsyta7BNh9cdQwH1FLTsL4D9bBKc"
+    "syncStatus": "idle",
+    "spreadsheetId": "1RBRiNEXhTneJ2cThsyta7BNh9cdQwH1FLTsL4D9bBKc",
+    "lastSync": "2026-09-13T12:47:07.923Z"
   },
   "promotions": [
     {
@@ -357,6 +413,1768 @@
     {
       "id": "703945f1-628e-4ceb-beb9-60ac0e114bb5",
       "url": "/uploads/prod_1789283911021_ck7fm.jpg"
+    }
+  ],
+  "sdcPromotions": [
+    {
+      "id": "19s53",
+      "brand": "Samsung",
+      "model": "SAM Z Fold 7 12/512GB F966",
+      "normalPrice": 72900,
+      "sdcAmount": 12000,
+      "takeDeviceAmount": 0,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "g7ltgr",
+      "brand": "Samsung",
+      "model": "SAM Z Fold 7 12/512GB F966 Upgrade",
+      "normalPrice": 72900,
+      "sdcAmount": 12000,
+      "takeDeviceAmount": 0,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "1uz7w9",
+      "brand": "Samsung",
+      "model": "SAM Z Fold 7 12/256GB F966",
+      "normalPrice": 67900,
+      "sdcAmount": 12000,
+      "takeDeviceAmount": 0,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "6zgca8",
+      "brand": "Samsung",
+      "model": "SAM S26 Ultra 5G 16/1TB",
+      "normalPrice": 66900,
+      "sdcAmount": 4000,
+      "takeDeviceAmount": 0,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "bgq8wi",
+      "brand": "Samsung",
+      "model": "SAM S26 Ultra 5G 12/512GB",
+      "normalPrice": 54900,
+      "sdcAmount": 9000,
+      "takeDeviceAmount": 0,
+      "duration": "3-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "gkbnpq",
+      "brand": "Samsung",
+      "model": "SAM S26 Ultra 5G 12/512GB",
+      "normalPrice": 54900,
+      "sdcAmount": 4000,
+      "takeDeviceAmount": 0,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "dl68unq",
+      "brand": "Samsung",
+      "model": "SAM S25 Ultra 5G 12/512GB",
+      "normalPrice": 52900,
+      "sdcAmount": 9700,
+      "takeDeviceAmount": 0,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "4no06",
+      "brand": "Samsung",
+      "model": "SAM S25 Ultra 5G 12/512GB_AWN",
+      "normalPrice": 52900,
+      "sdcAmount": 9700,
+      "takeDeviceAmount": 0,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "747zfi",
+      "brand": "Samsung",
+      "model": "SAM Tab S10 Ultra 5G 12/512GB",
+      "normalPrice": 52900,
+      "sdcAmount": 13700,
+      "takeDeviceAmount": 0,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "h9t4kp",
+      "brand": "Samsung",
+      "model": "SAM S26 Plus 5G 12/512GB",
+      "normalPrice": 48900,
+      "sdcAmount": 8900,
+      "takeDeviceAmount": 0,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "zytz1",
+      "brand": "Samsung",
+      "model": "SAM Tab S11 Ultra 5G 12/256GB",
+      "normalPrice": 48900,
+      "sdcAmount": 6500,
+      "takeDeviceAmount": 0,
+      "duration": "7-30.08.69",
+      "note": ""
+    },
+    {
+      "id": "6vtxqe",
+      "brand": "Samsung",
+      "model": "SAM Tab S11 Ultra 5G 12/256GB",
+      "normalPrice": 48900,
+      "sdcAmount": 4000,
+      "takeDeviceAmount": 0,
+      "duration": "7-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "gik35j",
+      "brand": "Samsung",
+      "model": "SAM S26 Ultra 5G 12/256GB",
+      "normalPrice": 46900,
+      "sdcAmount": 9000,
+      "takeDeviceAmount": 0,
+      "duration": "3-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "i5qi3c",
+      "brand": "Samsung",
+      "model": "SAM S26 Ultra 5G 12/256GB",
+      "normalPrice": 46900,
+      "sdcAmount": 4000,
+      "takeDeviceAmount": 0,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "k14mj9",
+      "brand": "Samsung",
+      "model": "SAM Z Flip 7 12/512GB F766",
+      "normalPrice": 45900,
+      "sdcAmount": 8000,
+      "takeDeviceAmount": 0,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "kvi8i",
+      "brand": "Samsung",
+      "model": "SAM Z Flip 7 12/512GB F766 Upgrade",
+      "normalPrice": 45900,
+      "sdcAmount": 8000,
+      "takeDeviceAmount": 0,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "ck5usn",
+      "brand": "Samsung",
+      "model": "SAM Tab S10 Plus 5G 12/256GB",
+      "normalPrice": 43900,
+      "sdcAmount": 8100,
+      "takeDeviceAmount": 0,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "4smvir",
+      "brand": "Samsung",
+      "model": "SAM S25 Ultra 5G 12/256GB",
+      "normalPrice": 42900,
+      "sdcAmount": 9700,
+      "takeDeviceAmount": 0,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "pva0ui",
+      "brand": "Samsung",
+      "model": "SAM S26 5G 12/512GB",
+      "normalPrice": 41900,
+      "sdcAmount": 8900,
+      "takeDeviceAmount": 0,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "m0kr4o",
+      "brand": "Samsung",
+      "model": "SAM S26 Plus 5G 12/256GB",
+      "normalPrice": 40900,
+      "sdcAmount": 7300,
+      "takeDeviceAmount": 0,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "fnppik",
+      "brand": "Samsung",
+      "model": "SAM Z Flip 7 12/256GB F766",
+      "normalPrice": 40900,
+      "sdcAmount": 8000,
+      "takeDeviceAmount": 0,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "5nb666",
+      "brand": "Samsung",
+      "model": "SAM Tab S10 Plus Wifi 12/256GB",
+      "normalPrice": 38900,
+      "sdcAmount": 8100,
+      "takeDeviceAmount": 0,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "n9tw8k",
+      "brand": "Samsung",
+      "model": "SAM S25 Plus 5G 12/256GB",
+      "normalPrice": 36900,
+      "sdcAmount": 8500,
+      "takeDeviceAmount": 0,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "mv4819",
+      "brand": "Samsung",
+      "model": "Tab S9 5G 12/256GB (X716)",
+      "normalPrice": 35900,
+      "sdcAmount": 10000,
+      "takeDeviceAmount": 0,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "inihij",
+      "brand": "Samsung",
+      "model": "SAM S26 5G 12/256GB",
+      "normalPrice": 33900,
+      "sdcAmount": 4800,
+      "takeDeviceAmount": 0,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "3yz00o",
+      "brand": "Samsung",
+      "model": "SAM Tab S11 5G 12/128GB",
+      "normalPrice": 33900,
+      "sdcAmount": 1600,
+      "takeDeviceAmount": 0,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "hoggvp",
+      "brand": "Samsung",
+      "model": "SAM Tab S9 Wifi 12/256GB (X710)",
+      "normalPrice": 31900,
+      "sdcAmount": 6300,
+      "takeDeviceAmount": 0,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "fmcnkj",
+      "brand": "Samsung",
+      "model": "SAM Tab S10 FE Plus 5G 12/256GB X626",
+      "normalPrice": 30900,
+      "sdcAmount": 3200,
+      "takeDeviceAmount": 0,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "25xf7o",
+      "brand": "Samsung",
+      "model": "SAM S26 FE 5G 8/256GB",
+      "normalPrice": 28900,
+      "sdcAmount": 1000,
+      "takeDeviceAmount": 0,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "nowckd",
+      "brand": "Samsung",
+      "model": "SAM Tab S11 Wifi 12/128GB",
+      "normalPrice": 28900,
+      "sdcAmount": 1600,
+      "takeDeviceAmount": 0,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "eksvql",
+      "brand": "Samsung",
+      "model": "Tab S9 Wifi 8/128GB (X710)",
+      "normalPrice": 28900,
+      "sdcAmount": 5700,
+      "takeDeviceAmount": 0,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "ltsik",
+      "brand": "Samsung",
+      "model": "SAM A57 5G 12/512GB (A576)",
+      "normalPrice": 27999,
+      "sdcAmount": 1500,
+      "takeDeviceAmount": 0,
+      "duration": "9-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "nm46m",
+      "brand": "Samsung",
+      "model": "SAM A57 5G 12/512GB (A576) Upgrade",
+      "normalPrice": 27999,
+      "sdcAmount": 1500,
+      "takeDeviceAmount": 0,
+      "duration": "9-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "z011t",
+      "brand": "Samsung",
+      "model": "SAM Tab S10 FE Plus Wifi 12/256GB X620",
+      "normalPrice": 27900,
+      "sdcAmount": 3200,
+      "takeDeviceAmount": 0,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "hhu3di",
+      "brand": "Samsung",
+      "model": "SAM S25 FE 5G 8/256GB",
+      "normalPrice": 26900,
+      "sdcAmount": 1600,
+      "takeDeviceAmount": 0,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "aoiyk9",
+      "brand": "Samsung",
+      "model": "SAM S25 FE 5G 8/256GB Upgrade",
+      "normalPrice": 26900,
+      "sdcAmount": 1600,
+      "takeDeviceAmount": 0,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "sdflqh",
+      "brand": "Samsung",
+      "model": "SAM S24 FE 5G 8/256GB (S721)",
+      "normalPrice": 25900,
+      "sdcAmount": 6000,
+      "takeDeviceAmount": 0,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "2l699o",
+      "brand": "Samsung",
+      "model": "SAM S24 FE 5G 8/256GB (S721) Upgrade",
+      "normalPrice": 25900,
+      "sdcAmount": 6000,
+      "takeDeviceAmount": 0,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "xgd0zn",
+      "brand": "Samsung",
+      "model": "SAM S26 FE 5G 8/128GB",
+      "normalPrice": 24900,
+      "sdcAmount": 1000,
+      "takeDeviceAmount": 0,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "rqy37",
+      "brand": "Samsung",
+      "model": "SAM A57 5G 12/256GB (A576)",
+      "normalPrice": 22999,
+      "sdcAmount": 1000,
+      "takeDeviceAmount": 0,
+      "duration": "9-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "2uzmga",
+      "brand": "Samsung",
+      "model": "SAM S24 FE 5G 8/128GB (S721)",
+      "normalPrice": 22900,
+      "sdcAmount": 6000,
+      "takeDeviceAmount": 0,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "hu4x7p",
+      "brand": "Samsung",
+      "model": "SAM S25 FE 5G 8/128GB",
+      "normalPrice": 22900,
+      "sdcAmount": 1600,
+      "takeDeviceAmount": 0,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "3zw57i",
+      "brand": "Samsung",
+      "model": "SAM Tab S10 FE 5G 8/128GB X526",
+      "normalPrice": 22900,
+      "sdcAmount": 1600,
+      "takeDeviceAmount": 0,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "goyphr",
+      "brand": "Samsung",
+      "model": "SAM A57 5G 12/512GB (A576)",
+      "normalPrice": 20999,
+      "sdcAmount": 1500,
+      "takeDeviceAmount": 0,
+      "duration": "7-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "ca254a",
+      "brand": "Samsung",
+      "model": "SAM A57 5G 8/256GB (A576)",
+      "normalPrice": 19999,
+      "sdcAmount": 300,
+      "takeDeviceAmount": 0,
+      "duration": "9-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "dgt85",
+      "brand": "Samsung",
+      "model": "SAM Tab S10 FE Wifi 8/128GB X520",
+      "normalPrice": 19900,
+      "sdcAmount": 1600,
+      "takeDeviceAmount": 0,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "vo124c",
+      "brand": "Samsung",
+      "model": "SAM A57 5G 12/256GB (A576)",
+      "normalPrice": 17999,
+      "sdcAmount": 1000,
+      "takeDeviceAmount": 0,
+      "duration": "7-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "qxgpra",
+      "brand": "Samsung",
+      "model": "SAM A57 5G 8/256GB (A576)",
+      "normalPrice": 16999,
+      "sdcAmount": 300,
+      "takeDeviceAmount": 0,
+      "duration": "7-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "su8tx4",
+      "brand": "Samsung",
+      "model": "SAM A26 5G 8/256GB A266",
+      "normalPrice": 10999,
+      "sdcAmount": 1600,
+      "takeDeviceAmount": 0,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "xlsyb",
+      "brand": "Samsung",
+      "model": "SAM Tab A11 Plus 5G 6/128GB X236",
+      "normalPrice": 10490,
+      "sdcAmount": 800,
+      "takeDeviceAmount": 0,
+      "duration": "11-13.09.69",
+      "note": ""
+    },
+    {
+      "id": "h5bej",
+      "brand": "Samsung",
+      "model": "SAM Tab A11 Plus 5G 6/128GB X236",
+      "normalPrice": 10490,
+      "sdcAmount": 400,
+      "takeDeviceAmount": 0,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "86sw27",
+      "brand": "Samsung",
+      "model": "SAM Tab A11 Plus 5G 6/128GB X236",
+      "normalPrice": 10490,
+      "sdcAmount": 400,
+      "takeDeviceAmount": 0,
+      "duration": "14-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "ukhi5",
+      "brand": "Samsung",
+      "model": "SAM Tab A9 Plus 5G 8/128 GB_X216",
+      "normalPrice": 9990,
+      "sdcAmount": 2200,
+      "takeDeviceAmount": 0,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "07ehj3",
+      "brand": "Samsung",
+      "model": "SAM Tab A11 Plus Wifi 6/128GB X230",
+      "normalPrice": 8490,
+      "sdcAmount": 800,
+      "takeDeviceAmount": 0,
+      "duration": "11-13.09.69",
+      "note": ""
+    },
+    {
+      "id": "k5mnb8",
+      "brand": "Samsung",
+      "model": "SAM Tab A11 Plus Wifi 6/128GB X230",
+      "normalPrice": 8490,
+      "sdcAmount": 400,
+      "takeDeviceAmount": 0,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "rrrerk",
+      "brand": "Samsung",
+      "model": "SAM Tab A11 Plus Wifi 6/128GB X230",
+      "normalPrice": 8490,
+      "sdcAmount": 400,
+      "takeDeviceAmount": 0,
+      "duration": "14-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "8sjcj9",
+      "brand": "Samsung",
+      "model": "SAM Tab A9 Plus Wi-Fi 8/128 GB_X210",
+      "normalPrice": 7990,
+      "sdcAmount": 2200,
+      "takeDeviceAmount": 0,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "408j95",
+      "brand": "Samsung",
+      "model": "SAM Tab A11 LTE 8/128GB X135",
+      "normalPrice": 7490,
+      "sdcAmount": 800,
+      "takeDeviceAmount": 0,
+      "duration": "11-13.09.69",
+      "note": ""
+    },
+    {
+      "id": "1v682d",
+      "brand": "Samsung",
+      "model": "SAM Tab A11 LTE 8/128GB X135",
+      "normalPrice": 7490,
+      "sdcAmount": 400,
+      "takeDeviceAmount": 0,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "9jd81t",
+      "brand": "Samsung",
+      "model": "SAM Tab A11 LTE 8/128GB X135",
+      "normalPrice": 7490,
+      "sdcAmount": 400,
+      "takeDeviceAmount": 0,
+      "duration": "14-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "ucttkp",
+      "brand": "Samsung",
+      "model": "SAM Tab A9 LTE 8/128GB_X115",
+      "normalPrice": 6990,
+      "sdcAmount": 2200,
+      "takeDeviceAmount": 0,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "mm5f5q",
+      "brand": "Samsung",
+      "model": "SAM Tab A9 Plus 4/64GB X216",
+      "normalPrice": 6590,
+      "sdcAmount": 1900,
+      "takeDeviceAmount": 0,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "pzhtlf",
+      "brand": "OPPO",
+      "model": "OPPO Find X9 Ultra 5G 16/1TB (CPH2841)",
+      "normalPrice": 69999,
+      "sdcAmount": 2200,
+      "takeDeviceAmount": 5100,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "5cj6j",
+      "brand": "OPPO",
+      "model": "OPPO Find X9 Ultra 5G 12/512 (CPH2841)",
+      "normalPrice": 54999,
+      "sdcAmount": 2200,
+      "takeDeviceAmount": 3600,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "eccrr",
+      "brand": "OPPO",
+      "model": "OPPO Find X9 5G 16/512GB",
+      "normalPrice": 34999,
+      "sdcAmount": 2000,
+      "takeDeviceAmount": 1800,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "qcko9p",
+      "brand": "OPPO",
+      "model": "OPPO Find X9s 5G 12/512 (CPH2873)",
+      "normalPrice": 34999,
+      "sdcAmount": 1500,
+      "takeDeviceAmount": 2300,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "jric19",
+      "brand": "OPPO",
+      "model": "OPPO Find X9 5G 12/256GB",
+      "normalPrice": 29999,
+      "sdcAmount": 2000,
+      "takeDeviceAmount": 1300,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "j2fdp",
+      "brand": "OPPO",
+      "model": "OPPO Find X9s 5G 12/256 (CPH2873)",
+      "normalPrice": 29999,
+      "sdcAmount": 1500,
+      "takeDeviceAmount": 1800,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "a92e7",
+      "brand": "OPPO",
+      "model": "OPPO Reno15 Pro Max 5G 12/512GB (CPH2811)",
+      "normalPrice": 26999,
+      "sdcAmount": 1000,
+      "takeDeviceAmount": 2000,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "coczrs",
+      "brand": "OPPO",
+      "model": "OPPO Reno16 5G 12/512GB (CPH2865)",
+      "normalPrice": 26999,
+      "sdcAmount": 1500,
+      "takeDeviceAmount": 1500,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "0or3ze",
+      "brand": "OPPO",
+      "model": "OPPO Reno15 Pro 5G 12/256GB (CPH2813)",
+      "normalPrice": 22999,
+      "sdcAmount": 1000,
+      "takeDeviceAmount": 1600,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "pmud4k",
+      "brand": "OPPO",
+      "model": "OPPO Reno16 5G 12/256GB (CPH2865)",
+      "normalPrice": 22999,
+      "sdcAmount": 1500,
+      "takeDeviceAmount": 1100,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "9n0za8",
+      "brand": "OPPO",
+      "model": "OPPO Reno15 5G 12/512GB (CPH2825)",
+      "normalPrice": 20999,
+      "sdcAmount": 1000,
+      "takeDeviceAmount": 1400,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "fg9lks",
+      "brand": "OPPO",
+      "model": "OPPO Reno16 5G 8/256GB (CPH2865)",
+      "normalPrice": 19999,
+      "sdcAmount": 1200,
+      "takeDeviceAmount": 1100,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "l9skm7",
+      "brand": "OPPO",
+      "model": "OPPO Reno15 5G 12/256GB (CPH2825)",
+      "normalPrice": 18999,
+      "sdcAmount": 1000,
+      "takeDeviceAmount": 1200,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "ahwkn",
+      "brand": "OPPO",
+      "model": "OPPO Reno16F 5G 8/256GB (CPH2859)",
+      "normalPrice": 16999,
+      "sdcAmount": 700,
+      "takeDeviceAmount": 1300,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "keva",
+      "brand": "OPPO",
+      "model": "OPPO Reno15F 5G 12/256GB (CPH2801)",
+      "normalPrice": 15999,
+      "sdcAmount": 1000,
+      "takeDeviceAmount": 900,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "7whz7",
+      "brand": "OPPO",
+      "model": "OPPO Reno16F 5G 8/128GB (CPH2859)",
+      "normalPrice": 15999,
+      "sdcAmount": 700,
+      "takeDeviceAmount": 1200,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "ftajm6",
+      "brand": "OPPO",
+      "model": "OPPO A6s 5G 8/256GB",
+      "normalPrice": 14999,
+      "sdcAmount": 1000,
+      "takeDeviceAmount": 800,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "q75opk",
+      "brand": "OPPO",
+      "model": "OPPO Reno15F 5G 8/256GB (CPH2801)",
+      "normalPrice": 14999,
+      "sdcAmount": 800,
+      "takeDeviceAmount": 1000,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "cq00k",
+      "brand": "OPPO",
+      "model": "OPPO A6s 5G 8/128GB",
+      "normalPrice": 13499,
+      "sdcAmount": 700,
+      "takeDeviceAmount": 950,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "fvd12w",
+      "brand": "OPPO",
+      "model": "OPPO A6x 5G 4/128GB (CPH2783)",
+      "normalPrice": 8999,
+      "sdcAmount": 300,
+      "takeDeviceAmount": 900,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "tdjbfa",
+      "brand": "OPPO",
+      "model": "OPPO A6x 4/128GB (CPH2819)",
+      "normalPrice": 5299,
+      "sdcAmount": 300,
+      "takeDeviceAmount": 530,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "97f159",
+      "brand": "OPPO",
+      "model": "OPPO Reno16 5G 12/512GB + OPPO Watch S",
+      "normalPrice": 32998,
+      "sdcAmount": 1500,
+      "takeDeviceAmount": 2100,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "ezidtk",
+      "brand": "OPPO",
+      "model": "OPPO Reno16 5G 12/512GB + OPPO Bubble + Enco Air 5",
+      "normalPrice": 31997,
+      "sdcAmount": 1500,
+      "takeDeviceAmount": 2000,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "ja0a8",
+      "brand": "OPPO",
+      "model": "OPPO Reno16 5G 12/512GB + OPPO Bubble",
+      "normalPrice": 29998,
+      "sdcAmount": 1500,
+      "takeDeviceAmount": 1800,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "29e7ta",
+      "brand": "OPPO",
+      "model": "OPPO Reno16 5G 12/512GB + Enco Air 5s",
+      "normalPrice": 29498,
+      "sdcAmount": 1500,
+      "takeDeviceAmount": 1750,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "rl3fe",
+      "brand": "OPPO",
+      "model": "OPPO Reno16 5G 12/512GB + Enco Air 5",
+      "normalPrice": 28998,
+      "sdcAmount": 1500,
+      "takeDeviceAmount": 1700,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "3jptyb",
+      "brand": "OPPO",
+      "model": "OPPO Reno16 5G 12/256GB + OPPO Watch S",
+      "normalPrice": 28998,
+      "sdcAmount": 1500,
+      "takeDeviceAmount": 1700,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "i8cx5r",
+      "brand": "OPPO",
+      "model": "OPPO Reno16 5G 12/256GB + OPPO Bubble + Enco Air 5",
+      "normalPrice": 26197,
+      "sdcAmount": 1500,
+      "takeDeviceAmount": 1420,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "0u35s",
+      "brand": "OPPO",
+      "model": "OPPO Reno16 5G 12/256GB + OPPO Bubble",
+      "normalPrice": 25998,
+      "sdcAmount": 1500,
+      "takeDeviceAmount": 1400,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "pxfmbf",
+      "brand": "OPPO",
+      "model": "OPPO Reno16 5G 8/256GB + OPPO Watch S",
+      "normalPrice": 25998,
+      "sdcAmount": 1200,
+      "takeDeviceAmount": 1700,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "mnongv",
+      "brand": "OPPO",
+      "model": "OPPO Reno16 5G 12/256GB + Enco Air 5s",
+      "normalPrice": 25498,
+      "sdcAmount": 1500,
+      "takeDeviceAmount": 1350,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "5gkyjo",
+      "brand": "OPPO",
+      "model": "OPPO Reno16 5G 12/256GB + Enco Air 5",
+      "normalPrice": 24998,
+      "sdcAmount": 1500,
+      "takeDeviceAmount": 1300,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "z21rf",
+      "brand": "OPPO",
+      "model": "OPPO Reno16 5G 8/256GB + OPPO Bubble + Enco Air 5",
+      "normalPrice": 24997,
+      "sdcAmount": 1200,
+      "takeDeviceAmount": 1600,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "4efe5f",
+      "brand": "OPPO",
+      "model": "OPPO Reno16F 5G 8/256GB + OPPO Watch S",
+      "normalPrice": 22998,
+      "sdcAmount": 700,
+      "takeDeviceAmount": 1900,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "8axwgl",
+      "brand": "OPPO",
+      "model": "OPPO Reno16 5G 8/256GB + OPPO Bubble",
+      "normalPrice": 22998,
+      "sdcAmount": 1500,
+      "takeDeviceAmount": 1100,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "o1oapq",
+      "brand": "OPPO",
+      "model": "OPPO Reno16 5G 8/256GB + Enco Air 5s",
+      "normalPrice": 22498,
+      "sdcAmount": 1200,
+      "takeDeviceAmount": 1350,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "ya9irv",
+      "brand": "OPPO",
+      "model": "OPPO Reno16F 5G 8/128GB + OPPO Watch S",
+      "normalPrice": 21998,
+      "sdcAmount": 700,
+      "takeDeviceAmount": 1800,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "448yhd",
+      "brand": "OPPO",
+      "model": "OPPO Reno16 5G 8/256GB + Enco Air 5",
+      "normalPrice": 21998,
+      "sdcAmount": 1200,
+      "takeDeviceAmount": 1300,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "i51fx6",
+      "brand": "OPPO",
+      "model": "OPPO Reno16F 5G 8/256GB + OPPO Bubble + Enco Air 5",
+      "normalPrice": 21997,
+      "sdcAmount": 700,
+      "takeDeviceAmount": 1800,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "3sw5t",
+      "brand": "OPPO",
+      "model": "OPPO Reno16F 5G 8/128GB + OPPO Bubble + Enco Air 5",
+      "normalPrice": 20997,
+      "sdcAmount": 700,
+      "takeDeviceAmount": 1700,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "04r7ph",
+      "brand": "OPPO",
+      "model": "OPPO Reno16F 5G 8/256GB + OPPO Bubble",
+      "normalPrice": 19998,
+      "sdcAmount": 700,
+      "takeDeviceAmount": 1600,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "6s70pq",
+      "brand": "OPPO",
+      "model": "OPPO Reno16F 5G 8/256GB + Enco Air 5s",
+      "normalPrice": 19498,
+      "sdcAmount": 700,
+      "takeDeviceAmount": 1550,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "5k5p8h",
+      "brand": "OPPO",
+      "model": "OPPO Reno16F 5G 8/128GB + OPPO Bubble",
+      "normalPrice": 18998,
+      "sdcAmount": 700,
+      "takeDeviceAmount": 1500,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "ojurs",
+      "brand": "OPPO",
+      "model": "OPPO Reno16F 5G 8/256GB + Enco Air 5",
+      "normalPrice": 18998,
+      "sdcAmount": 700,
+      "takeDeviceAmount": 1500,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "5wy6v",
+      "brand": "OPPO",
+      "model": "OPPO Reno16F 5G 8/128GB + Enco Air 5s",
+      "normalPrice": 18498,
+      "sdcAmount": 700,
+      "takeDeviceAmount": 1450,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "hyqaps",
+      "brand": "OPPO",
+      "model": "OPPO Reno16F 5G 8/128GB + Enco Air 5",
+      "normalPrice": 17998,
+      "sdcAmount": 700,
+      "takeDeviceAmount": 1400,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "7nmca",
+      "brand": "Vivo",
+      "model": "Vivo X300 Ultra 5G 16/1TB (Box Set)",
+      "normalPrice": 79999,
+      "sdcAmount": 2100,
+      "takeDeviceAmount": 6200,
+      "duration": "7-13.09.69",
+      "note": ""
+    },
+    {
+      "id": "ai8n7p",
+      "brand": "Vivo",
+      "model": "Vivo X300 Ultra 5G 16/1TB",
+      "normalPrice": 64999,
+      "sdcAmount": 1400,
+      "takeDeviceAmount": 5400,
+      "duration": "7-13.09.69",
+      "note": ""
+    },
+    {
+      "id": "bk39f",
+      "brand": "Vivo",
+      "model": "Vivo X300 Ultra 5G 16/512GB",
+      "normalPrice": 54999,
+      "sdcAmount": 1400,
+      "takeDeviceAmount": 4400,
+      "duration": "7-13.09.69",
+      "note": ""
+    },
+    {
+      "id": "wxgl0l",
+      "brand": "Vivo",
+      "model": "Vivo X300 Pro 5G 16/512GB",
+      "normalPrice": 39999,
+      "sdcAmount": 1050,
+      "takeDeviceAmount": 3250,
+      "duration": "7-13.09.69",
+      "note": ""
+    },
+    {
+      "id": "dprgpf",
+      "brand": "Vivo",
+      "model": "Vivo X300 FE 5G 12/512GB (Box Set)",
+      "normalPrice": 37999,
+      "sdcAmount": 1050,
+      "takeDeviceAmount": 3050,
+      "duration": "7-13.09.69",
+      "note": ""
+    },
+    {
+      "id": "dzwmd",
+      "brand": "Vivo",
+      "model": "Vivo X300 Pro 5G 12/256GB",
+      "normalPrice": 36999,
+      "sdcAmount": 1400,
+      "takeDeviceAmount": 2600,
+      "duration": "7-13.09.69",
+      "note": ""
+    },
+    {
+      "id": "bzb8id",
+      "brand": "Vivo",
+      "model": "Vivo X300 FE 5G 12/256GB (Box Set)",
+      "normalPrice": 33999,
+      "sdcAmount": 1050,
+      "takeDeviceAmount": 2650,
+      "duration": "7-13.09.69",
+      "note": ""
+    },
+    {
+      "id": "29gzqe",
+      "brand": "Vivo",
+      "model": "Vivo X300 FE 5G 12/512GB",
+      "normalPrice": 31999,
+      "sdcAmount": 1050,
+      "takeDeviceAmount": 2450,
+      "duration": "7-13.09.69",
+      "note": ""
+    },
+    {
+      "id": "6iodte",
+      "brand": "Vivo",
+      "model": "Vivo X300 FE 5G 12/256GB",
+      "normalPrice": 27999,
+      "sdcAmount": 1050,
+      "takeDeviceAmount": 2050,
+      "duration": "7-13.09.69",
+      "note": ""
+    },
+    {
+      "id": "tjkcj8",
+      "brand": "Vivo",
+      "model": "Vivo V70 5G 12/512GB",
+      "normalPrice": 23999,
+      "sdcAmount": 910,
+      "takeDeviceAmount": 1790,
+      "duration": "7-13.09.69",
+      "note": ""
+    },
+    {
+      "id": "2gihp",
+      "brand": "Vivo",
+      "model": "Vivo V70 5G 12/256GB",
+      "normalPrice": 19999,
+      "sdcAmount": 700,
+      "takeDeviceAmount": 1600,
+      "duration": "7-13.09.69",
+      "note": ""
+    },
+    {
+      "id": "09txd8",
+      "brand": "Vivo",
+      "model": "Vivo V70 5G 8/256GB",
+      "normalPrice": 17999,
+      "sdcAmount": 560,
+      "takeDeviceAmount": 1540,
+      "duration": "7-13.09.69",
+      "note": ""
+    },
+    {
+      "id": "f31tof",
+      "brand": "Vivo",
+      "model": "Vivo V70 FE 5G 12/256GB",
+      "normalPrice": 16999,
+      "sdcAmount": 490,
+      "takeDeviceAmount": 1510,
+      "duration": "7-13.09.69",
+      "note": ""
+    },
+    {
+      "id": "migons",
+      "brand": "Vivo",
+      "model": "Vivo V70 FE 5G 8/256GB",
+      "normalPrice": 12999,
+      "sdcAmount": 420,
+      "takeDeviceAmount": 1180,
+      "duration": "7-13.09.69",
+      "note": ""
+    },
+    {
+      "id": "r9xk7q",
+      "brand": "Vivo",
+      "model": "Vivo V60 Lite 5G 8/128GB",
+      "normalPrice": 10999,
+      "sdcAmount": 1000,
+      "takeDeviceAmount": 400,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "kbp62g",
+      "brand": "Vivo",
+      "model": "Vivo Y31d 6/256GB",
+      "normalPrice": 9499,
+      "sdcAmount": 800,
+      "takeDeviceAmount": 450,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "ewmwtj",
+      "brand": "Vivo",
+      "model": "Vivo Y31d 6/128GB",
+      "normalPrice": 7999,
+      "sdcAmount": 700,
+      "takeDeviceAmount": 400,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "jmkgm",
+      "brand": "Xiaomi",
+      "model": "Xiaomi 17 12/512GB",
+      "normalPrice": 32990,
+      "sdcAmount": 2400,
+      "takeDeviceAmount": 1199,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "jps03r",
+      "brand": "Xiaomi",
+      "model": "Xiaomi 17T Pro 5G 12/512GB",
+      "normalPrice": 27999,
+      "sdcAmount": 1200,
+      "takeDeviceAmount": 1900,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "ag4nma",
+      "brand": "Xiaomi",
+      "model": "Xiaomi 17T Pro 5G 12/256GB",
+      "normalPrice": 25999,
+      "sdcAmount": 1200,
+      "takeDeviceAmount": 1700,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "pff3tt",
+      "brand": "Xiaomi",
+      "model": "Xiaomi 17T 5G 12/512GB",
+      "normalPrice": 22999,
+      "sdcAmount": 1200,
+      "takeDeviceAmount": 1400,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "3lkl8",
+      "brand": "Xiaomi",
+      "model": "Xiaomi 17T 5G 12/256GB",
+      "normalPrice": 19999,
+      "sdcAmount": 1200,
+      "takeDeviceAmount": 1100,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "6n9ul",
+      "brand": "Xiaomi",
+      "model": "Xiaomi Redmi Note17 Pro Max 5G 8/512GB",
+      "normalPrice": 19999,
+      "sdcAmount": 1500,
+      "takeDeviceAmount": 800,
+      "duration": "5-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "3cnl8f",
+      "brand": "Xiaomi",
+      "model": "Xiaomi Redmi Note17 Pro Max 5G 8/256GB",
+      "normalPrice": 17999,
+      "sdcAmount": 1300,
+      "takeDeviceAmount": 800,
+      "duration": "5-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "dbap3k",
+      "brand": "Xiaomi",
+      "model": "Xiaomi Redmi Note17 Pro 5G 8/256GB",
+      "normalPrice": 15999,
+      "sdcAmount": 1100,
+      "takeDeviceAmount": 800,
+      "duration": "5-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "4dhizw",
+      "brand": "Xiaomi",
+      "model": "Xiaomi Redmi Note17 Pro 5G 6/256GB",
+      "normalPrice": 14999,
+      "sdcAmount": 1000,
+      "takeDeviceAmount": 800,
+      "duration": "6-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "5yurcr",
+      "brand": "Xiaomi",
+      "model": "Xiaomi Redmi Note17 5G 8/256GB",
+      "normalPrice": 12999,
+      "sdcAmount": 800,
+      "takeDeviceAmount": 800,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "fizqxp",
+      "brand": "Xiaomi",
+      "model": "Xiaomi Redmi Note17 5G 6/256GB",
+      "normalPrice": 11999,
+      "sdcAmount": 800,
+      "takeDeviceAmount": 700,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "9gn2vq",
+      "brand": "Xiaomi",
+      "model": "Xiaomi Redmi Note17 6/128GB",
+      "normalPrice": 8499,
+      "sdcAmount": 400,
+      "takeDeviceAmount": 750,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "igxyn",
+      "brand": "Xiaomi",
+      "model": "Xiaomi Redmi 17 4/256GB",
+      "normalPrice": 7999,
+      "sdcAmount": 400,
+      "takeDeviceAmount": 700,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "3lgu6w",
+      "brand": "Xiaomi",
+      "model": "Xiaomi Redmi 17 4/128GB",
+      "normalPrice": 6999,
+      "sdcAmount": 400,
+      "takeDeviceAmount": 600,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "05zcw",
+      "brand": "Realme",
+      "model": "Realme 16 Pro Plus 5G 12/512GB",
+      "normalPrice": 23999,
+      "sdcAmount": 400,
+      "takeDeviceAmount": 2300,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "99w0m",
+      "brand": "Realme",
+      "model": "Realme GT 7 12/512GB",
+      "normalPrice": 22999,
+      "sdcAmount": 1700,
+      "takeDeviceAmount": 900,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "s0gvdn",
+      "brand": "Realme",
+      "model": "Realme GT 7T 12/256GB",
+      "normalPrice": 17999,
+      "sdcAmount": 1200,
+      "takeDeviceAmount": 900,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "pmizwi",
+      "brand": "Realme",
+      "model": "Realme 16 Pro Plus 5G 12/256GB",
+      "normalPrice": 17499,
+      "sdcAmount": 400,
+      "takeDeviceAmount": 1650,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "9uaam",
+      "brand": "Realme",
+      "model": "Realme 16 5G 8/256GB",
+      "normalPrice": 13999,
+      "sdcAmount": 400,
+      "takeDeviceAmount": 1300,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "vjurdk",
+      "brand": "Realme",
+      "model": "Realme 15T 5G 8/256GB",
+      "normalPrice": 9999,
+      "sdcAmount": 400,
+      "takeDeviceAmount": 900,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "h8rlyo",
+      "brand": "Honor",
+      "model": "Honor Magic8 Pro 12/512GB",
+      "normalPrice": 39990,
+      "sdcAmount": 3900,
+      "takeDeviceAmount": 399,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "sgbat4",
+      "brand": "Honor",
+      "model": "Honor 600 Pro 5G 12/512GB (MOLLY Limited Edition)",
+      "normalPrice": 32999,
+      "sdcAmount": 3000,
+      "takeDeviceAmount": 600,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "ghotf3",
+      "brand": "Honor",
+      "model": "Honor 600 Pro 5G 12/512GB",
+      "normalPrice": 29999,
+      "sdcAmount": 2500,
+      "takeDeviceAmount": 800,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "t8u1h",
+      "brand": "Honor",
+      "model": "Honor 600 5G 12/256GB",
+      "normalPrice": 19999,
+      "sdcAmount": 1500,
+      "takeDeviceAmount": 800,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "wqnim",
+      "brand": "Honor",
+      "model": "Honor 600 Lite 5G 8/256GB",
+      "normalPrice": 13999,
+      "sdcAmount": 900,
+      "takeDeviceAmount": 800,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "zgwbv",
+      "brand": "Honor",
+      "model": "Honor X9d 5G 12/256GB",
+      "normalPrice": 13999,
+      "sdcAmount": 800,
+      "takeDeviceAmount": 900,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "0yjng",
+      "brand": "Honor",
+      "model": "Honor X7e 6/256GB",
+      "normalPrice": 8999,
+      "sdcAmount": 900,
+      "takeDeviceAmount": 300,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "2ld8w",
+      "brand": "Tecno",
+      "model": "T E C N O P o v a 8 P r o 5 G ( L a m b o r g h i n i ) 1 2 / 5 1 2 G B",
+      "normalPrice": 19999,
+      "sdcAmount": 600,
+      "takeDeviceAmount": 1700,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "p7z0yn",
+      "brand": "Tecno",
+      "model": "T E C N O P o v a 8 P r o 5 G 1 2 / 5 1 2 G B",
+      "normalPrice": 18999,
+      "sdcAmount": 600,
+      "takeDeviceAmount": 1600,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "fnucw8",
+      "brand": "Tecno",
+      "model": "T E C N O P o v a 8 P r o 5 G ( L a m b o r g h i n i ) 1 2 / 2 5 6 G B",
+      "normalPrice": 17999,
+      "sdcAmount": 600,
+      "takeDeviceAmount": 1500,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "3v0fj6",
+      "brand": "Tecno",
+      "model": "T E C N O P o v a 8 P r o 5 G 1 2 / 2 5 6 G B",
+      "normalPrice": 16999,
+      "sdcAmount": 600,
+      "takeDeviceAmount": 1400,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "4s4ngt",
+      "brand": "Tecno",
+      "model": "T E C N O P o v a 8 P r o 5 G ( L a m b o r g h i n i ) 8 / 2 5 6 G B",
+      "normalPrice": 15999,
+      "sdcAmount": 600,
+      "takeDeviceAmount": 1300,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "kvigm",
+      "brand": "Tecno",
+      "model": "T E C N O P o v a 8 P r o 5 G 8 / 2 5 6 G B",
+      "normalPrice": 14999,
+      "sdcAmount": 600,
+      "takeDeviceAmount": 1200,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "5a6zgl",
+      "brand": "Tecno",
+      "model": "T E C N O  P o v a 7 U l t r a 5 G 1 2 / 2 5 6 G B",
+      "normalPrice": 13999,
+      "sdcAmount": 1000,
+      "takeDeviceAmount": 700,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "k55yiq",
+      "brand": "Tecno",
+      "model": "T E C N O  P o v a 7 U l t r a 5 G 1 2 / 2 5 6 G B",
+      "normalPrice": 13999,
+      "sdcAmount": 800,
+      "takeDeviceAmount": 900,
+      "duration": "11-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "37uci",
+      "brand": "Tecno",
+      "model": "T E C N O P o v a 8 5 G 8 / 2 5 6 G B",
+      "normalPrice": 11999,
+      "sdcAmount": 600,
+      "takeDeviceAmount": 900,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "v5xnjf",
+      "brand": "Tecno",
+      "model": "T E C N O P o v a 8 5 G 8 / 1 2 8 G B",
+      "normalPrice": 10999,
+      "sdcAmount": 600,
+      "takeDeviceAmount": 800,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "eijvti",
+      "brand": "Tecno",
+      "model": "T E C N O P o v a 8 5 G 6 / 1 2 8 G B",
+      "normalPrice": 9999,
+      "sdcAmount": 600,
+      "takeDeviceAmount": 700,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "ti1hb5",
+      "brand": "Tecno",
+      "model": "T E C N O  P o v a S l i m 5 G 8 / 2 5 6 G B",
+      "normalPrice": 8999,
+      "sdcAmount": 500,
+      "takeDeviceAmount": 700,
+      "duration": "4-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "cuipcg",
+      "brand": "Tecno",
+      "model": "T E C N O  P o v a S l i m 5 G 8 / 2 5 6 G B",
+      "normalPrice": 8999,
+      "sdcAmount": 800,
+      "takeDeviceAmount": 400,
+      "duration": "11-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "a9r7i9",
+      "brand": "Tecno",
+      "model": "T E C N O S p a r k 4 0 P r o 8 / 2 5 6 G B",
+      "normalPrice": 6999,
+      "sdcAmount": 500,
+      "takeDeviceAmount": 500,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "cejepn",
+      "brand": "Infinix",
+      "model": "Infinix GT50 Pro 5G 12/256GB",
+      "normalPrice": 15999,
+      "sdcAmount": 500,
+      "takeDeviceAmount": 1400,
+      "duration": "4-6.09.69",
+      "note": ""
+    },
+    {
+      "id": "lid7pc",
+      "brand": "Infinix",
+      "model": "Infinix GT30 Pro 5G 12/512GB",
+      "normalPrice": 12999,
+      "sdcAmount": 800,
+      "takeDeviceAmount": 800,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "akn7an",
+      "brand": "Infinix",
+      "model": "Infinix Note60 Pro 5G 12/256GB",
+      "normalPrice": 12999,
+      "sdcAmount": 600,
+      "takeDeviceAmount": 1000,
+      "duration": "4-6.09.69",
+      "note": ""
+    },
+    {
+      "id": "i97rl",
+      "brand": "Infinix",
+      "model": "Infinix Note60 Pro 5G 8/256GB",
+      "normalPrice": 11999,
+      "sdcAmount": 500,
+      "takeDeviceAmount": 1000,
+      "duration": "4-6.09.69",
+      "note": ""
+    },
+    {
+      "id": "87qcv",
+      "brand": "Infinix",
+      "model": "Infinix Note60 Pro 5G 8/256GB",
+      "normalPrice": 11999,
+      "sdcAmount": 400,
+      "takeDeviceAmount": 1100,
+      "duration": "11-13.09.69",
+      "note": ""
+    },
+    {
+      "id": "5wjmxc",
+      "brand": "Infinix",
+      "model": "Infinix GT30 5G 8/256GB",
+      "normalPrice": 8499,
+      "sdcAmount": 800,
+      "takeDeviceAmount": 350,
+      "duration": "1-30.09.69",
+      "note": ""
+    },
+    {
+      "id": "cp0pe",
+      "brand": "Infinix",
+      "model": "Infinix Note Edge 5G 8/256GB",
+      "normalPrice": 8499,
+      "sdcAmount": 500,
+      "takeDeviceAmount": 650,
+      "duration": "4-6.09.69",
+      "note": ""
+    },
+    {
+      "id": "lbb6je",
+      "brand": "Infinix",
+      "model": "Infinix Note Edge 5G 8/256GB",
+      "normalPrice": 8499,
+      "sdcAmount": 400,
+      "takeDeviceAmount": 750,
+      "duration": "11-13.09.69",
+      "note": ""
+    },
+    {
+      "id": "5r1tch",
+      "brand": "Infinix",
+      "model": "Infinix Note Edge 5G 8/128GB",
+      "normalPrice": 7499,
+      "sdcAmount": 500,
+      "takeDeviceAmount": 550,
+      "duration": "4-6.09.69",
+      "note": ""
+    },
+    {
+      "id": "56bq4",
+      "brand": "Infinix",
+      "model": "Infinix Note Edge 5G 8/128GB",
+      "normalPrice": 7499,
+      "sdcAmount": 400,
+      "takeDeviceAmount": 650,
+      "duration": "11-13.09.69",
+      "note": ""
     }
   ]
 }

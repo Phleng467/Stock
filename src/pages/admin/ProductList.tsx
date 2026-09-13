@@ -93,6 +93,10 @@ export default function ProductList() {
               const parsedBasePrice = parseFloat(basePriceStr) || 0;
               const parsedCostPrice = parseFloat(costPriceStr) || 0;
 
+              const isAppleBrand = brands.find(b => b.id === brandId)?.name.toLowerCase().includes('apple') || 
+                                   model.toLowerCase().includes('iphone') || 
+                                   model.toLowerCase().includes('ipad');
+
               const newProduct: Partial<Product> = {
                 brandId,
                 model,
@@ -103,7 +107,7 @@ export default function ProductList() {
                 isHidden: false,
                 variants: [{
                   id: Math.random().toString(36).substring(7),
-                  ram: ram,
+                  ram: isAppleBrand ? '' : ram,
                   rom: rom,
                   retailPrice: parsedBasePrice,
                   wholesalePrice: parsedCostPrice,
@@ -534,11 +538,15 @@ export default function ProductList() {
                     </td>
                     <td className="px-6 py-4 text-xs text-zinc-600 dark:text-zinc-400 max-w-md">
                       <div className="space-y-2">
-                        {p.variants.map((v, i) => (
+                        {p.variants.map((v, i) => {
+                          const isAppleProd = (brand?.name || '').toLowerCase().includes('apple') ||
+                                              p.model.toLowerCase().includes('iphone') ||
+                                              p.model.toLowerCase().includes('ipad');
+                          return (
                           <div key={i} className="flex flex-col gap-1 border-l-2 border-zinc-200 dark:border-zinc-700 pl-2">
                             <div className="flex items-center gap-2">
                               <span className="font-bold text-zinc-800 dark:text-zinc-100 text-[11px]">
-                                {v.ram ? `${v.ram}/` : ''}{v.rom}
+                                {isAppleProd ? v.rom : `${v.ram ? `${v.ram}/` : ''}${v.rom}`}
                               </span>
                               <span className="text-[10px] text-zinc-400">
                                 ฿{v.retailPrice.toLocaleString()}
@@ -583,7 +591,7 @@ export default function ProductList() {
                               })}
                             </div>
                           </div>
-                        ))}
+                        );})}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-xs text-zinc-900 dark:text-white font-bold">

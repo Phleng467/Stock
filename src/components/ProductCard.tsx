@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Product } from '../types';
-import { Cpu, Smartphone, Camera, Battery, Check } from 'lucide-react';
+import { Cpu, Smartphone, Camera, Battery, Check, ZoomIn, X } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { getColorHex, resolveProductImage } from '../lib/deviceImages';
@@ -65,6 +66,7 @@ export default function ProductCard({
   const [selectedVariantId, setSelectedVariantId] = useState(defaultVariant?.id);
   const [selectedColorId, setSelectedColorId] = useState(defaultColor?.id);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [showZoomModal, setShowZoomModal] = useState(false);
 
   const selectedVariant = useMemo(() => 
     product.variants.find(v => v.id === selectedVariantId) || defaultVariant,
@@ -80,6 +82,24 @@ export default function ProductCard({
 
   const isOutOfStock = (selectedColor.stock ?? 0) <= 0;
   const brandStyle = brandBadges[brandName] || { bg: 'bg-gray-800', text: 'text-white', border: 'border-gray-700' };
+
+  // Clean model name: do not prefix brandName since brand badge is already on top.
+  // Also strip brand prefix if product.model already starts with brand name (e.g. "Apple iPhone 15" -> "iPhone 15")
+  const cleanModelName = useMemo(() => {
+    if (!product.model) return '';
+    const bName = (brandName || '').trim();
+    if (bName && product.model.toLowerCase().startsWith(bName.toLowerCase())) {
+      const stripped = product.model.slice(bName.length).trim();
+      return stripped || product.model;
+    }
+    return product.model;
+  }, [product.model, brandName]);
+
+  const isApple = useMemo(() => {
+    const b = (brandName || '').toLowerCase();
+    const m = (product.model || '').toLowerCase();
+    return b.includes('apple') || b.includes('iphone') || m.includes('iphone') || m.includes('ipad');
+  }, [brandName, product.model]);
 
   // Resolve authentic device image if not uploaded yet
   const currentImageUrl = resolveProductImage(
@@ -104,10 +124,8 @@ export default function ProductCard({
       className="group bg-white rounded-xl shadow-xs border border-gray-200/90 hover:border-primary/40 overflow-hidden flex flex-col h-full hover:shadow-2xl hover:shadow-slate-300/60 transition-shadow duration-300 ease-out will-change-transform"
     >
       {/* Top Section: Image & Badges with smooth transition */}
-      <div className="bg-[#f8f9fa] relative p-4 flex flex-col items-center justify-center h-48 sm:h-56 md:h-64 overflow-hidden border-b border-gray-100/80">
+      <div className="bg-[#f8f9fa] relative p-2.5 sm:p-3 flex flex-col items-center justify-center h-60 sm:h-72 md:h-80 overflow-hidden border-b border-gray-100/80">
         
-
-
         {/* Compare Checkbox Button */}
         {onToggleCompare && (
           <button
@@ -155,7 +173,11 @@ export default function ProductCard({
         </div>
 
         {/* Device Image with Cross-fade / Smooth transition */}
-        <div className="relative w-full h-full flex items-center justify-center p-2">
+        <div 
+          onClick={() => setShowZoomModal(true)}
+          className="relative w-full h-full flex items-center justify-center p-0.5 sm:p-1 cursor-zoom-in group/img"
+          title="คลิกเพื่อดูรูปภาพขนาดใหญ่และชัดเจน"
+        >
           <AnimatePresence mode="wait">
             {currentImageUrl !== null ? (
               <motion.img
@@ -163,12 +185,12 @@ export default function ProductCard({
                 ref={imgRef}
                 src={isVisible ? currentImageUrl : undefined}
                 alt={`${product.model} - ${selectedColor.colorName}`}
-                initial={{ opacity: 0, scale: 0.94 }}
+                initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.96 }}
+                exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.25, ease: 'easeOut' }}
                 onLoad={() => setImageLoaded(true)}
-                className="max-h-full max-w-full object-contain filter drop-shadow-md group-hover:scale-105 transition-transform duration-500 ease-out select-none"
+                className="max-h-full max-w-full w-auto h-auto object-contain filter drop-shadow-xl scale-110 sm:scale-115 group-hover:scale-125 transition-transform duration-300 ease-out select-none"
                 loading="lazy" decoding="async"
               />
             ) : (
@@ -179,7 +201,7 @@ export default function ProductCard({
                 exit={{ opacity: 0 }}
                 className="flex flex-col items-center justify-center text-gray-400 w-full h-full opacity-60"
               >
-                <Smartphone className="w-12 h-12 mb-2 stroke-[1.5]" />
+                <Smartphone className="w-14 h-14 mb-2 stroke-[1.5]" />
                 <span className="text-[10px] uppercase font-medium tracking-wider">No Image</span>
               </motion.div>
             )}
@@ -196,61 +218,78 @@ export default function ProductCard({
             <span className="max-w-[110px] truncate">{selectedColor.colorName || 'สีเริ่มต้น'}</span>
           </span>
         </div>
+
+        {/* Quick Zoom Hint Button */}
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            setShowZoomModal(true);
+          }}
+          className="absolute bottom-2 right-2.5 z-10 flex items-center gap-1 text-[10px] font-bold bg-white/95 hover:bg-white text-zinc-700 hover:text-red-600 px-2 py-0.5 rounded-md border border-gray-200/80 shadow-2xs backdrop-blur-xs transition-all cursor-pointer hover:scale-105 active:scale-95"
+          title="คลิกเพื่อขยายรูปภาพขนาดใหญ่"
+        >
+          <ZoomIn className="w-3 h-3 text-red-500" />
+          <span className="text-[9px]">ขยาย</span>
+        </button>
       </div>
 
       {/* Bottom Section: Product Information & Specs */}
-      <div className="p-3.5 sm:p-4 flex-1 flex flex-col justify-between">
+      <div className="p-3.5 sm:p-4 flex-1 flex flex-col justify-between select-none">
         <div>
           {/* Product Model Name */}
-          <div className="mb-2">
+          <div className="mb-2.5">
             <h3 
-              className="text-xs sm:text-sm font-bold text-gray-900 line-clamp-1 group-hover:text-primary transition-colors"
-              title={`${brandName} ${product.model}`}
+              className="text-sm sm:text-base font-extrabold text-zinc-900 line-clamp-1 group-hover:text-red-600 transition-colors tracking-tight"
+              title={cleanModelName}
             >
-              {brandName} {product.model}
+              {cleanModelName}
             </h3>
             {product.detail && (
-              <span className="text-[10px] font-medium text-gray-500 line-clamp-1">{product.detail}</span>
+              <span className="text-xs font-medium text-zinc-500 line-clamp-1 mt-0.5">{product.detail}</span>
             )}
           </div>
 
           {/* Specs List with compact micro-icons */}
-          <div className="space-y-1 mb-3 text-[10px] sm:text-[11px] text-gray-600 bg-gray-50/70 p-2 rounded-lg border border-gray-100">
+          <div className="space-y-1.5 mb-3.5 text-xs text-zinc-600 bg-zinc-50/80 p-2.5 rounded-xl border border-zinc-100">
             {product.specs?.chipset && (
               <div className="flex items-center gap-1.5">
-                <Cpu className="w-3 h-3 text-gray-400 shrink-0" />
-                <span className="truncate leading-tight">{product.specs.chipset}</span>
+                <Cpu className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
+                <span className="truncate leading-tight font-medium">{product.specs.chipset}</span>
               </div>
             )}
             {product.specs?.screen && (
               <div className="flex items-center gap-1.5">
-                <Smartphone className="w-3 h-3 text-gray-400 shrink-0" />
-                <span className="truncate leading-tight">{product.specs.screen}</span>
+                <Smartphone className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
+                <span className="truncate leading-tight font-medium">{product.specs.screen}</span>
               </div>
             )}
             {product.specs?.camera && (
               <div className="flex items-center gap-1.5">
-                <Camera className="w-3 h-3 text-gray-400 shrink-0" />
-                <span className="truncate leading-tight">{product.specs.camera}</span>
+                <Camera className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
+                <span className="truncate leading-tight font-medium">{product.specs.camera}</span>
               </div>
             )}
             {product.specs?.battery && (
               <div className="flex items-center gap-1.5">
-                <Battery className="w-3 h-3 text-gray-400 shrink-0" />
-                <span className="truncate leading-tight">{product.specs.battery}</span>
+                <Battery className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
+                <span className="truncate leading-tight font-medium">{product.specs.battery}</span>
               </div>
             )}
           </div>
 
           {/* Storage / RAM Variant Selector */}
-          <div className="mb-3">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">ความจุ:</span>
+          <div className="mb-3.5">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+                {isApple ? 'ความจุ (ROM):' : 'ความจุ:'}
+              </span>
             </div>
             <div className="flex flex-wrap gap-1.5">
               {product.variants.map((v) => {
                 const isSelected = selectedVariantId === v.id;
-                const label = `${v.ram ? `${v.ram}/` : ''}${v.rom}`;
+                // For Apple products: strictly ROM only, never display RAM
+                const label = isApple ? v.rom : (v.ram && v.ram.trim() ? `${v.ram}/${v.rom}` : v.rom);
                 return (
                   <button
                     key={v.id}
@@ -259,10 +298,10 @@ export default function ProductCard({
                       setSelectedColorId(v.colors[0]?.id);
                     }}
                     className={cn(
-                      "text-[10px] sm:text-[11px] px-2.5 py-0.5 rounded-full font-semibold transition-all duration-150 cursor-pointer active:scale-90",
+                      "text-xs sm:text-sm px-3 py-1 rounded-full font-bold transition-all duration-150 cursor-pointer active:scale-90",
                       isSelected
                         ? "bg-zinc-900 text-white shadow-xs scale-[1.04]"
-                        : "bg-zinc-100/90 text-zinc-600 hover:bg-zinc-200/90 hover:text-zinc-900 hover:scale-[1.02]"
+                        : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 hover:text-zinc-900"
                     )}
                   >
                     {label}
@@ -273,11 +312,11 @@ export default function ProductCard({
           </div>
 
           {/* Color Selector Dots */}
-          <div className="mb-3">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">เลือกสี:</span>
+          <div className="mb-3.5">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">เลือกสี:</span>
             </div>
-            <div className="flex flex-wrap items-center gap-1.5">
+            <div className="flex flex-wrap items-center gap-2">
               {selectedVariant.colors.map((color) => {
                 const isSelected = selectedColorId === color.id;
                 const hex = getColorHex(color.colorName);
@@ -286,7 +325,7 @@ export default function ProductCard({
                     key={color.id}
                     onClick={() => setSelectedColorId(color.id)}
                     className={cn(
-                      "relative w-5 h-5 rounded-full transition-all duration-200 cursor-pointer flex items-center justify-center active:scale-75",
+                      "relative w-6 h-6 rounded-full transition-all duration-200 cursor-pointer flex items-center justify-center active:scale-75",
                       isSelected
                         ? "ring-2 ring-zinc-900 ring-offset-2 scale-115 shadow-sm"
                         : "hover:scale-120 opacity-80 hover:opacity-100"
@@ -331,6 +370,99 @@ export default function ProductCard({
           </div>
         </div>
       </div>
+
+      {/* High-Resolution Zoom Lightbox Modal */}
+      {showZoomModal && typeof document !== 'undefined' && createPortal(
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
+          onClick={(e) => {
+            e.stopPropagation();
+            setShowZoomModal(false);
+          }}
+        >
+          <div
+            className="relative bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl flex flex-col items-center border border-zinc-200 overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close Button */}
+            <button
+              type="button"
+              onClick={() => setShowZoomModal(false)}
+              className="absolute top-4 right-4 p-2.5 rounded-full bg-zinc-100 hover:bg-zinc-200 text-zinc-600 transition-colors cursor-pointer active:scale-95"
+              title="ปิดหน้าต่าง"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {/* Header Details */}
+            <div className="text-center mb-4 w-full pr-8">
+              <span className="inline-block text-[11px] font-bold text-red-600 bg-red-50 px-2.5 py-0.5 rounded-full uppercase tracking-wider mb-1">
+                {brandName}
+              </span>
+              <h3 className="text-xl sm:text-2xl font-black text-zinc-900 tracking-tight">
+                {cleanModelName}
+              </h3>
+              <p className="text-xs sm:text-sm text-zinc-500 mt-1">
+                สี: <span className="font-semibold text-zinc-800">{selectedColor.colorName}</span>
+                {' • '}
+                ความจุ: <span className="font-semibold text-zinc-800">
+                  {isApple ? selectedVariant.rom : (selectedVariant.ram ? `${selectedVariant.ram}/${selectedVariant.rom}` : selectedVariant.rom)}
+                </span>
+              </p>
+            </div>
+
+            {/* Extra Large Clear Device Image */}
+            <div className="w-full h-80 sm:h-96 bg-zinc-50/90 rounded-2xl flex items-center justify-center p-6 border border-zinc-100 relative shadow-inner">
+              {currentImageUrl ? (
+                <img
+                  src={currentImageUrl}
+                  alt={`${cleanModelName} - ${selectedColor.colorName}`}
+                  className="max-h-full max-w-full object-contain filter drop-shadow-2xl transition-transform duration-300 select-none scale-105 hover:scale-110"
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center text-zinc-400">
+                  <Smartphone className="w-16 h-16 mb-2 stroke-[1.5]" />
+                  <span className="text-xs font-medium">ไม่มีรูปภาพ</span>
+                </div>
+              )}
+            </div>
+
+            {/* Color Selector Pills inside Zoom View */}
+            {selectedVariant.colors.length > 1 && (
+              <div className="mt-5 w-full">
+                <div className="text-center text-xs font-bold text-zinc-400 mb-2 uppercase tracking-wider">
+                  เลือกดูสีอื่นๆ ของรุ่นนี้:
+                </div>
+                <div className="flex flex-wrap items-center justify-center gap-2">
+                  {selectedVariant.colors.map((color) => {
+                    const isSelected = color.id === selectedColor.id;
+                    return (
+                      <button
+                        key={color.id}
+                        type="button"
+                        onClick={() => setSelectedColorId(color.id)}
+                        className={cn(
+                          "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer border",
+                          isSelected
+                            ? "bg-zinc-900 text-white border-zinc-900 shadow-sm ring-2 ring-zinc-900/20"
+                            : "bg-zinc-50 text-zinc-700 border-zinc-200 hover:bg-zinc-100"
+                        )}
+                      >
+                        <span
+                          className="w-2.5 h-2.5 rounded-full border border-black/10 shrink-0"
+                          style={{ backgroundColor: getColorHex(color.colorName) }}
+                        />
+                        <span>{color.colorName}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>,
+        document.body
+      )}
     </motion.div>
   );
 }

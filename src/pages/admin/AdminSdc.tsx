@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, ChangeEvent } from 'react';
 import { api } from '../../lib/api';
 import { SdcPromotion } from '../../types';
 import { Upload, FileDown, AlertCircle, Percent, Save, Loader2, Trash2 } from 'lucide-react';
@@ -28,11 +28,16 @@ export default function AdminSdc() {
   };
 
   const showToast = (type: 'success' | 'error', message: string) => {
-    const newToast: ToastItem = { id: Date.now().toString(), type, message };
+    const newToast: ToastItem = { 
+      id: Date.now().toString(), 
+      type, 
+      title: type === 'success' ? 'สำเร็จ' : 'ข้อผิดพลาด',
+      message 
+    };
     setToasts(prev => [...prev, newToast]);
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 

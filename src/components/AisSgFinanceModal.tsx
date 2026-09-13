@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Search, RotateCcw, AlertTriangle, AlertCircle, ChevronDown, Check } from 'lucide-react';
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, ChangeEvent } from 'react';
 import { api } from '../lib/api';
 import { Product, Brand } from '../types';
 
@@ -93,18 +93,26 @@ export default function AisSgFinanceModal({ isOpen, onClose }: Props) {
   const availableCapacities = useMemo(() => {
     if (!selectedBrandId || !selectedModel) return [];
     const modelProducts = products.filter(p => p.brandId === selectedBrandId && p.model === selectedModel);
+    const brand = brands.find(b => b.id === selectedBrandId);
+    const isApple = (brand?.name || '').toLowerCase().includes('apple') ||
+                    (selectedModel || '').toLowerCase().includes('iphone') ||
+                    (selectedModel || '').toLowerCase().includes('ipad');
     
     // Extract capacities from variants
     const capacities = new Set<string>();
     modelProducts.forEach(p => {
       p.variants.forEach(v => {
-        if (v.ram && v.rom) capacities.add(`${v.ram}/${v.rom}`);
-        else if (v.rom) capacities.add(v.rom);
+        if (isApple) {
+          if (v.rom) capacities.add(v.rom);
+        } else {
+          if (v.ram && v.rom) capacities.add(`${v.ram}/${v.rom}`);
+          else if (v.rom) capacities.add(v.rom);
+        }
       });
     });
     
     return Array.from(capacities);
-  }, [selectedBrandId, selectedModel, products]);
+  }, [selectedBrandId, selectedModel, products, brands]);
 
   // Find base price
   const devicePrice = useMemo(() => {
@@ -112,11 +120,16 @@ export default function AisSgFinanceModal({ isOpen, onClose }: Props) {
     const modelProducts = products.filter(p => p.brandId === selectedBrandId && p.model === selectedModel);
     if (modelProducts.length === 0) return 0;
     
+    const brand = brands.find(b => b.id === selectedBrandId);
+    const isApple = (brand?.name || '').toLowerCase().includes('apple') ||
+                    (selectedModel || '').toLowerCase().includes('iphone') ||
+                    (selectedModel || '').toLowerCase().includes('ipad');
+
     // If capacity selected, try to find matching variant
     if (selectedCapacity) {
       for (const p of modelProducts) {
         for (const v of p.variants) {
-          const cap = (v.ram && v.rom) ? `${v.ram}/${v.rom}` : v.rom;
+          const cap = (!isApple && v.ram && v.rom) ? `${v.ram}/${v.rom}` : v.rom;
           if (cap === selectedCapacity) {
             return v.retailPrice || p.basePrice || 0;
           }
@@ -133,7 +146,7 @@ export default function AisSgFinanceModal({ isOpen, onClose }: Props) {
   const netPay = downPaymentAmount - discountValue - helpDownValue;
   const showWarning = netPay < 0;
 
-  const handleHelpDownChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleHelpDownChange = (e: ChangeEvent<HTMLInputElement>) => {
     // Remove non-digits
     const val = e.target.value.replace(/[^\d]/g, '');
     if (!val) {

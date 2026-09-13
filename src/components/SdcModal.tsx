@@ -207,14 +207,39 @@ export default function SdcModal({ isOpen, onClose }: Props) {
                             </div>
                           </div>
                           
-                          <div className="grid grid-cols-2 gap-3 bg-zinc-50 rounded-lg p-3 border border-zinc-100">
+                          <div 
+                            className="flex items-center gap-3 sm:gap-5 bg-gradient-to-r from-blue-50/90 via-sky-50/30 to-emerald-50/90 rounded-2xl p-3 sm:p-4 border-2 border-blue-200 shadow-sm hover:shadow-md transition-all duration-200 ease-out active:scale-[0.96] hover:border-blue-300 cursor-pointer select-none group/sdc"
+                            title="โปรโมชั่นช่วยดาวน์ SDC"
+                          >
                             <div className="flex flex-col">
-                              <span className="text-[10px] font-bold text-zinc-500 uppercase">ช่วยดาวน์ SDC</span>
-                              <span className="font-black text-blue-600">฿{promo.sdcAmount?.toLocaleString()}</span>
+                              <span className="text-xs sm:text-sm font-extrabold text-blue-800 uppercase tracking-wide flex items-center gap-1.5">
+                                <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0 shadow-xs" />
+                                ช่วยดาวน์ SDC
+                              </span>
+                              <div className="mt-1 flex items-baseline">
+                                <span className="text-xl sm:text-2xl md:text-3xl font-black text-blue-600 tracking-tight leading-none group-hover/sdc:text-blue-700 transition-colors">
+                                  ฿{promo.sdcAmount?.toLocaleString()}
+                                </span>
+                              </div>
                             </div>
-                            <div className="flex flex-col border-l border-zinc-200 pl-3">
-                              <span className="text-[10px] font-bold text-zinc-500 uppercase">รับเครื่อง</span>
-                              <span className="font-black text-emerald-600">฿{promo.takeDeviceAmount?.toLocaleString()}</span>
+
+                            <div className="h-10 sm:h-12 w-0.5 bg-gradient-to-b from-blue-200 via-zinc-300 to-emerald-200 shrink-0" />
+
+                            <div className="flex flex-col pl-1 sm:pl-2">
+                              <span className="text-xs sm:text-sm font-extrabold text-emerald-800 uppercase tracking-wide flex items-center gap-1.5">
+                                <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 animate-pulse shadow-xs" />
+                                รับเครื่อง
+                              </span>
+                              <div className="mt-1 flex items-baseline gap-1.5">
+                                <span className="text-xl sm:text-2xl md:text-3xl font-black text-emerald-600 tracking-tight leading-none group-hover/sdc:text-emerald-700 transition-colors">
+                                  ฿{promo.takeDeviceAmount?.toLocaleString()}
+                                </span>
+                                {promo.takeDeviceAmount === 0 && (
+                                  <span className="text-[11px] font-black text-white bg-emerald-600 px-2 py-0.5 rounded-full shadow-xs uppercase tracking-wider">
+                                    0 บ.
+                                  </span>
+                                )}
+                              </div>
                             </div>
                           </div>
                         </div>

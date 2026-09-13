@@ -59,8 +59,8 @@ export default function ProductForm() {
     variants: [
       {
         id: Math.random().toString(36).substring(7),
-        ram: '3GB',
-        rom: '64GB',
+        ram: '',
+        rom: '128GB',
         retailPrice: 0,
         wholesalePrice: null,
         colors: [
@@ -85,6 +85,20 @@ export default function ProductForm() {
   }, [id]);
 
   const currentBrand = brands.find(b => b.id === form.brandId)?.name || 'Apple';
+  const isApple = currentBrand.toLowerCase().includes('apple') || 
+                  currentBrand.toLowerCase().includes('iphone') || 
+                  (form.model || '').toLowerCase().includes('iphone') || 
+                  (form.model || '').toLowerCase().includes('ipad');
+
+  // If Apple product, ensure no RAM values linger
+  useEffect(() => {
+    if (isApple && form.variants?.some(v => v.ram)) {
+      setForm(prev => ({
+        ...prev,
+        variants: (prev.variants || []).map(v => ({ ...v, ram: '' }))
+      }));
+    }
+  }, [isApple]);
 
   const handleFetchSpecs = async () => {
     if (!form.model) {
@@ -178,7 +192,10 @@ export default function ProductForm() {
       ...f,
       variants: [...(f.variants || []), {
         id: Math.random().toString(36).substring(7),
-        ram: '3GB', rom: '64GB', retailPrice: 0, wholesalePrice: null,
+        ram: isApple ? '' : '8GB',
+        rom: '128GB',
+        retailPrice: 0,
+        wholesalePrice: null,
         colors: [{ id: Math.random().toString(36).substring(7), colorName: '', sku: '', stock: 0, imageUrl: '' }]
       }]
     }));
@@ -322,7 +339,9 @@ export default function ProductForm() {
     const marginViolations: MarginViolation[] = [];
     form.variants?.forEach(v => {
       if (v.wholesalePrice !== null && v.wholesalePrice !== undefined && v.wholesalePrice > v.retailPrice) {
-        const label = `${v.ram ? `RAM ${v.ram} / ` : ''}${v.rom ? `ROM ${v.rom}` : 'ความจุมาตรฐาน'}`;
+        const label = isApple 
+          ? (v.rom ? `ROM ${v.rom}` : 'ความจุมาตรฐาน')
+          : `${v.ram ? `RAM ${v.ram} / ` : ''}${v.rom ? `ROM ${v.rom}` : 'ความจุมาตรฐาน'}`;
         marginViolations.push({
           variantId: v.id,
           variantLabel: label,
@@ -371,9 +390,10 @@ export default function ProductForm() {
       return;
     }
 
-    // Ensure all colors have a fallback image if left blank
+    // Ensure all colors have a fallback image if left blank, and ensure no RAM for Apple
     const sanitizedVariants = (form.variants || []).map(v => ({
       ...v,
+      ram: isApple ? '' : (v.ram || ''),
       colors: v.colors.map(c => ({
         ...c,
         imageUrl: c.imageUrl || resolveProductImage(currentBrand, form.model || '', c.colorName, '', form.category)
@@ -388,8 +408,6 @@ export default function ProductForm() {
       setLoading(false);
     }
   };
-
-  const isApple = currentBrand.toLowerCase().includes('apple');
 
   // Currently active color for image picker
   const activeColor = activeImagePicker 
@@ -531,13 +549,15 @@ export default function ProductForm() {
         {/* Variants & Colors */}
         <div className="space-y-6">
           <div className="flex justify-between items-center">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">ความจุ และ สี (Variants & Colors)</h2>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+              {isApple ? 'ความจุ และ สี (ROM & Colors)' : 'ความจุ และ สี (Variants & Colors)'}
+            </h2>
             <button 
               type="button" 
               onClick={addVariant} 
               className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-zinc-900 hover:bg-zinc-800 active:scale-95 px-4 py-2 rounded-full shadow-md shadow-zinc-900/15 transition-all cursor-pointer"
             >
-              <Plus className="w-3.5 h-3.5" /> เพิ่มความจุ (RAM/ROM)
+              <Plus className="w-3.5 h-3.5" /> {isApple ? 'เพิ่มความจุ (ROM)' : 'เพิ่มความจุ (RAM/ROM)'}
             </button>
           </div>
 
@@ -560,8 +580,8 @@ export default function ProductForm() {
                   {!isApple && (
                     <div className="flex-1 min-w-[120px]">
                       <label className="block text-xs font-medium text-gray-500 dark:text-zinc-400 uppercase">RAM</label>
-                      <select required
-                        value={variant.ram} onChange={e => {
+                      <select required={!isApple}
+                        value={variant.ram || ''} onChange={e => {
                           const newV = [...form.variants!]; newV[vIndex].ram = e.target.value; setForm({...form, variants: newV});
                         }}
                         className="mt-1 block w-full border-gray-300 rounded-md shadow-2xs sm:text-sm py-2 px-3 border bg-white dark:bg-zinc-900 text-gray-900 dark:text-white"
@@ -579,14 +599,16 @@ export default function ProductForm() {
                     </div>
                   )}
                   <div className="flex-1 min-w-[120px]">
-                    <label className="block text-xs font-medium text-gray-500 dark:text-zinc-400 uppercase">ROM (ความจุ)</label>
+                    <label className="block text-xs font-medium text-gray-500 dark:text-zinc-400 uppercase">
+                      {isApple ? 'ความจุ (ROM)' : 'ROM (ความจุ)'}
+                    </label>
                     <select required
                       value={variant.rom} onChange={e => {
                         const newV = [...form.variants!]; newV[vIndex].rom = e.target.value; setForm({...form, variants: newV});
                       }}
                       className="mt-1 block w-full border-gray-300 rounded-md shadow-2xs sm:text-sm py-2 px-3 border bg-white dark:bg-zinc-900 text-gray-900 dark:text-white"
                     >
-                      <option value="">เลือก ROM</option>
+                      <option value="">{isApple ? 'เลือกความจุ' : 'เลือก ROM'}</option>
                       <option value="64GB">64GB</option>
                       <option value="128GB">128GB</option>
                       <option value="256GB">256GB</option>
