@@ -10,6 +10,39 @@ interface Props {
 }
 
 export default function SdcModal({ isOpen, onClose }: Props) {
+  const getExpirationStatus = (durationStr: string) => {
+    if (!durationStr || durationStr === '-') return { type: 'normal', text: durationStr };
+    try {
+      const parts = durationStr.split('.');
+      if (parts.length >= 3) {
+        const dayPart = parts[0].split('-');
+        const endDay = parseInt(dayPart[dayPart.length - 1], 10);
+        const month = parseInt(parts[1], 10) - 1; // 0-indexed
+        let year = parseInt(parts[2], 10);
+        
+        if (year < 100) year += 2500;
+        if (year > 2400) year -= 543;
+        
+        const endDate = new Date(year, month, endDay, 23, 59, 59);
+        const now = new Date();
+        
+        if (now > endDate) {
+          return { type: 'expired', text: 'หมดระยะเวลาโปรโมชั่น' };
+        }
+        
+        const diffTime = endDate.getTime() - now.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+        
+        if (diffDays <= 7 && diffDays > 0) {
+          return { type: 'warning', text: `เหลือ ${diffDays} วันสุดท้าย` };
+        }
+      }
+    } catch (e) {
+      return { type: 'normal', text: durationStr };
+    }
+    return { type: 'normal', text: durationStr };
+  };
+
   const [promotions, setPromotions] = useState<SdcPromotion[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -113,12 +146,21 @@ export default function SdcModal({ isOpen, onClose }: Props) {
                           <p className="text-sm font-bold text-blue-600">฿{p.sdcAmount?.toLocaleString() || '-'}</p>
                         </div>
                         <div>
-                          <p className="text-[10px] text-green-600 font-medium">รับเครื่อง</p>
-                          <p className="text-sm font-bold text-green-600">฿{p.takeDeviceAmount?.toLocaleString() || '-'}</p>
+                          <p className="text-[11px] text-red-600 font-bold uppercase tracking-wide">รับเครื่อง</p>
+                          <p className="text-xl font-black text-red-600 drop-shadow-sm">฿{p.takeDeviceAmount?.toLocaleString() || '-'}</p>
                         </div>
                         <div>
                           <p className="text-[10px] text-zinc-500 font-medium">ระยะเวลา</p>
-                          <p className="text-sm font-medium text-zinc-700">{p.duration || '-'}</p>
+                          {(() => {
+                            const status = getExpirationStatus(p.duration);
+                            if (status.type === 'expired') {
+                              return <p className="text-sm font-bold text-red-600 animate-pulse">{status.text}</p>;
+                            }
+                            if (status.type === 'warning') {
+                              return <p className="text-sm font-bold text-amber-500 animate-pulse">{status.text}</p>;
+                            }
+                            return <p className="text-sm font-medium text-zinc-700">{status.text}</p>;
+                          })()}
                         </div>
                       </div>
                       {p.note && (

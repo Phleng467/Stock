@@ -1,5 +1,6 @@
 import { useState, useEffect, ChangeEvent, useRef } from 'react';
 import CsvUploader from '../../components/CsvUploader';
+import Papa from 'papaparse';
 import { Database, HardDrive, Download, Upload, Image as ImageIcon, Trash2, Plus, Loader2, FileSpreadsheet, Sparkles, UploadCloud, DownloadCloud, ExternalLink } from 'lucide-react';
 import { api } from '../../lib/api';
 
@@ -123,15 +124,60 @@ export default function Settings() {
     }
   };
 
-  // CSV IMPORT LOGIC (Stub or simple parse)
-  const handleImportCSV = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  // CSV IMPORT LOGIC
+  const handleImportCSV = (fileOrEvent: any) => {
+    const file = fileOrEvent?.target?.files ? fileOrEvent.target.files[0] : fileOrEvent;
     if (!file) return;
 
-    // For now, just show a message that they need to map columns (since CSV import can be complex).
-    alert(`อัปโหลดไฟล์ ${file.name} เรียบร้อยแล้ว (ระบบนำเข้าข้อมูล CSV จะเปิดให้ใช้งานเร็วๆ นี้ เพื่อป้องกันข้อมูลเก่าเสียหาย)`);
-    if (csvInputRef.current) {
-      csvInputRef.current.value = '';
+    if (file.name.endsWith('.csv')) {
+      setCsvLoading(true);
+      setCsvFileStatus({ name: file.name, valid: true, message: 'กำลังประมวลผลไฟล์...' });
+
+      Papa.parse(file, {
+        header: true,
+        skipEmptyLines: true,
+        transformHeader: (header) => header.trim(),
+        complete: async (results) => {
+          try {
+            const newPromotions = results.data.map((row: any, index: number) => {
+              const normalPrice = parseFloat((row['ราคาปกติ'] || '0').toString().replace(/,/g, '')) || 0;
+              const sdcAmount = parseFloat((row['ช่วยดาวน์ SDC'] || '0').toString().replace(/,/g, '')) || 0;
+              const takeDeviceAmount = parseFloat((row['รับเครื่อง'] || '0').toString().replace(/,/g, '')) || 0;
+              
+              return {
+                id: `import-${Date.now()}-${index}`,
+                brand: row['แบรนด์']?.trim() || 'Unknown',
+                model: row['รุ่น']?.trim() || 'Unknown',
+                normalPrice: normalPrice,
+                sdcAmount: sdcAmount,
+                takeDeviceAmount: takeDeviceAmount,
+                duration: row['ระยะเวลา']?.trim() || '',
+                note: row['หมายเหตุ']?.trim() || ''
+              };
+            });
+
+            const validPromotions = newPromotions.filter((p: any) => p.model && p.model !== 'Unknown');
+
+            if (validPromotions.length === 0) {
+              setCsvFileStatus({ name: file.name, valid: false, message: 'ไม่พบข้อมูล หรือหัวคอลัมน์ไม่ตรงตามรูปแบบ' });
+              return;
+            }
+
+            await api.saveSdcPromotions(validPromotions);
+            setCsvFileStatus({ name: file.name, valid: true, message: `อัปเดตข้อมูล ${validPromotions.length} รายการสำเร็จ` });
+          } catch (error) {
+            setCsvFileStatus({ name: file.name, valid: false, message: 'เกิดข้อผิดพลาดในการบันทึกข้อมูล' });
+          } finally {
+            setCsvLoading(false);
+          }
+        },
+        error: (error) => {
+          setCsvFileStatus({ name: file.name, valid: false, message: 'ไม่สามารถอ่านไฟล์ CSV ได้' });
+          setCsvLoading(false);
+        }
+      });
+    } else {
+      setCsvFileStatus({ name: file.name, valid: false, message: 'กรุณาอัปโหลดไฟล์นามสกุล .csv เท่านั้น' });
     }
   };
 
