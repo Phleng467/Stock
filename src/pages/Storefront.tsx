@@ -10,6 +10,7 @@ import PromotionModal from '../components/PromotionModal';
 import CompareModal from '../components/CompareModal';
 import Chatbot from '../components/Chatbot';
 import SdcModal from '../components/SdcModal';
+import AisSgFinanceModal from '../components/AisSgFinanceModal';
 
 export default function Storefront() {
   const location = useLocation();
@@ -24,6 +25,7 @@ export default function Storefront() {
   const [comparedProductIds, setComparedProductIds] = useState<string[]>([]);
   const [showCompareModal, setShowCompareModal] = useState(false);
   const [showSdcModal, setShowSdcModal] = useState(false);
+  const [showAisSgFinanceModal, setShowAisSgFinanceModal] = useState(false);
   const [compareToast, setCompareToast] = useState<string | null>(null);
   const [lastUpdatedAt, setLastUpdatedAt] = useState<Date | null>(null);
   
@@ -670,6 +672,49 @@ export default function Storefront() {
         )}
       </main>
 
+      
+      {/* Mobile Bottom Navigation Tab */}
+      <div className="fixed bottom-0 left-0 right-0 z-30 bg-white/80 backdrop-blur-xl border-t border-zinc-200/50 sm:hidden pb-safe">
+        <div className="flex items-center justify-around p-2">
+          <button 
+            onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+            className="flex flex-col items-center justify-center p-2 text-zinc-400 hover:text-zinc-900 active:scale-95 transition-all"
+          >
+            <Smartphone className="w-5 h-5 mb-1" />
+            <span className="text-[10px] font-bold tracking-wide">หน้าแรก</span>
+          </button>
+          
+          <button 
+            onClick={() => setShowSdcModal(true)}
+            className="flex flex-col items-center justify-center p-2 text-zinc-400 hover:text-zinc-900 active:scale-95 transition-all relative"
+          >
+            <div className="absolute -top-3 bg-gradient-to-r from-blue-600 to-cyan-500 w-10 h-10 rounded-full flex items-center justify-center shadow-lg shadow-blue-500/30 text-white border-4 border-zinc-50">
+              <Percent className="w-5 h-5" />
+            </div>
+            <span className="text-[10px] font-bold tracking-wide mt-5 text-blue-600">SDC</span>
+          </button>
+          
+          <button 
+            onClick={() => setShowAisSgFinanceModal(true)}
+            className="flex flex-col items-center justify-center p-2 text-zinc-400 hover:text-zinc-900 active:scale-95 transition-all relative"
+          >
+            <div className="absolute -top-3 bg-gradient-to-r from-red-600 to-orange-500 w-10 h-10 rounded-full flex items-center justify-center shadow-lg shadow-red-500/30 text-white border-4 border-zinc-50">
+              <Calculator className="w-5 h-5" />
+            </div>
+            <span className="text-[10px] font-bold tracking-wide mt-5 text-red-600">โปรช่วยดาวน์</span>
+          </button>
+          
+          <Link 
+            to="/login"
+            className="flex flex-col items-center justify-center p-2 text-zinc-400 hover:text-zinc-900 active:scale-95 transition-all"
+          >
+            <LogIn className="w-5 h-5 mb-1" />
+            <span className="text-[10px] font-bold tracking-wide">ผู้ดูแล</span>
+          </Link>
+        </div>
+      </div>
+
+
       {/* Floating Compare Dock (when 1 or more items selected) */}
       <AnimatePresence>
         {comparedProducts.length > 0 && (
@@ -678,7 +723,7 @@ export default function Storefront() {
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 80, opacity: 0 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 w-[94vw] max-w-2xl bg-zinc-900/95 text-white p-2.5 sm:p-3 rounded-2xl sm:rounded-full border border-white/20 shadow-2xl backdrop-blur-md flex flex-col sm:flex-row items-center justify-between gap-2.5 sm:gap-4"
+            className="fixed bottom-20 sm:bottom-4 left-1/2 -translate-x-1/2 z-40 w-[94vw] max-w-2xl bg-zinc-900/95 text-white p-2.5 sm:p-3 rounded-2xl sm:rounded-full border border-white/20 shadow-2xl backdrop-blur-md flex flex-col sm:flex-row items-center justify-between gap-2.5 sm:gap-4"
           >
             {/* Left: Selected items preview */}
             <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto py-0.5 scrollbar-hide">
@@ -774,6 +819,7 @@ export default function Storefront() {
         onClose={() => setShowPromoModal(false)}
       />
       <SdcModal isOpen={showSdcModal} onClose={() => setShowSdcModal(false)} />
+      <AisSgFinanceModal isOpen={showAisSgFinanceModal} onClose={() => setShowAisSgFinanceModal(false)} />
 
       {/* Compare Modal */}
       <CompareModal

@@ -50,90 +50,39 @@ export default function SdcModal({ isOpen, onClose }: Props) {
 
   useEffect(() => {
     if (isOpen) {
-      setLoading(true);
-      api.getSdcPromotions().then(data => {
-        setPromotions(data);
-        setLoading(false);
-      }).catch(() => setLoading(false));
+      fetchData();
     }
   }, [isOpen]);
 
-  const { activePromotions, expiredPromotions } = useMemo(() => {
-    const q = search.toLowerCase();
-    const filtered = promotions.filter(p => 
-       p.brand.toLowerCase().includes(q) || 
-       p.model.toLowerCase().includes(q)
-    );
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const data = await api.getSdcPromotions();
+      setPromotions(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const active: (SdcPromotion & { statusObj: { type: string, text: string } })[] = [];
-    const expired: (SdcPromotion & { statusObj: { type: string, text: string } })[] = [];
-
-    filtered.forEach(p => {
-      const statusObj = getExpirationStatus(p.duration);
-      if (statusObj.type === 'expired') {
-        expired.push({ ...p, statusObj });
-      } else {
-        active.push({ ...p, statusObj });
-      }
+  const filteredPromotions = useMemo(() => {
+    return promotions.filter(promo => {
+      const s = search.toLowerCase();
+      const matchesSearch = !search || 
+        promo.brand.toLowerCase().includes(s) || 
+        promo.model.toLowerCase().includes(s);
+        
+      if (!matchesSearch) return false;
+      
+      const status = getExpirationStatus(promo.duration);
+      if (timeFilter === 'ALL') return true;
+      if (timeFilter === 'WARNING') return status.type === 'warning';
+      if (timeFilter === 'EXPIRED') return status.type === 'expired';
+      
+      return true;
     });
-
-    return { activePromotions: active, expiredPromotions: expired };
-  }, [promotions, search]);
-
-  let displayActive = activePromotions;
-  let displayExpired = expiredPromotions;
-
-  if (timeFilter === 'WARNING') {
-    displayActive = activePromotions.filter(p => p.statusObj.type === 'warning');
-    displayExpired = [];
-  } else if (timeFilter === 'EXPIRED') {
-    displayActive = [];
-  }
-
-  const renderCard = (p: SdcPromotion & { statusObj: { type: string, text: string } }, i: number) => (
-    <div key={p.id || i} className={`bg-white rounded-2xl border ${p.statusObj.type === 'expired' ? 'border-red-200 bg-red-50/50' : 'border-zinc-200'} p-4 shadow-sm hover:shadow-md transition-shadow`}>
-      <div className="flex justify-between items-start mb-3">
-        <div>
-          <span className={`text-[10px] font-bold uppercase tracking-wider ${p.statusObj.type === 'expired' ? 'text-red-500' : 'text-blue-600'}`}>{p.brand}</span>
-          <h3 className="text-base font-bold text-zinc-900 mt-0.5">{p.model}</h3>
-        </div>
-      </div>
-      <div className="grid grid-cols-2 gap-y-3 gap-x-4">
-        <div>
-          <p className="text-[10px] text-zinc-500 font-medium">ราคาปกติ</p>
-          <p className="text-sm font-semibold text-zinc-800">฿{p.normalPrice?.toLocaleString() || '-'}</p>
-        </div>
-        <div>
-          <p className="text-[10px] text-blue-500 font-medium">ช่วยดาวน์ SDC</p>
-          <p className="text-sm font-bold text-blue-600">฿{p.sdcAmount?.toLocaleString() || '-'}</p>
-        </div>
-        <div>
-          <p className="text-[11px] text-red-600 font-bold uppercase tracking-wide">รับเครื่อง</p>
-          <p className="text-xl font-black text-red-600 drop-shadow-sm">฿{p.takeDeviceAmount?.toLocaleString() || '-'}</p>
-        </div>
-        <div>
-          <p className="text-[10px] text-zinc-500 font-medium">ระยะเวลา</p>
-          {(() => {
-            const status = p.statusObj;
-            if (status.type === 'expired') {
-              return <p className="text-sm font-bold text-red-600 animate-pulse">{status.text}</p>;
-            }
-            if (status.type === 'warning') {
-              return <p className="text-sm font-bold text-amber-500 animate-pulse">{status.text}</p>;
-            }
-            return <p className="text-sm font-medium text-zinc-700">{status.text}</p>;
-          })()}
-        </div>
-      </div>
-      {p.note && (
-        <div className="mt-3 pt-3 border-t border-zinc-100/80">
-          <p className="text-[11px] text-zinc-500">
-            <span className="font-semibold text-zinc-700">หมายเหตุ:</span> {p.note}
-          </p>
-        </div>
-      )}
-    </div>
-  );
+  }, [promotions, search, timeFilter]);
 
   return (
     <AnimatePresence>
@@ -196,54 +145,92 @@ export default function SdcModal({ isOpen, onClose }: Props) {
                   onClick={() => setTimeFilter('WARNING')}
                   className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap ${timeFilter === 'WARNING' ? 'bg-amber-500 text-white shadow-sm' : 'bg-amber-50 text-amber-600 hover:bg-amber-100'}`}
                 >
-                  <Clock className="w-3.5 h-3.5" />
-                  เหลือ 7 วันสุดท้าย
+                  <AlertCircle className="w-3.5 h-3.5" />
+                  ใกล้หมดอายุ
                 </button>
                 <button 
                   onClick={() => setTimeFilter('EXPIRED')}
                   className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap ${timeFilter === 'EXPIRED' ? 'bg-red-500 text-white shadow-sm' : 'bg-red-50 text-red-600 hover:bg-red-100'}`}
                 >
-                  <AlertCircle className="w-3.5 h-3.5" />
-                  หมดระยะเวลา
+                  <Clock className="w-3.5 h-3.5" />
+                  หมดอายุแล้ว
                 </button>
               </div>
             </div>
 
-            {/* Content */}
-            <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-zinc-50/50">
+            {/* List */}
+            <div className="flex-1 overflow-auto p-4 sm:p-6 bg-zinc-50">
               {loading ? (
-                <div className="flex justify-center items-center h-40 text-zinc-400">
-                  <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-500 border-t-transparent" />
+                <div className="flex flex-col items-center justify-center h-full text-zinc-500">
+                  <div className="w-8 h-8 border-4 border-zinc-200 border-t-blue-500 rounded-full animate-spin mb-4" />
+                  <p className="text-sm font-medium">กำลังโหลดข้อมูล...</p>
                 </div>
-              ) : (displayActive.length === 0 && displayExpired.length === 0) ? (
-                <div className="flex flex-col items-center justify-center h-40 text-zinc-500 gap-2">
-                  <Percent className="w-8 h-8 opacity-20" />
-                  <p>ไม่พบข้อมูลโปรโมชั่น</p>
+              ) : filteredPromotions.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-full text-zinc-500 space-y-3">
+                  <Search className="w-12 h-12 text-zinc-300" />
+                  <p className="text-sm font-medium">ไม่พบข้อมูลโปรโมชั่น</p>
                 </div>
               ) : (
-                <div className="space-y-6">
-                  {/* Active & Warning */}
-                  {displayActive.length > 0 && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {displayActive.map((p, i) => renderCard(p, i))}
-                    </div>
-                  )}
-
-                  {/* Divider for Expired */}
-                  {displayExpired.length > 0 && timeFilter === 'ALL' && displayActive.length > 0 && (
-                    <div className="flex items-center justify-center py-2">
-                      <div className="flex-1 border-t border-dashed border-red-200"></div>
-                      <span className="px-3 text-xs font-bold text-red-400 uppercase tracking-wider bg-zinc-50">ส่วนที่หมดอายุแล้ว</span>
-                      <div className="flex-1 border-t border-dashed border-red-200"></div>
-                    </div>
-                  )}
-
-                  {/* Expired */}
-                  {displayExpired.length > 0 && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {displayExpired.map((p, i) => renderCard(p, i))}
-                    </div>
-                  )}
+                <div className="grid gap-3 sm:gap-4">
+                  {filteredPromotions.map((promo) => {
+                    const status = getExpirationStatus(promo.duration);
+                    return (
+                      <div 
+                        key={promo.id} 
+                        className={`bg-white p-4 rounded-xl border ${
+                          status.type === 'expired' ? 'border-red-200 bg-red-50/30 opacity-75' : 
+                          status.type === 'warning' ? 'border-amber-200 bg-amber-50/30' : 'border-zinc-200'
+                        } shadow-sm hover:shadow-md transition-shadow relative overflow-hidden`}
+                      >
+                        {status.type === 'expired' && (
+                          <div className="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-bl-lg z-10">
+                            หมดอายุ
+                          </div>
+                        )}
+                        {status.type === 'warning' && (
+                          <div className="absolute top-0 right-0 bg-amber-500 text-white text-[10px] font-bold px-2 py-1 rounded-bl-lg z-10">
+                            {status.text}
+                          </div>
+                        )}
+                        <div className="flex flex-col md:flex-row gap-4 md:items-center justify-between">
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <span className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-xs font-bold uppercase tracking-wider">
+                                {promo.brand}
+                              </span>
+                              <h3 className="font-bold text-zinc-900 text-base">{promo.model}</h3>
+                            </div>
+                            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-zinc-600">
+                              <div className="flex items-center gap-1.5">
+                                <span className="font-semibold text-zinc-900">ราคาปกติ:</span> ฿{promo.normalPrice?.toLocaleString()}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-3 bg-zinc-50 rounded-lg p-3 border border-zinc-100">
+                            <div className="flex flex-col">
+                              <span className="text-[10px] font-bold text-zinc-500 uppercase">ช่วยดาวน์ SDC</span>
+                              <span className="font-black text-blue-600">฿{promo.sdcAmount?.toLocaleString()}</span>
+                            </div>
+                            <div className="flex flex-col border-l border-zinc-200 pl-3">
+                              <span className="text-[10px] font-bold text-zinc-500 uppercase">รับเครื่อง</span>
+                              <span className="font-black text-emerald-600">฿{promo.takeDeviceAmount?.toLocaleString()}</span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="mt-3 flex items-center justify-between border-t border-zinc-100 pt-3">
+                          <div className="flex items-center gap-1.5 text-xs text-zinc-500">
+                            <Clock className="w-3.5 h-3.5" />
+                            <span>ระยะเวลา: <span className="font-medium text-zinc-700">{promo.duration}</span></span>
+                          </div>
+                          <div className="text-xs text-zinc-400">
+                            {promo.note && <span className='truncate text-zinc-500'>หมายเหตุ: {promo.note}</span>}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>

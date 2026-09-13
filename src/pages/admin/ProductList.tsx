@@ -9,6 +9,7 @@ import QuickStockModal from '../../components/QuickStockModal';
 
 export default function ProductList() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<'ALL' | 'Mobile' | 'Tablet'>('ALL');
@@ -288,6 +289,56 @@ export default function ProductList() {
           </button>
         </div>
 
+        
+        {selectedProductIds.length > 0 && (
+          <div className="bg-blue-50 dark:bg-blue-900/20 px-4 py-3 border-b border-blue-100 dark:border-blue-900/40 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold">{selectedProductIds.length}</span>
+              <span className="text-xs font-semibold text-blue-800 dark:text-blue-300">รายการที่เลือก</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={async () => {
+                  try {
+                    // Update isHidden to true for all selected
+                    const toUpdate = displayedProducts.filter(p => selectedProductIds.includes(p.id)).map(p => ({...p, isHidden: true}));
+                    if(toUpdate.length > 0) {
+                      await api.addProductsBulk(toUpdate);
+                      fetchData();
+                    }
+                    setSelectedProductIds([]);
+                  } catch (err) {
+                    console.error(err);
+                  }
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-zinc-800 text-amber-700 dark:text-amber-500 border border-amber-200 dark:border-amber-900/50 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-lg text-xs font-bold transition-all shadow-sm"
+              >
+                <EyeOff className="w-3.5 h-3.5" />
+                ซ่อนทั้งหมด
+              </button>
+              <button 
+                onClick={async () => {
+                  if (window.confirm(`ยืนยันลบสินค้าที่เลือกจำนวน ${selectedProductIds.length} รายการ?`)) {
+                    try {
+                      await Promise.all(selectedProductIds.map(id => api.deleteProduct(id)));
+                      setSelectedProductIds([]);
+                      fetchData();
+                      alert('ลบข้อมูลสำเร็จ');
+                    } catch (err) {
+                      console.error(err);
+                      alert('เกิดข้อผิดพลาดในการลบข้อมูล');
+                    }
+                  }
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white border border-red-700 dark:border-red-600 rounded-lg text-xs font-bold transition-all shadow-sm"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                ลบทั้งหมด
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Real-time Search & Filter Toolbar */}
         <div className="p-4 border-b border-zinc-100 dark:border-zinc-800 space-y-3 bg-zinc-50 dark:bg-zinc-800/50/40">
           <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
@@ -412,6 +463,20 @@ export default function ProductList() {
           <table className="min-w-full divide-y divide-gray-200 dark:divide-zinc-700">
             <thead className="bg-gray-50 dark:bg-zinc-800/50/80">
               <tr>
+                <th className="px-6 py-3.5 w-10">
+                  <input 
+                    type="checkbox" 
+                    className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                    checked={selectedProductIds.length === displayedProducts.length && displayedProducts.length > 0}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelectedProductIds(displayedProducts.map(p => p.id));
+                      } else {
+                        setSelectedProductIds([]);
+                      }
+                    }}
+                  />
+                </th>
                 <th className="px-6 py-3.5 text-left text-xs font-bold text-gray-500 dark:text-zinc-400 uppercase tracking-wider">แบรนด์</th>
                 <th className="px-6 py-3.5 text-left text-xs font-bold text-gray-500 dark:text-zinc-400 uppercase tracking-wider">รุ่นสินค้า</th>
                 <th className="px-6 py-3.5 text-left text-xs font-bold text-gray-500 dark:text-zinc-400 uppercase tracking-wider">
@@ -434,6 +499,20 @@ export default function ProductList() {
 
                 return (
                   <tr key={p.id} className={cn("hover:bg-zinc-50 dark:hover:bg-zinc-800 dark:bg-zinc-800/50/60 transition-colors", p.isHidden ? 'opacity-60 bg-gray-50 dark:bg-zinc-800/50/70' : '')}>
+                    <td className="px-6 py-4 whitespace-nowrap w-10">
+                      <input 
+                        type="checkbox" 
+                        className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                        checked={selectedProductIds.includes(p.id)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedProductIds(prev => [...prev, p.id]);
+                          } else {
+                            setSelectedProductIds(prev => prev.filter(id => id !== p.id));
+                          }
+                        }}
+                      />
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-xs font-semibold text-zinc-700 dark:text-zinc-300">
                       <span className="px-2.5 py-1 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 font-bold border border-zinc-200 dark:border-zinc-700/60">
                         {brand?.name || 'Unknown'}
@@ -750,7 +829,7 @@ export default function ProductList() {
                      setImportingCsv(true);
                      await api.addProductsBulk(csvPreviewData);
                      await fetchData();
-                     alert(`นำเข้าข้อมูลสินค้าสำเร็จ ${csvPreviewData.length} รายการ!`);
+                     alert('นำเข้าข้อมูลสำเร็จ ระบบได้อัปเดตรายการเดิมและเพิ่มรายการใหม่เรียบร้อยแล้ว');
                      setCsvPreviewOpen(false);
                    } catch (err: any) {
                      console.error(err);

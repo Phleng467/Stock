@@ -201,14 +201,63 @@ apiRouter.post('/products/bulk', (req, res) => {
     return res.status(400).json({ error: 'Expected an array of products' });
   }
   
-  const newProducts = products.map(p => ({
-    id: uuidv4(),
-    ...p
-  }));
+  let updatedCount = 0;
+  let addedCount = 0;
+
+  products.forEach(p => {
+    // Check if model already exists (case insensitive)
+    const existingIdx = db.products.findIndex((dp) => 
+      dp.model.toLowerCase() === p.model.toLowerCase() && 
+      dp.brandId === p.brandId
+    );
+
+    if (existingIdx >= 0) {
+      // Update existing
+      const existingProduct = db.products[existingIdx];
+      
+      existingProduct.basePrice = p.basePrice || existingProduct.basePrice;
+      existingProduct.costPrice = p.costPrice || existingProduct.costPrice;
+      
+      // Update or merge variants
+      p.variants.forEach((pv) => {
+        const existingVariantIdx = existingProduct.variants.findIndex((ev) => ev.ram === pv.ram && ev.rom === pv.rom);
+        if (existingVariantIdx >= 0) {
+          const existingVariant = existingProduct.variants[existingVariantIdx];
+          pv.colors.forEach((pc) => {
+            const existingColorIdx = existingVariant.colors.findIndex((ec) => ec.colorName.toLowerCase() === pc.colorName.toLowerCase());
+            if (existingColorIdx >= 0) {
+              existingVariant.colors[existingColorIdx].stock = pc.stock;
+              if(pc.sku) existingVariant.colors[existingColorIdx].sku = pc.sku;
+            } else {
+              existingVariant.colors.push({...pc, id: uuidv4()});
+            }
+          });
+        } else {
+          existingProduct.variants.push({
+            ...pv,
+            id: uuidv4(),
+            colors: pv.colors.map((c) => ({...c, id: uuidv4()}))
+          });
+        }
+      });
+      updatedCount++;
+    } else {
+      // Add new
+      db.products.push({
+        ...p,
+        id: uuidv4(),
+        variants: p.variants.map((v) => ({
+          ...v,
+          id: uuidv4(),
+          colors: v.colors.map((c) => ({...c, id: uuidv4()}))
+        }))
+      });
+      addedCount++;
+    }
+  });
   
-  db.products.push(...newProducts);
   writeDB(db);
-  res.json({ success: true, count: newProducts.length });
+  res.json({ success: true, added: addedCount, updated: updatedCount });
 });
 
 apiRouter.post('/ai/image/generate', async (req, res) => {
