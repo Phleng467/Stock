@@ -44,6 +44,8 @@ export default function ProductList() {
     setImportingCsv(true);
 
     Papa.parse(file, {
+      encoding: "UTF-8", // Or "windows-874" if Thai Excel format, but we'll try to let Papa handle it.
+      // We will remove the strict header checking which fails on weird invisible characters
       header: true,
       skipEmptyLines: true,
       transformHeader: (header) => header.trim(),
@@ -55,16 +57,25 @@ export default function ProductList() {
             const row: any = results.data[i];
             
             // Handle both English and Thai column names
-            const brandName = (row['brand'] || row['แบรนด์'] || row['Brand'] || '').trim();
-            const model = (row['model'] || row['รุ่น'] || row['Model'] || '').trim();
-            const capacity = (row['capacity'] || row['ความจุ'] || row['Capacity'] || '').trim();
-            const color = (row['color'] || row['สี'] || row['Color'] || 'Default').trim();
-            const itemCode = (row['item code'] || row['ITEM CODE'] || row['รหัสสินค้า'] || row['item_code'] || '').trim();
-            const stockStr = (row['stock'] || row['จำนวน'] || row['Stock'] || '0').toString().replace(/,/g, '');
-            const categoryStr = (row['category'] || row['หมวดหมู่'] || row['Category'] || 'Mobile').trim();
-            const basePriceStr = (row['base price'] || row['ราคาปกติ'] || row['Base Price'] || '0').toString().replace(/,/g, '');
-            const costPriceStr = (row['cost price'] || row['wholesale price'] || row['ราคาขายส่ง'] || row['ต้นทุน'] || '0').toString().replace(/,/g, '');
-            const desc = (row['description'] || row['รายละเอียด'] || row['Description'] || '').trim();
+            
+            // Find keys dynamically to avoid hidden characters/BOM issues
+            const keys = Object.keys(row);
+            const getVal = (matches: string[]) => {
+              const foundKey = keys.find(k => matches.some(m => k.toLowerCase().includes(m.toLowerCase())));
+              return foundKey ? (row[foundKey] || '') : '';
+            };
+
+            const brandName = getVal(['brand', 'แบรนด์']).toString().trim();
+            const model = getVal(['model', 'รุ่น']).toString().trim();
+            const capacity = getVal(['capacity', 'ความจุ']).toString().trim();
+            const color = getVal(['color', 'สี']).toString().trim() || 'Default';
+            const itemCode = getVal(['item code', 'รหัสสินค้า', 'item_code']).toString().trim();
+            const stockStr = getVal(['stock', 'จำนวน']).toString().replace(/,/g, '') || '0';
+            const categoryStr = getVal(['category', 'หมวดหมู่']).toString().trim() || 'Mobile';
+            const basePriceStr = getVal(['ราคาปกติ', 'base price']).toString().replace(/,/g, '') || '0';
+            const costPriceStr = getVal(['ราคาขายส่ง', 'ต้นทุน', 'cost price', 'wholesale']).toString().replace(/,/g, '') || '0';
+            const desc = getVal(['description', 'รายละเอียด']).toString().trim();
+
             
             if (!model) continue; // Skip if no model name
 
