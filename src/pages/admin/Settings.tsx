@@ -1,9 +1,18 @@
-import { useState, useEffect, ChangeEvent, useRef } from 'react';
+import { useState, useEffect, ChangeEvent, useRef, DragEvent } from 'react';
 import CsvUploader from '../../components/CsvUploader';
 import Papa from 'papaparse';
 import { useTheme } from '../../contexts/ThemeContext';
-import { Sun, Moon, Monitor, Database, HardDrive, Download, Upload, Image as ImageIcon, Trash2, Plus, Loader2, FileSpreadsheet, Sparkles, UploadCloud, DownloadCloud, ExternalLink } from 'lucide-react';
+import { 
+  Sun, Moon, Monitor, Database, HardDrive, Download, Upload, 
+  Image as ImageIcon, Trash2, Plus, Loader2, FileSpreadsheet, Sparkles, 
+  UploadCloud, DownloadCloud, ExternalLink, ArrowLeft, ArrowRight, 
+  Star, Check
+} from 'lucide-react';
 import { api } from '../../lib/api';
+
+function cn(...classes: (string | undefined | null | false)[]) {
+  return classes.filter(Boolean).join(' ');
+}
 
 export default function Settings() {
   const [promotions, setPromotions] = useState<any[]>([]);
@@ -12,6 +21,9 @@ export default function Settings() {
   const [csvLoading, setCsvLoading] = useState(false);
   const [csvFileStatus, setCsvFileStatus] = useState<{name: string; valid: boolean; message: string} | null>(null);
   const [aiGenerating, setAiGenerating] = useState(false);
+  const [reordering, setReordering] = useState(false);
+  const [reorderSavedMsg, setReorderSavedMsg] = useState(false);
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const csvInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -82,6 +94,72 @@ export default function Settings() {
       console.error(err);
       alert('ลบรูปล้มเหลว');
     }
+  };
+
+  const savePromotionsOrder = async (orderedPromos: any[]) => {
+    try {
+      setReordering(true);
+      const res = await fetch('/api/promotions/reorder', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ promotions: orderedPromos })
+      });
+      if (res.ok) {
+        setReorderSavedMsg(true);
+        setTimeout(() => setReorderSavedMsg(false), 2500);
+      }
+    } catch (err) {
+      console.error('Error saving promotions order:', err);
+    } finally {
+      setReordering(false);
+    }
+  };
+
+  const handleMovePromotion = async (index: number, direction: 'prev' | 'next') => {
+    if (direction === 'prev' && index === 0) return;
+    if (direction === 'next' && index === promotions.length - 1) return;
+
+    const targetIndex = direction === 'prev' ? index - 1 : index + 1;
+    const newPromos = [...promotions];
+    const temp = newPromos[index];
+    newPromos[index] = newPromos[targetIndex];
+    newPromos[targetIndex] = temp;
+
+    setPromotions(newPromos);
+    await savePromotionsOrder(newPromos);
+  };
+
+  const handleSetFirstPromotion = async (index: number) => {
+    if (index === 0) return;
+    const newPromos = [...promotions];
+    const [selected] = newPromos.splice(index, 1);
+    newPromos.unshift(selected);
+
+    setPromotions(newPromos);
+    await savePromotionsOrder(newPromos);
+  };
+
+  const handleDragStart = (e: DragEvent, index: number) => {
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = async (e: DragEvent, targetIndex: number) => {
+    e.preventDefault();
+    if (draggedIndex === null || draggedIndex === targetIndex) return;
+
+    const newPromos = [...promotions];
+    const [draggedItem] = newPromos.splice(draggedIndex, 1);
+    newPromos.splice(targetIndex, 0, draggedItem);
+
+    setDraggedIndex(null);
+    setPromotions(newPromos);
+    await savePromotionsOrder(newPromos);
   };
 
   // CSV EXPORT LOGIC
@@ -309,53 +387,175 @@ export default function Settings() {
 
         
         {/* Promotion Management Card */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center mb-4">
-            <div className="p-3 bg-pink-50 text-pink-600 rounded-lg mr-4">
-              <ImageIcon className="w-6 h-6" />
+        <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-800 p-6 col-span-1 md:col-span-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+            <div className="flex items-center">
+              <div className="p-3 bg-pink-50 dark:bg-pink-950/40 text-pink-600 dark:text-pink-400 rounded-lg mr-4">
+                <ImageIcon className="w-6 h-6" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white">จัดการรูปโปรโมชั่น</h2>
+                <p className="text-sm text-gray-500 dark:text-zinc-400">อัปเดตแบนเนอร์และปรับเปลี่ยนลำดับการแสดงผลหน้าร้าน (Storefront)</p>
+              </div>
             </div>
+
+            {reorderSavedMsg && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 text-xs font-semibold rounded-full border border-emerald-200 dark:border-emerald-800 animate-in fade-in">
+                <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                บันทึกลำดับเรียบร้อย
+              </span>
+            )}
+          </div>
+
+          <div className="text-xs text-zinc-600 dark:text-zinc-400 mb-5 bg-zinc-50 dark:bg-zinc-800/50 p-3.5 rounded-xl border border-zinc-200/80 dark:border-zinc-700/80 flex items-start gap-2.5">
+            <span className="text-base leading-none">💡</span>
             <div>
-              <h2 className="text-lg font-bold text-gray-900">จัดการรูปโปรโมชั่น</h2>
-              <p className="text-sm text-gray-500">อัปเดตแบนเนอร์หน้าร้าน (Storefront)</p>
+              <strong>วิธีจัดลำดับรูปภาพ:</strong> รูปใน <span className="text-pink-600 dark:text-pink-400 font-bold">ลำดับที่ 1 (ภาพแรก)</span> จะเป็นภาพหลักที่ลูกค้าเห็นทันทีเมื่อเปิดเข้าสู่หน้าร้าน และจะหมุนเวียนสไลด์ตามลำดับต่อไปนี้ 
+              <span className="block mt-0.5 text-zinc-500">คุณสามารถกดปุ่ม <strong>⬅️ อยู่ก่อน</strong> หรือ <strong>อยู่หลัง ➡️</strong> (หรือกด <strong>⭐ เป็นรูปแรก</strong> / ลากสลับตำแหน่ง) เพื่อเรียงลำดับได้ทันที ระบบจะบันทึกลำดับให้อัตโนมัติ</span>
             </div>
           </div>
           
-          <div className="mt-4">
+          <div>
             {loading ? (
-              <div className="flex justify-center p-4"><Loader2 className="w-6 h-6 animate-spin text-gray-400" /></div>
+              <div className="flex justify-center p-8"><Loader2 className="w-6 h-6 animate-spin text-gray-400" /></div>
+            ) : promotions.length === 0 ? (
+              <div className="text-center py-10 px-4 border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-xl mb-5">
+                <ImageIcon className="w-10 h-10 text-zinc-300 dark:text-zinc-600 mx-auto mb-2" />
+                <p className="text-sm text-zinc-500 font-medium">ยังไม่มีรูปโปรโมชั่น</p>
+                <p className="text-xs text-zinc-400 mt-1">อัปโหลดรูปภาพใหม่หรือสร้างด้วย AI ด้านล่าง</p>
+              </div>
             ) : (
-              <div className="grid grid-cols-2 gap-3 mb-4">
-                {promotions.map(promo => (
-                  <div key={promo.id} className="relative group aspect-[4/3] bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
-                    <img src={promo.url} alt="Promo" className="w-full h-full object-cover" />
-                    <button 
-                      type="button"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        handleDeletePromotion(promo.id);
-                      }}
-                      className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-md opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity hover:bg-red-600 shadow-sm cursor-pointer z-10"
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                {promotions.map((promo, idx) => {
+                  const isFirst = idx === 0;
+                  const isLast = idx === promotions.length - 1;
+                  return (
+                    <div 
+                      key={promo.id || idx}
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, idx)}
+                      onDragOver={handleDragOver}
+                      onDrop={(e) => handleDrop(e, idx)}
+                      className={cn(
+                        "group relative flex flex-col bg-white dark:bg-zinc-800/90 rounded-xl overflow-hidden border transition-all duration-200 shadow-xs hover:shadow-md",
+                        isFirst 
+                          ? "border-pink-300 dark:border-pink-800/80 ring-2 ring-pink-500/20" 
+                          : "border-gray-200 dark:border-zinc-700",
+                        draggedIndex === idx ? "opacity-50 scale-95" : ""
+                      )}
                     >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                ))}
+                      {/* Top Header on Card: Order Number & Delete */}
+                      <div className="px-3 py-2 bg-zinc-50 dark:bg-zinc-800 border-b border-zinc-100 dark:border-zinc-700/80 flex items-center justify-between">
+                        <div className="flex items-center gap-1.5">
+                          {isFirst ? (
+                            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-pink-700 dark:text-pink-300 bg-pink-100 dark:bg-pink-900/60 px-2.5 py-0.5 rounded-full border border-pink-200 dark:border-pink-700 shadow-2xs">
+                              <Star className="w-3 h-3 fill-pink-500 text-pink-500" />
+                              ลำดับ 1 (ภาพแรก)
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center text-[11px] font-bold text-zinc-700 dark:text-zinc-300 bg-zinc-200/80 dark:bg-zinc-700 px-2.5 py-0.5 rounded-full">
+                              ลำดับที่ {idx + 1}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[10px] text-zinc-400 font-mono select-none">
+                            {idx + 1} จาก {promotions.length}
+                          </span>
+                          <button 
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleDeletePromotion(promo.id);
+                            }}
+                            className="p-1 text-zinc-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-md transition-colors cursor-pointer"
+                            title="ลบรูปโปรโมชั่นนี้"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Image Preview Container */}
+                      <div className="relative aspect-[16/9] sm:aspect-[4/3] bg-zinc-100 dark:bg-zinc-900 overflow-hidden cursor-grab active:cursor-grabbing">
+                        <img 
+                          src={promo.url} 
+                          alt={`Promo ${idx + 1}`} 
+                          className="w-full h-full object-cover select-none pointer-events-none" 
+                        />
+                      </div>
+
+                      {/* Bottom Reorder Controls */}
+                      <div className="p-2.5 bg-white dark:bg-zinc-800 border-t border-zinc-100 dark:border-zinc-700/80 flex items-center justify-between gap-1.5">
+                        {/* Move Earlier Button */}
+                        <button
+                          type="button"
+                          onClick={() => handleMovePromotion(idx, 'prev')}
+                          disabled={isFirst || reordering}
+                          className={cn(
+                            "flex-1 flex items-center justify-center gap-1 py-1.5 px-2 rounded-lg text-xs font-bold transition-all border cursor-pointer select-none",
+                            isFirst 
+                              ? "opacity-25 border-transparent text-zinc-400 cursor-not-allowed bg-zinc-50 dark:bg-zinc-800" 
+                              : "bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-700/50 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 border-zinc-200 dark:border-zinc-600 active:scale-95 shadow-2xs"
+                          )}
+                          title="เลื่อนให้อยู่ก่อนหน้า (แสดงก่อน)"
+                        >
+                          <ArrowLeft className="w-3.5 h-3.5 text-zinc-600 dark:text-zinc-400" />
+                          <span>อยู่ก่อน</span>
+                        </button>
+
+                        {/* Set as #1 Quick Button */}
+                        {!isFirst && (
+                          <button
+                            type="button"
+                            onClick={() => handleSetFirstPromotion(idx)}
+                            disabled={reordering}
+                            className="flex items-center justify-center gap-1 py-1.5 px-2.5 rounded-lg text-[11px] font-bold bg-pink-50 hover:bg-pink-100 dark:bg-pink-950/40 dark:hover:bg-pink-900/60 text-pink-700 dark:text-pink-300 border border-pink-200 dark:border-pink-800 transition-all active:scale-95 cursor-pointer shadow-2xs select-none"
+                            title="ตั้งให้รูปนี้เป็นภาพแรกสุดทันที"
+                          >
+                            <Star className="w-3 h-3 text-pink-500 fill-pink-500" />
+                            <span>รูปแรก</span>
+                          </button>
+                        )}
+
+                        {/* Move Later Button */}
+                        <button
+                          type="button"
+                          onClick={() => handleMovePromotion(idx, 'next')}
+                          disabled={isLast || reordering}
+                          className={cn(
+                            "flex-1 flex items-center justify-center gap-1 py-1.5 px-2 rounded-lg text-xs font-bold transition-all border cursor-pointer select-none",
+                            isLast 
+                              ? "opacity-25 border-transparent text-zinc-400 cursor-not-allowed bg-zinc-50 dark:bg-zinc-800" 
+                              : "bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-700/50 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 border-zinc-200 dark:border-zinc-600 active:scale-95 shadow-2xs"
+                          )}
+                          title="เลื่อนให้อยู่ด้านหลัง (แสดงทีหลัง)"
+                        >
+                          <span>อยู่หลัง</span>
+                          <ArrowRight className="w-3.5 h-3.5 text-zinc-600 dark:text-zinc-400" />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             )}
-            <div className="flex flex-col gap-2">
-              <label className="w-full flex justify-center items-center px-4 py-2 bg-pink-50 border border-pink-200 rounded-lg shadow-sm text-sm font-medium text-pink-700 hover:bg-pink-100 transition-colors cursor-pointer">
+
+            <div className="flex flex-col sm:flex-row gap-3">
+              <label className="flex-1 flex justify-center items-center px-4 py-2.5 bg-pink-50 dark:bg-pink-950/40 border border-pink-200 dark:border-pink-800 rounded-xl shadow-2xs text-sm font-semibold text-pink-700 dark:text-pink-300 hover:bg-pink-100 dark:hover:bg-pink-900/40 transition-colors cursor-pointer select-none">
                 {uploading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Plus className="w-4 h-4 mr-2" />}
-                {uploading ? 'กำลังอัปโหลด...' : 'เพิ่มรูปโปรโมชั่นใหม่ (อัปโหลดเอง)'}
+                {uploading ? 'กำลังอัปโหลด...' : 'เพิ่มรูปโปรโมชั่นใหม่ (อัปโหลดรูป)'}
                 <input type="file" accept="image/*" className="hidden" onChange={handleUploadPromotion} disabled={uploading || aiGenerating} />
               </label>
               <button 
                 onClick={handleGenerateAIPromo}
                 disabled={aiGenerating || uploading}
-                className="w-full flex justify-center items-center px-4 py-2 bg-purple-50 border border-purple-200 rounded-lg shadow-sm text-sm font-medium text-purple-700 hover:bg-purple-100 transition-colors cursor-pointer disabled:opacity-50"
+                className="flex-1 flex justify-center items-center px-4 py-2.5 bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800 rounded-xl shadow-2xs text-sm font-semibold text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900/40 transition-colors cursor-pointer disabled:opacity-50 select-none"
               >
                 {aiGenerating ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2 text-purple-500" />}
-                {aiGenerating ? 'AI กำลังวาดภาพ...' : 'สร้างภาพพื้นหลังด้วย AI'}
+                {aiGenerating ? 'AI กำลังวาดภาพ...' : 'สร้างภาพโปรโมชั่นด้วย AI'}
               </button>
             </div>
           </div>

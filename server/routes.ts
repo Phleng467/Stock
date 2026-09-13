@@ -573,6 +573,28 @@ apiRouter.delete('/promotions/:id', (req, res) => {
   }
 });
 
+apiRouter.put('/promotions/reorder', (req, res) => {
+  const { promotions } = req.body;
+  if (!Array.isArray(promotions)) {
+    return res.status(400).json({ error: 'promotions array is required' });
+  }
+  const db = readDB();
+  db.promotions = promotions;
+  writeDB(db);
+  res.json({ success: true, promotions: db.promotions });
+});
+
+apiRouter.post('/promotions/reorder', (req, res) => {
+  const { promotions } = req.body;
+  if (!Array.isArray(promotions)) {
+    return res.status(400).json({ error: 'promotions array is required' });
+  }
+  const db = readDB();
+  db.promotions = promotions;
+  writeDB(db);
+  res.json({ success: true, promotions: db.promotions });
+});
+
 // Chatbot route
 apiRouter.post('/chat', async (req, res) => {
   try {

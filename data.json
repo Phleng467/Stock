@@ -407,12 +407,12 @@
   },
   "promotions": [
     {
-      "id": "aa251222-387b-4313-98df-683f3c1cec92",
-      "url": "/uploads/prod_1789283889558_p0w358.jpg"
-    },
-    {
       "id": "703945f1-628e-4ceb-beb9-60ac0e114bb5",
       "url": "/uploads/prod_1789283911021_ck7fm.jpg"
+    },
+    {
+      "id": "aa251222-387b-4313-98df-683f3c1cec92",
+      "url": "/uploads/prod_1789283889558_p0w358.jpg"
     }
   ],
   "sdcPromotions": [

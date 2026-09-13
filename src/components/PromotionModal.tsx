@@ -19,19 +19,22 @@ export default function PromotionModal({
   const [dontShowToday, setDontShowToday] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Fetch promotions list from server
+  // Fetch promotions list from server and reset to first promo when opened
   useEffect(() => {
-    fetch('/api/promotions')
-      .then(res => res.json())
-      .then(data => {
-        if (data.images && Array.isArray(data.images) && data.images.length > 0) {
-          setImages(data.images);
-        }
-      })
-      .catch(() => {
-        // Use default images
-      });
-  }, []);
+    if (isOpen) {
+      setCurrentIdx(0);
+      fetch('/api/promotions')
+        .then(res => res.json())
+        .then(data => {
+          if (data.images && Array.isArray(data.images) && data.images.length > 0) {
+            setImages(data.images);
+          }
+        })
+        .catch(() => {
+          // Use default images
+        });
+    }
+  }, [isOpen]);
 
   // Continuous auto-slide timer when modal is open and multiple images exist
   useEffect(() => {
