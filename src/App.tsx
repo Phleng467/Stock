@@ -60,7 +60,7 @@ function SplashScreen() {
             JAYMART <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-orange-500">SURIN</span>
           </h1>
           <p className="text-xs text-zinc-500 font-normal">
-            โรบินสันสุรินทร์ ชั้น 2
+            โรบินสันสุรินทร์
           </p>
         </div>
 

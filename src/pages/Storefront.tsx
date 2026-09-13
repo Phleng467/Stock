@@ -441,7 +441,7 @@ export default function Storefront() {
                     สาขาโรบินสันสุรินทร์
                   </span>
                 </span>
-                <span className="text-[10px] text-gray-400 font-medium">ชั้น 2 • สต็อคและผ่อนสินค้า</span>
+                <span className="text-[10px] text-gray-400 font-medium">สต็อคและผ่อนสินค้า</span>
               </div>
             </div>
             </div>
@@ -761,7 +761,7 @@ export default function Storefront() {
             />
           </div>
           <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 text-center sm:text-left">
-            <span className="font-bold text-gray-800">เจมาร์ท (Jaymart) สาขาโรบินสันสุรินทร์ ชั้น 2</span>
+            <span className="font-bold text-gray-800">เจมาร์ท (Jaymart) สาขาโรบินสันสุรินทร์</span>
             <span className="hidden sm:inline text-gray-300">•</span>
             <span className="text-gray-400">ระบบตรวจสอบสต็อคสินค้าและข้อมูลผ่อนชำระ</span>
           </div>

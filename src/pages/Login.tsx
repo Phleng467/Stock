@@ -49,7 +49,7 @@ export default function Login() {
         <h2 className="text-2xl font-black text-zinc-900 tracking-tight">
           ระบบจัดการหลังบ้าน
         </h2>
-        <p className="text-xs text-zinc-500 mt-1">Jaymart สาขาโรบินสันสุรินทร์ ชั้น 2</p>
+        <p className="text-xs text-zinc-500 mt-1">Jaymart สาขาโรบินสันสุรินทร์</p>
       </div>
 
       <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-md px-4">
