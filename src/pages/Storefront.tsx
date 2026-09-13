@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, MouseEvent } from 'react';
-import { Search, Loader2, LogIn, X, Smartphone, Tablet, SlidersHorizontal, RotateCcw, Sparkles, History, Layers, Calculator, ExternalLink, Clock, Menu, ChevronDown, ChevronRight, Package } from 'lucide-react';
+import { Search, Loader2, LogIn, X, Smartphone, Tablet, SlidersHorizontal, RotateCcw, Sparkles, History, Layers, Calculator, Percent, ExternalLink, Clock, Menu, ChevronDown, ChevronRight, Package } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Link, useLocation } from 'react-router-dom';
 import { api } from '../lib/api';
@@ -9,6 +9,7 @@ import { cn } from '../components/ProductCard';
 import PromotionModal from '../components/PromotionModal';
 import CompareModal from '../components/CompareModal';
 import Chatbot from '../components/Chatbot';
+import SdcModal from '../components/SdcModal';
 
 export default function Storefront() {
   const location = useLocation();
@@ -22,6 +23,7 @@ export default function Storefront() {
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [comparedProductIds, setComparedProductIds] = useState<string[]>([]);
   const [showCompareModal, setShowCompareModal] = useState(false);
+  const [showSdcModal, setShowSdcModal] = useState(false);
   const [compareToast, setCompareToast] = useState<string | null>(null);
   const [lastUpdatedAt, setLastUpdatedAt] = useState<Date | null>(null);
   
@@ -300,6 +302,17 @@ export default function Storefront() {
             ตารางคำนวณไฟแนนซ์
             <ExternalLink className="w-3.5 h-3.5 ml-auto text-blue-400" />
           </a>
+          
+          <button
+            onClick={() => {
+              setShowSdcModal(true);
+              setIsSidebarOpen(false);
+            }}
+            className="w-full flex items-center px-3 py-3 mt-1 text-sm font-semibold rounded-xl text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors"
+          >
+            <Percent className="w-5 h-5 mr-3 text-emerald-600" />
+            โปรโมชั่นช่วยดาวน์ SDC
+          </button>
 
           <div className="pt-2 mt-2 border-t border-gray-100">
             <button
@@ -760,6 +773,7 @@ export default function Storefront() {
         isOpen={showPromoModal}
         onClose={() => setShowPromoModal(false)}
       />
+      <SdcModal isOpen={showSdcModal} onClose={() => setShowSdcModal(false)} />
 
       {/* Compare Modal */}
       <CompareModal

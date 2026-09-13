@@ -1,4 +1,5 @@
 import { useState, useEffect, ChangeEvent, useRef } from 'react';
+import CsvUploader from '../../components/CsvUploader';
 import { Database, HardDrive, Download, Upload, Image as ImageIcon, Trash2, Plus, Loader2, FileSpreadsheet, Sparkles, UploadCloud, DownloadCloud, ExternalLink } from 'lucide-react';
 import { api } from '../../lib/api';
 
@@ -7,6 +8,7 @@ export default function Settings() {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [csvLoading, setCsvLoading] = useState(false);
+  const [csvFileStatus, setCsvFileStatus] = useState<{name: string; valid: boolean; message: string} | null>(null);
   const [aiGenerating, setAiGenerating] = useState(false);
   const csvInputRef = useRef<HTMLInputElement>(null);
 
@@ -305,25 +307,16 @@ export default function Settings() {
             </div>
           </div>
           <div className="space-y-3 mt-6">
+            <CsvUploader onFileSelect={handleImportCSV} status={csvFileStatus} />
+            
             <button 
               onClick={handleExportCSV}
               disabled={csvLoading}
-              className="w-full flex justify-center items-center px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer disabled:opacity-50"
+              className="w-full mt-3 flex justify-center items-center px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer disabled:opacity-50"
             >
               {csvLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin text-gray-400" /> : <Download className="w-4 h-4 mr-2 text-gray-400" />}
-              ดาวน์โหลดไฟล์ชีท CSV
+              ดาวน์โหลดไฟล์ชีท CSV ปัจจุบัน
             </button>
-            <label className="w-full flex justify-center items-center px-4 py-2 bg-emerald-50 border border-emerald-200 rounded-lg shadow-sm text-sm font-medium text-emerald-700 hover:bg-emerald-100 transition-colors cursor-pointer">
-              <Upload className="w-4 h-4 mr-2 text-emerald-500" />
-              อัปโหลดไฟล์ชีท CSV
-              <input 
-                type="file" 
-                accept=".csv" 
-                className="hidden" 
-                ref={csvInputRef}
-                onChange={handleImportCSV}
-              />
-            </label>
             
             <div className="pt-4 mt-2 border-t border-gray-100">
               {googleUser ? (
@@ -342,7 +335,7 @@ export default function Settings() {
                     <button 
                       onClick={handlePushToGoogleSheets}
                       disabled={syncingGoogleSheets}
-                      className="w-full flex justify-center items-center px-4 py-2 bg-[#4285F4] hover:bg-[#3367d6] text-white rounded-lg shadow-sm text-sm font-medium transition-colors cursor-pointer disabled:opacity-50"
+                      className="w-full flex justify-center items-center px-4 py-3 bg-[#4285F4] hover:bg-[#3367d6] text-white rounded-xl shadow-md text-sm font-bold transition-transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer disabled:opacity-50"
                     >
                       {syncingGoogleSheets ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <UploadCloud className="w-4 h-4 mr-2" />}
                       ส่งข้อมูลขึ้นชีท

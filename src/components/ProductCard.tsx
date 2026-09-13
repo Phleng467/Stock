@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { Product } from '../types';
 import { Cpu, Smartphone, Camera, Battery, Check } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
@@ -37,6 +37,28 @@ export default function ProductCard({
   onToggleCompare,
   compareDisabled = false
 }: ProductCardProps) {
+  
+  const imgRef = useRef<HTMLImageElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '100px' } // Load slightly before coming into view
+    );
+    
+    if (imgRef.current) {
+      observer.observe(imgRef.current);
+    }
+    
+    return () => observer.disconnect();
+  }, []);
+
   const defaultVariant = product.variants[0];
   const defaultColor = defaultVariant?.colors[0];
 
@@ -138,7 +160,8 @@ export default function ProductCard({
             {currentImageUrl !== null ? (
               <motion.img
                 key={`${selectedColor.id}-${currentImageUrl}`}
-                src={currentImageUrl}
+                ref={imgRef}
+                src={isVisible ? currentImageUrl : undefined}
                 alt={`${product.model} - ${selectedColor.colorName}`}
                 initial={{ opacity: 0, scale: 0.94 }}
                 animate={{ opacity: 1, scale: 1 }}

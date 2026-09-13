@@ -8,6 +8,7 @@ import ProductList from './pages/admin/ProductList';
 import ProductForm from './pages/admin/ProductForm';
 import BrandManager from './pages/admin/BrandManager';
 import Settings from './pages/admin/Settings';
+import AdminSdc from './pages/admin/AdminSdc';
 import Login from './pages/Login';
 
 function SplashScreen() {
@@ -113,6 +114,7 @@ export default function App() {
             <Route path="products/edit/:id" element={<ProductForm />} />
             <Route path="brands" element={<BrandManager />} />
             <Route path="settings" element={<Settings />} />
+            <Route path="sdc" element={<AdminSdc />} />
           </Route>
         </Routes>
       </BrowserRouter>

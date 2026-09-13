@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate, Navigate } from 'react-router-dom';
-import { LayoutDashboard, Smartphone, Tags, Settings, LogOut, Home, Calculator, ExternalLink, Menu, X } from 'lucide-react';
+import {  LayoutDashboard, Smartphone, Tags, Settings, LogOut, Home, Calculator, ExternalLink, Menu, X , Percent } from 'lucide-react';
 import { cn } from '../../components/ProductCard';
 
 const navItems = [
@@ -8,6 +8,7 @@ const navItems = [
   { icon: Smartphone, label: 'จัดการสินค้า', path: '/admin/products' },
   { icon: Tags, label: 'จัดการแบรนด์', path: '/admin/brands' },
   { icon: Settings, label: 'ตั้งค่าระบบ', path: '/admin/settings' },
+  { icon: Percent, label: 'โปรโมชั่น SDC', path: '/admin/sdc' },
 ];
 
 export default function AdminLayout() {

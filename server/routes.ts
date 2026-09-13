@@ -570,3 +570,15 @@ ${productInfo}
     res.status(500).json({ error: 'Failed to communicate with AI', details: err.message });
   }
 });
+
+apiRouter.get('/sdc-promotions', (req, res) => {
+  const db = readDB();
+  res.json(db.sdcPromotions || []);
+});
+
+apiRouter.post('/sdc-promotions', (req, res) => {
+  const db = readDB();
+  db.sdcPromotions = req.body;
+  writeDB(db);
+  res.json({ success: true });
+});

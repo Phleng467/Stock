@@ -128,5 +128,19 @@ export const api = {
     });
     if (!res.ok) throw new Error('Upload base64 failed');
     return res.json();
+  },
+
+  getSdcPromotions: async () => {
+    const res = await fetch(`${API_BASE}/sdc-promotions`);
+    return res.json();
+  },
+  saveSdcPromotions: async (promotions: any[]) => {
+    const res = await fetch(`${API_BASE}/sdc-promotions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(promotions)
+    });
+    return res.json();
   }
+
 };

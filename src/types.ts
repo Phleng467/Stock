@@ -48,3 +48,14 @@ export interface DBState {
   settings: Settings;
 }
 
+
+export interface SdcPromotion {
+  id: string;
+  brand: string;
+  model: string;
+  normalPrice: number;
+  sdcAmount: number;
+  takeDeviceAmount: number;
+  duration: string;
+  note: string;
+}
