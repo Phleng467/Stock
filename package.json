@@ -20,6 +20,7 @@
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "firebase": "^12.19.0",
     "googleapis": "^180.0.0",
     "lucide-react": "^1.45.0",
     "motion": "^12.23.24",

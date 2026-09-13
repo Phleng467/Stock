@@ -133,6 +133,73 @@ export default function Settings() {
     }
   };
 
+  const [googleToken, setGoogleToken] = useState<string | null>(null);
+  const [googleUser, setGoogleUser] = useState<any>(null);
+  const [isLoggingInGoogle, setIsLoggingInGoogle] = useState(false);
+  const [syncingGoogleSheets, setSyncingGoogleSheets] = useState(false);
+
+  useEffect(() => {
+    import('../../lib/firebaseAuth').then(({ initAuth }) => {
+      initAuth((user, token) => {
+        setGoogleUser(user);
+        setGoogleToken(token);
+      }, () => {
+        setGoogleUser(null);
+        setGoogleToken(null);
+      });
+    });
+  }, []);
+
+  const handleGoogleSignIn = async () => {
+    setIsLoggingInGoogle(true);
+    try {
+      const { googleSignIn } = await import('../../lib/firebaseAuth');
+      const result = await googleSignIn();
+      if (result) {
+        setGoogleToken(result.accessToken);
+        setGoogleUser(result.user);
+      }
+    } catch (err: any) {
+      console.error('Login failed:', err);
+      alert('เชื่อมต่อ Google ล้มเหลว');
+    } finally {
+      setIsLoggingInGoogle(false);
+    }
+  };
+
+  const handleGoogleSignOut = async () => {
+    try {
+      const { logout } = await import('../../lib/firebaseAuth');
+      await logout();
+      setGoogleUser(null);
+      setGoogleToken(null);
+    } catch (err: any) {
+      console.error('Logout failed:', err);
+    }
+  };
+
+  const handleSyncToGoogleSheets = async () => {
+    if (!googleToken) {
+      alert('กรุณาลงชื่อเข้าใช้ Google ก่อนซิงค์ข้อมูล');
+      return;
+    }
+    
+    setSyncingGoogleSheets(true);
+    try {
+      const result = await api.syncSheets(googleToken);
+      if (result.success) {
+        alert('ซิงค์ข้อมูลไปยัง Google Sheets เรียบร้อยแล้ว');
+      } else {
+        alert('เกิดข้อผิดพลาดในการซิงค์ข้อมูล');
+      }
+    } catch (err: any) {
+      console.error('Sync error:', err);
+      alert('ซิงค์ข้อมูลล้มเหลว: ' + err.message);
+    } finally {
+      setSyncingGoogleSheets(false);
+    }
+  };
+
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold text-gray-900">ตั้งค่าระบบ & จัดการข้อมูล</h1>
@@ -199,8 +266,8 @@ export default function Settings() {
               <FileSpreadsheet className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-gray-900">จัดการข้อมูลผ่านไฟล์ Excel (CSV)</h2>
-              <p className="text-sm text-gray-500">นำเข้า หรือ ส่งออกไฟล์ชีท (CSV) ของสินค้า</p>
+              <h2 className="text-lg font-bold text-gray-900">จัดการข้อมูลผ่านไฟล์ Excel (CSV) / Google Sheets</h2>
+              <p className="text-sm text-gray-500">นำเข้า ส่งออก หรือ ซิงค์ข้อมูลกับ Google Sheets</p>
             </div>
           </div>
           <div className="space-y-3 mt-6">
@@ -223,6 +290,40 @@ export default function Settings() {
                 onChange={handleImportCSV}
               />
             </label>
+            
+            <div className="pt-4 mt-2 border-t border-gray-100">
+              {googleUser ? (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-200">
+                     <div className="flex items-center gap-3">
+                        <img src={googleUser.photoURL || 'https://via.placeholder.com/32'} alt="Profile" className="w-8 h-8 rounded-full" />
+                        <div>
+                          <p className="text-xs font-semibold text-gray-900">เชื่อมต่อแล้ว</p>
+                          <p className="text-[10px] text-gray-500">{googleUser.email}</p>
+                        </div>
+                     </div>
+                     <button onClick={handleGoogleSignOut} className="text-xs text-red-600 hover:text-red-700 font-medium">ยกเลิก</button>
+                  </div>
+                  <button 
+                    onClick={handleSyncToGoogleSheets}
+                    disabled={syncingGoogleSheets}
+                    className="w-full flex justify-center items-center px-4 py-2 bg-[#4285F4] hover:bg-[#3367d6] text-white rounded-lg shadow-sm text-sm font-medium transition-colors cursor-pointer disabled:opacity-50"
+                  >
+                    {syncingGoogleSheets ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <FileSpreadsheet className="w-4 h-4 mr-2" />}
+                    {syncingGoogleSheets ? 'กำลังซิงค์...' : 'ซิงค์ข้อมูลไปยัง Google Sheets'}
+                  </button>
+                </div>
+              ) : (
+                <button 
+                  onClick={handleGoogleSignIn}
+                  disabled={isLoggingInGoogle}
+                  className="w-full flex justify-center items-center px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
+                >
+                  <img src="https://www.google.com/favicon.ico" alt="Google" className="w-4 h-4 mr-2" />
+                  {isLoggingInGoogle ? 'กำลังเชื่อมต่อ...' : 'เชื่อมต่อบัญชี Google (เพื่อใช้ Google Sheets)'}
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
